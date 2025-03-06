@@ -6,6 +6,7 @@ const config = require("../config/auth.config");
 // Models
 const Utilisateur = require("../model/utilisateur");
 const RoleUtilisateur = require("../model/roleUtilisateur");
+const { verifyToken } = require("../middlewares/jwt");
 
 route.post('/login', async (req, res) => {
     const email = req.body.email;
@@ -15,7 +16,7 @@ route.post('/login', async (req, res) => {
         return res.status(400).send({ message: "Champs vides !" });
     }
 
-    const utilisateur = await Utilisateur.findOne({ email: email });
+    const utilisateur = await Utilisateur.findOne({ email: email }).populate("roles");
 
     if (!utilisateur) {
         return res.status(404).send({ message: "Utilisateur non trouvé !" });
@@ -31,8 +32,23 @@ route.post('/login', async (req, res) => {
         expiresIn: 86400
     });
 
-    res.status(200).send({ message: "Connexion réussie !", token: token });
+    res.status(200).send({ 
+        message: "Connexion réussie !", 
+        token: token,
+        roles: utilisateur.roles.map((role) => {
+            return role.role
+        })
+    });
 });
+
+route.get('/login/user', [verifyToken], async (req, res) => {
+    const utilisateur = await Utilisateur.findOne({ _id: req.utilisateurId }).select("-mot_de_passe").populate("roles")
+
+    return res.status(200).send({
+        message: "Informations utilisateur",
+        user: utilisateur
+    })
+})
 
 route.post('/register', async (req, res) => {
     const roleUtilisateur = await RoleUtilisateur.findOne({ role: "ROLE_USER" });

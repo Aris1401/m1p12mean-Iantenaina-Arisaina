@@ -80,7 +80,13 @@ export class Login {
     onLogin() {
         this.authService.login(this.email, this.password).subscribe({
             next: (response) => {
-                this.authStorage.saveToken(response.token);
+                this.authStorage.saveToken(response.token, response.roles);
+
+                this.authStorage.getUser().then((user) => {
+                    console.log(JSON.stringify(user))
+                }).catch((err) => {
+                    alert(err)
+                })
             },
             error: (error) => {
                 console.log(error);

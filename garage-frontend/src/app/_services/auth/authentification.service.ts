@@ -16,10 +16,14 @@ export class AuthentificationService {
     private http : HttpClient
   ) {}
 
-  public login (email : string, password : string) : Observable<any> {
+  login (email : string, password : string) : Observable<any> {
     const credentials : LoginCredentials = { email, mot_de_passe: password };
 
     return this.http.post(environment.apiUrl + 'login', credentials);
+  }
+
+  getUser() : Observable<any> {
+    return this.http.get(environment.apiUrl + "login/user");
   }
 
   test () {
