@@ -7,7 +7,7 @@ const config = require("../config/auth.config");
 const Utilisateur = require("../model/utilisateur");
 const RoleUtilisateur = require("../model/roleUtilisateur");
 
-route.get('/login', async (req, res) => {
+route.post('/login', async (req, res) => {
     const email = req.body.email;
     const motDePasse = req.body.mot_de_passe;
 

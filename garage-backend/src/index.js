@@ -4,11 +4,15 @@ const cors = require("cors");
 const { verifyToken, isUtilisateur } = require("./middlewares/jwt");
 require("dotenv").config();
 
+
 const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  credentials: true,
+  origin: process.env.APP_URL
+}));
 app.use(express.json());
 
 // Connexion à MongoDB
@@ -20,10 +24,12 @@ mongoose
   .then(() => console.log("MongoDB connecté"))
   .catch((err) => console.log(err));
 
-// Routes
+// ------------------- Routes
 const baseUrl = "/api/v1";
 
+// Authentification
 app.use(baseUrl, require("./controllers/auth.controller"));
+
 app.get(baseUrl + "/test", [verifyToken, isUtilisateur], (req, res) => {
   res.status(200).send({ message: "Test réussi !" });
 });
