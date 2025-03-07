@@ -35,8 +35,6 @@ export class Landing implements OnInit{
     ) {}
 
     ngOnInit () {
-        this.authService.test().subscribe((response) => {
-            console.log(response);
-        });
+        
     }
 }

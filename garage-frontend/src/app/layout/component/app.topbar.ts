@@ -1,15 +1,18 @@
 import { Component } from '@angular/core';
-import { MenuItem } from 'primeng/api';
-import { RouterModule } from '@angular/router';
+import { MenuItem, PrimeIcons } from 'primeng/api';
+import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { StyleClassModule } from 'primeng/styleclass';
 import { AppConfigurator } from './app.configurator';
 import { LayoutService } from '../service/layout.service';
+import { MenuModule } from 'primeng/menu';
+import { AvatarModule } from 'primeng/avatar';
+import { AuthStorageService } from '../../_services/storage/auth-storage.service';
 
 @Component({
     selector: 'app-topbar',
     standalone: true,
-    imports: [RouterModule, CommonModule, StyleClassModule, AppConfigurator],
+    imports: [RouterModule, CommonModule, StyleClassModule, AppConfigurator, MenuModule, AvatarModule],
     template: ` <div class="layout-topbar">
         <div class="layout-topbar-logo-container">
             <button class="layout-menu-button layout-topbar-action" (click)="layoutService.onMenuToggle()">
@@ -33,7 +36,7 @@ import { LayoutService } from '../service/layout.service';
                         />
                     </g>
                 </svg>
-                <span>SAKAI</span>
+                <span>Garage</span>
             </a>
         </div>
 
@@ -72,19 +75,65 @@ import { LayoutService } from '../service/layout.service';
                         <i class="pi pi-inbox"></i>
                         <span>Messages</span>
                     </button>
-                    <button type="button" class="layout-topbar-action">
+                    <button type="button" class="layout-topbar-action" (click)="profile_menu.toggle($event)">
                         <i class="pi pi-user"></i>
                         <span>Profile</span>
                     </button>
+
+                    <p-menu #profile_menu [popup]="true" [model]="items" styleClass="w-full md:w-60">
+                        <ng-template #start>
+                            <span class="inline-flex items-center gap-1 px-2 py-2">
+                                <svg width="33" height="35" viewBox="0 0 33 35" fill="none" xmlns="http://www.w3.org/2000/svg" class="block mx-auto">
+                                    <path d="..." fill="var(--primary-color)" />
+                                </svg>
+                                <span class="text-xl font-semibold align-middle">Garage</span>
+                            </span>
+                        </ng-template>
+                        <ng-template #submenuheader let-item>
+                            <span class="text-primary font-bold">{{ item.label }}</span>
+                        </ng-template>
+                        <ng-template #item let-item>
+                            <a pRipple class="flex items-center p-menu-item-link">
+                                <span [class]="item.icon"></span>
+                                <span class="ml-2">{{ item.label }}</span>
+                            </a>
+                        </ng-template>
+                        <ng-template #end>
+                            <button pRipple class="relative overflow-hidden w-full border-0 bg-transparent flex items-start p-2 pl-4 hover:bg-surface-100 dark:hover:bg-surface-800 rounded-none cursor-pointer transition-colors duration-200">
+                                <p-avatar image="https://primefaces.org/cdn/primeng/images/demo/avatar/amyelsner.png" class="mr-2" shape="circle" />
+                                <span class="inline-flex flex-col">
+                                    <span class="font-bold">Amy Elsner</span>
+                                    <span class="text-sm">Admin</span>
+                                </span>
+                            </button>
+                        </ng-template>
+                    </p-menu>
                 </div>
             </div>
         </div>
     </div>`
 })
 export class AppTopbar {
-    items!: MenuItem[];
+    items: MenuItem[] = [
+        {
+            icon: PrimeIcons.USER,
+            label: "Profil"
+        },
+        {
+            icon: PrimeIcons.SIGN_OUT,
+            label: "Se deconnecter",
+            command: (event) => {
+                this.authStorage.clear()
+                this.router.navigate([''])
+            }
+        }
+    ];
 
-    constructor(public layoutService: LayoutService) {}
+    constructor(
+        public layoutService: LayoutService,
+        private authStorage : AuthStorageService,
+        private router : Router
+    ) {}
 
     toggleDarkMode() {
         this.layoutService.layoutConfig.update((state) => ({ ...state, darkTheme: !state.darkTheme }));

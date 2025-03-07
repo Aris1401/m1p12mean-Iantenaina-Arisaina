@@ -9,7 +9,7 @@ const verifyToken = async (req, res, next) => {
     let token = req.headers['authorization']
 
     if (!token) {
-        return res.status(403).send({ message: "Aucun token fourni !" });
+        return res.status(401).send({ message: "Aucun token fourni !" });
     }
 
     token = token.split(" ")[1];
