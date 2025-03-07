@@ -1,11 +1,15 @@
 import { Component } from '@angular/core';
+import { DividerModule } from 'primeng/divider';
 
 @Component({
     standalone: true,
     selector: 'app-footer',
-    template: `<div class="layout-footer">
-        SAKAI by
-        <a href="https://primeng.org" target="_blank" rel="noopener noreferrer" class="text-primary font-bold hover:underline">PrimeNG</a>
+    imports: [ DividerModule ],
+    template: `
+    <div class="layout-footer flex align-middle">
+        <p class="m-0">RAKOTONDRAMANANA Tanjona Inatenaina</p>
+        <p-divider layout="vertical" />
+        <p>SOLOFOARISON Tolotry Ny Avo Arisaina</p>    
     </div>`
 })
 export class AppFooter {}

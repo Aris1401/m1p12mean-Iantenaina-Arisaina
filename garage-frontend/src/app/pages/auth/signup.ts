@@ -1,22 +1,17 @@
-import { Component } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { Router, RouterModule } from '@angular/router';
-import { ButtonModule } from 'primeng/button';
-import { CheckboxModule } from 'primeng/checkbox';
-import { InputTextModule } from 'primeng/inputtext';
-import { PasswordModule } from 'primeng/password';
-import { RippleModule } from 'primeng/ripple';
-import { AppFloatingConfigurator } from '../../layout/component/app.floatingconfigurator';
-
-// Services
-import { AuthentificationService } from '../../_services/auth/authentification.service';
-import { AuthStorageService } from '../../_services/storage/auth-storage.service';
-import { MessageModule } from 'primeng/message';
+import { Component } from "@angular/core";
+import { FormsModule } from "@angular/forms";
+import { ButtonModule } from "primeng/button";
+import { PasswordModule } from "primeng/password";
+import { AppFloatingConfigurator } from "../../layout/component/app.floatingconfigurator";
+import { InputTextModule } from "primeng/inputtext";
+import { AuthentificationService } from "../../_services/auth/authentification.service";
+import { Router, RouterModule } from "@angular/router";
+import { MessageModule } from "primeng/message";
 
 @Component({
-    selector: 'app-login',
+    selector: "app-signup",
     standalone: true,
-    imports: [ButtonModule, CheckboxModule, InputTextModule, PasswordModule, FormsModule, RouterModule, RippleModule, AppFloatingConfigurator, MessageModule ],
+    imports: [PasswordModule, FormsModule, ButtonModule, AppFloatingConfigurator, InputTextModule, RouterModule, MessageModule ],
     template: `
         <app-floating-configurator />
         <div class="bg-surface-50 dark:bg-surface-950 flex items-center justify-center min-h-screen min-w-[100vw] overflow-hidden">
@@ -41,21 +36,33 @@ import { MessageModule } from 'primeng/message';
                                     />
                                 </g>
                             </svg> -->
-                            <div class="text-surface-900 dark:text-surface-0 text-3xl font-medium mb-4">Se connecter</div>
-                            <!-- <span class="text-muted-color font-medium">Se connecter</span> -->
+                            <div class="text-surface-900 dark:text-surface-0 text-3xl font-medium mb-4">S'inscrire</div>
+                            <!-- <span class="text-muted-color font-medium">S'inscrire</span> -->
                         </div>
 
                         <div>
-                            <form (submit)="onLogin()" #loginForm="ngForm">
-                                <label for="email1" class="block text-surface-900 dark:text-surface-0 text-xl font-medium mb-2">Email</label>
-                                <input pInputText id="email1" name="email" type="text" placeholder="Email address" class="w-full md:w-[30rem] mb-8" [(ngModel)]="email" value="user1@gmail.com" />
+                            <form #signUpForm="ngForm" (submit)="onSignup()" class="w-full">
+                                <div class="flex gap-2 w-full">
+                                    <div class="w-full">
+                                        <label for="nom" class="block mb-2 w-full text-xl font-medium">Nom</label>
+                                        <input type="text" id="nom" name="nom" pInputText class="w-full" placeholder="Nom" [(ngModel)]="userData.nom" />
+                                    </div>
 
-                                <label for="password1" class="block text-surface-900 dark:text-surface-0 font-medium text-xl mb-2">Password</label>
-                                <p-password id="password1" name="password" [(ngModel)]="password" placeholder="Password" [toggleMask]="true" styleClass="mb-4" [fluid]="true" [feedback]="false" value="password"></p-password>
+                                    <div class="w-full">
+                                        <label for="prenom" class="block mb-2 w-full text-xl font-medium">Prenom</label>
+                                        <input type="text" id="prenom" name="prenom" pInputText class="w-full" placeholder="Prenom" [(ngModel)]="userData.prenom" />
+                                    </div>
+                                </div>
 
-                                @if (isInvalid) {
-                                    <p-message severity="error" icon="pi pi-times-circle" styleClass="mb-2" closable (onClose)="onMessageClosed()">Mot de passe ou email incorrect.</p-message>
-                                }
+                                <div class="w-full mt-4">
+                                    <label for="email1" class="block text-surface-900 dark:text-surface-0 text-xl font-medium mb-2">Email</label>
+                                    <input pInputText id="email1" name="email" type="text" placeholder="Email address" class="w-full md:w-[30rem]" [(ngModel)]="userData.email" value="user1@gmail.com" />
+                                </div>
+
+                                <div class="w-full mt-4">
+                                    <label for="password1" class="block text-surface-900 dark:text-surface-0 font-medium text-xl mb-2">Password</label>
+                                    <p-password id="password1" name="password" [(ngModel)]="userData.mot_de_passe" placeholder="Password" [toggleMask]="true" styleClass="mb-4" [fluid]="true" [feedback]="false" value="password"></p-password>
+                                </div>
 
                                 <!-- <div class="flex items-center justify-between mt-2 mb-8 gap-8">
                                     <div class="flex items-center">
@@ -64,8 +71,17 @@ import { MessageModule } from 'primeng/message';
                                     </div>
                                     <span class="font-medium no-underline ml-2 text-right cursor-pointer text-primary">Forgot password?</span>
                                 </div> -->
-                                <p-button label="Sign In" styleClass="w-full" type="submit"></p-button>
-                                <p class="text-center mt-2">Vous n'avez pas de compte? <a routerLink="/signup" class="underline">Creer un compte</a></p>
+                                @if (signupInvalid) {
+                                    <p-message severity="error" icon="pi pi-times-circle" styleClass="mb-2" closable (onClose)="onErrorMessageClosed()">Une erreur s'est produite lors de la creation de<br />votre compte. Veuillez ressayer.</p-message>
+                                }
+
+                                @if (signupSuccessfull) {
+                                    <p-message severity="success" icon="pi pi-check-circle" styleClass="mb-2" closable (onClose)="onSuccessMessageClosed()">Compte creer avec succes.</p-message>
+                                }
+
+                                <p-button label="S\'inscrire" styleClass="w-full" type="submit"></p-button>
+
+                                <p class="text-center mt-2">Vous avez deja un compte? <a routerLink="/login" class="underline">Se connecter</a></p>
                             </form>
                         </div>
                     </div>
@@ -74,34 +90,38 @@ import { MessageModule } from 'primeng/message';
         </div>
     `
 })
-export class Login {
-    email: string = 'user1@gmail.com';
-    password: string = 'password';
+export class SignUp {
+    userData : any = {
+        nom: "",
+        prenom:  "",
+        email: "",
+        mot_de_passe: ""
+    }
 
-    isInvalid = false
+    signupInvalid : boolean = false
+    signupSuccessfull : boolean = false
 
-    constructor(
-        private authService: AuthentificationService,
-        private authStorage: AuthStorageService,
+    constructor (
+        private authService : AuthentificationService,
         private router : Router
     ) {}
 
-    onLogin() {
-        this.authService.login(this.email, this.password).subscribe({
-            next: (response) => {
-                this.authStorage.saveToken(response.token, response.roles);
-
-                // Redirection vers le dashboard
-                this.router.navigate(['/dashboard']);
-            },
-            error: (error) => {
-                console.log(error);
-                this.isInvalid = true
-            }
-        });
+    onSignup() {
+       this.authService.register(this.userData).subscribe({
+        next: (response) => {
+            this.signupSuccessfull = true
+        },
+        error: (err) => {
+            this.signupInvalid = true
+        }
+       }) 
     }
 
-    onMessageClosed() {
-        this.isInvalid = false;
+    onErrorMessageClosed() {
+        this.signupInvalid = false;
+    }
+
+    onSuccessMessageClosed() {
+        this.signupSuccessfull = false;
     }
 }

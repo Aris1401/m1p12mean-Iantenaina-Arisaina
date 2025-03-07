@@ -8,6 +8,7 @@ const Utilisateur = require("../model/utilisateur");
 const RoleUtilisateur = require("../model/roleUtilisateur");
 const { verifyToken } = require("../middlewares/jwt");
 
+// Login utilisateur
 route.post('/login', async (req, res) => {
     const email = req.body.email;
     const motDePasse = req.body.mot_de_passe;
@@ -41,6 +42,7 @@ route.post('/login', async (req, res) => {
     });
 });
 
+// Informations sur l'utilisateur
 route.get('/login/user', [verifyToken], async (req, res) => {
     const utilisateur = await Utilisateur.findOne({ _id: req.utilisateurId }).select("-mot_de_passe").populate("roles")
 
@@ -50,14 +52,21 @@ route.get('/login/user', [verifyToken], async (req, res) => {
     })
 })
 
+// Inscription utilisateur
 route.post('/register', async (req, res) => {
     const roleUtilisateur = await RoleUtilisateur.findOne({ role: "ROLE_USER" });
 
+    const { nom, prenom, email, mot_de_passe } = req.body;
+
+    if (!nom || !prenom || !email || !mot_de_passe) {
+        return res.status(400).send({ message: "Champs vides !" });
+    }
+
     const utilisateur = new Utilisateur({
-        nom: req.body.nom,
-        prenom: req.body.prenom,
-        email: req.body.email,
-        mot_de_passe: req.body.mot_de_passe,
+        nom: nom,
+        prenom: prenom,
+        email: email,
+        mot_de_passe: mot_de_passe,
         roles: [
             roleUtilisateur._id
         ]
