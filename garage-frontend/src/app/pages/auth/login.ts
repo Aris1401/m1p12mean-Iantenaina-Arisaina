@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { CheckboxModule } from 'primeng/checkbox';
 import { InputTextModule } from 'primeng/inputtext';
@@ -52,6 +52,12 @@ import { AuthStorageService } from '../../_services/storage/auth-storage.service
                                 <label for="password1" class="block text-surface-900 dark:text-surface-0 font-medium text-xl mb-2">Password</label>
                                 <p-password id="password1" name="password" [(ngModel)]="password" placeholder="Password" [toggleMask]="true" styleClass="mb-4" [fluid]="true" [feedback]="false" value="password"></p-password>
 
+                                @if (isInvalid) {
+                                    <p class="text-red-500">
+                                        Mot de passe ou email incorrect.
+                                    </p>
+                                }
+
                                 <!-- <div class="flex items-center justify-between mt-2 mb-8 gap-8">
                                     <div class="flex items-center">
                                         <p-checkbox [(ngModel)]="checked" id="rememberme1" binary class="mr-2"></p-checkbox>
@@ -72,9 +78,12 @@ export class Login {
     email: string = 'user1@gmail.com';
     password: string = 'password';
 
+    isInvalid = false
+
     constructor(
         private authService: AuthentificationService,
-        private authStorage: AuthStorageService
+        private authStorage: AuthStorageService,
+        private router : Router
     ) {}
 
     onLogin() {
@@ -82,14 +91,12 @@ export class Login {
             next: (response) => {
                 this.authStorage.saveToken(response.token, response.roles);
 
-                this.authStorage.getUser().then((user) => {
-                    console.log(JSON.stringify(user))
-                }).catch((err) => {
-                    alert(err)
-                })
+                // Redirection vers le dashboard
+                this.router.navigate(['/dashboard']);
             },
             error: (error) => {
                 console.log(error);
+                this.isInvalid = true
             }
         });
     }
