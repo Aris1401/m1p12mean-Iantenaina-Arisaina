@@ -6,11 +6,13 @@ const Utilisateur = require('../model/utilisateur');
 const RoleUtilisateur = require('../model/roleUtilisateur');
 
 const verifyToken = async (req, res, next) => {
-    let token = req.headers['authorization'].split(" ")[1];
+    let token = req.headers['authorization']
 
     if (!token) {
-        return res.status(403).send({ message: "Aucun token fourni !" });
+        return res.status(401).send({ message: "Aucun token fourni !" });
     }
+
+    token = token.split(" ")[1];
 
     try {
         const decoded = await jsonwebtoken.verify(token, config.secret);
