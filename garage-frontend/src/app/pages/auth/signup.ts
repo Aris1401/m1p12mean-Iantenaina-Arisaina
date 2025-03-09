@@ -1,17 +1,17 @@
-import { Component } from "@angular/core";
-import { FormsModule } from "@angular/forms";
-import { ButtonModule } from "primeng/button";
-import { PasswordModule } from "primeng/password";
-import { AppFloatingConfigurator } from "../../layout/component/app.floatingconfigurator";
-import { InputTextModule } from "primeng/inputtext";
-import { AuthentificationService } from "../../_services/auth/authentification.service";
-import { Router, RouterModule } from "@angular/router";
-import { MessageModule } from "primeng/message";
+import { Component } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { ButtonModule } from 'primeng/button';
+import { PasswordModule } from 'primeng/password';
+import { AppFloatingConfigurator } from '../../layout/component/app.floatingconfigurator';
+import { InputTextModule } from 'primeng/inputtext';
+import { AuthentificationService } from '../../_services/auth/authentification.service';
+import { Router, RouterModule } from '@angular/router';
+import { MessageModule } from 'primeng/message';
 
 @Component({
-    selector: "app-signup",
+    selector: 'app-signup',
     standalone: true,
-    imports: [PasswordModule, FormsModule, ButtonModule, AppFloatingConfigurator, InputTextModule, RouterModule, MessageModule ],
+    imports: [PasswordModule, FormsModule, ButtonModule, AppFloatingConfigurator, InputTextModule, RouterModule, MessageModule],
     template: `
         <app-floating-configurator />
         <div class="bg-surface-50 dark:bg-surface-950 flex items-center justify-center min-h-screen min-w-[100vw] overflow-hidden">
@@ -45,23 +45,61 @@ import { MessageModule } from "primeng/message";
                                 <div class="flex gap-2 w-full">
                                     <div class="w-full">
                                         <label for="nom" class="block mb-2 w-full text-xl font-medium">Nom</label>
-                                        <input type="text" id="nom" name="nom" pInputText class="w-full" placeholder="Nom" [(ngModel)]="userData.nom" />
+                                        <input type="text" id="nom" name="nom" pInputText class="w-full" placeholder="Nom" [(ngModel)]="userData.nom" [class.ng-dirty]="signupInvalid && signupErrors.nom" [class.ng-invalid]="signupInvalid && signupErrors.nom" />
+                                        @if (signupInvalid && signupErrors.nom) {
+                                            <small id="nom-error" class="text-red-500">{{ signupErrors.nom.message }}</small>
+                                        }
                                     </div>
 
                                     <div class="w-full">
                                         <label for="prenom" class="block mb-2 w-full text-xl font-medium">Prenom</label>
-                                        <input type="text" id="prenom" name="prenom" pInputText class="w-full" placeholder="Prenom" [(ngModel)]="userData.prenom" />
+                                        <input type="text" id="prenom" name="prenom" pInputText class="w-full" placeholder="Prenom" [(ngModel)]="userData.prenom" [class.ng-dirty]="signupInvalid && signupErrors.prenom" [class.ng-invalid]="signupInvalid && signupErrors.prenom" />
+                                        @if (signupInvalid && signupErrors.prenom) {
+                                            <small id="nom-error" class="text-red-500">{{ signupErrors.prenom.message }}</small>
+                                        }
+                                    </div>
+                                </div>
+
+                                <div class="flex gap-2">
+                                    <div class="w-full mt-4 flex flex-col">
+                                        <label for="telephone" class="block text-surface-900 dark:text-surface-0 text-xl font-medium mb-2">Telephone</label>
+                                        <input pInputText type="text" id="telephone" name="telephone" placeholder="03x xx xxx xx" class="w-full md:w-[20rem]" [(ngModel)]="userData.telephone" [class.ng-dirty]="signupInvalid && signupErrors.telephone" [class.ng-invalid]="signupInvalid && signupErrors.telephone" />
+                                        @if (signupInvalid && signupErrors.telephone) {
+                                            <small id="nom-error" class="text-red-500">{{ signupErrors.telephone.message }}</small>
+                                        }
+                                    </div>
+
+                                    <div class="w-full mt-4 flex flex-col">
+                                        <label for="date-naissance" class="block text-surface-900 dark:text-surface-0 text-xl font-medium mb-2">Date de naissance</label>
+                                        <input pInputText type="date" id="date-naissance" name="date-naissance" placeholder="Votre date de naissance" class="w-full md:w-[20rem]" [(ngModel)]="userData.date_naissance" [class.ng-dirty]="signupInvalid && signupErrors.date_naissance" [class.ng-invalid]="signupInvalid && signupErrors.date_naissance" />
+                                        @if (signupInvalid && signupErrors.date_naissance) {
+                                            <small id="nom-error" class="text-red-500">{{ signupErrors.date_naissance.message }}</small>
+                                        }
                                     </div>
                                 </div>
 
                                 <div class="w-full mt-4">
+                                    <label for="adresse" class="block text-surface-900 dark:text-surface-0 text-xl font-medium mb-2">Adresse</label>
+                                    <input pInputText type="string" id="adresse" name="adresse" placeholder="Votre adresse" class="w-full" [(ngModel)]="userData.adresse" [class.ng-dirty]="signupInvalid && signupErrors.adresse" [class.ng-invalid]="signupInvalid && signupErrors.adresse" />
+                                    @if (signupInvalid && signupErrors.adresse) {
+                                        <small id="nom-error" class="text-red-500">{{ signupErrors.adresse.message }}</small>
+                                    }
+                                </div>
+
+                                <div class="w-full mt-4">
                                     <label for="email1" class="block text-surface-900 dark:text-surface-0 text-xl font-medium mb-2">Email</label>
-                                    <input pInputText id="email1" name="email" type="text" placeholder="Email address" class="w-full md:w-[30rem]" [(ngModel)]="userData.email" value="user1@gmail.com" />
+                                    <input pInputText id="email1" name="email" type="text" placeholder="Email address" class="w-full" [(ngModel)]="userData.email" value="user1@gmail.com" [class.ng-dirty]="signupInvalid && signupErrors.email" [class.ng-invalid]="signupInvalid && signupErrors.email" />
+                                    @if (signupInvalid && signupErrors.email) {
+                                        <small id="nom-error" class="text-red-500">{{ signupErrors.email.message }}</small>
+                                    }
                                 </div>
 
                                 <div class="w-full mt-4">
                                     <label for="password1" class="block text-surface-900 dark:text-surface-0 font-medium text-xl mb-2">Password</label>
-                                    <p-password id="password1" name="password" [(ngModel)]="userData.mot_de_passe" placeholder="Password" [toggleMask]="true" styleClass="mb-4" [fluid]="true" [feedback]="false" value="password"></p-password>
+                                    <p-password id="password1" name="password" [(ngModel)]="userData.mot_de_passe" placeholder="Password" [toggleMask]="true" [fluid]="true" [feedback]="false" value="password" [class.ng-dirty]="signupInvalid && signupErrors.mot_de_passe" [class.ng-invalid]="signupInvalid && signupErrors.mot_de_passe"></p-password>
+                                    @if (signupInvalid && signupErrors.mot_de_passe) {
+                                        <small id="nom-error" class="text-red-500">{{ signupErrors.mot_de_passe.message }}</small>
+                                    }
                                 </div>
 
                                 <!-- <div class="flex items-center justify-between mt-2 mb-8 gap-8">
@@ -72,14 +110,14 @@ import { MessageModule } from "primeng/message";
                                     <span class="font-medium no-underline ml-2 text-right cursor-pointer text-primary">Forgot password?</span>
                                 </div> -->
                                 @if (signupInvalid) {
-                                    <p-message severity="error" icon="pi pi-times-circle" styleClass="mb-2" closable (onClose)="onErrorMessageClosed()">Une erreur s'est produite lors de la creation de<br />votre compte. Veuillez ressayer.</p-message>
+                                    <p-message severity="error" icon="pi pi-times-circle" styleClass="mb-2 mt-4" closable (onClose)="onErrorMessageClosed()">Une erreur s'est produite lors de la creation de<br />votre compte. Veuillez ressayer.</p-message>
                                 }
 
                                 @if (signupSuccessfull) {
-                                    <p-message severity="success" icon="pi pi-check-circle" styleClass="mb-2" closable (onClose)="onSuccessMessageClosed()">Compte creer avec succes.</p-message>
+                                    <p-message severity="success" icon="pi pi-check-circle" styleClass="mb-2 mt-4" closable (onClose)="onSuccessMessageClosed()">Compte creer avec succes.</p-message>
                                 }
 
-                                <p-button label="S\'inscrire" styleClass="w-full" type="submit"></p-button>
+                                <p-button label="S'inscrire" styleClass="w-full mt-4" type="submit"></p-button>
 
                                 <p class="text-center mt-2">Vous avez deja un compte? <a routerLink="/login" class="underline">Se connecter</a></p>
                             </form>
@@ -91,30 +129,49 @@ import { MessageModule } from "primeng/message";
     `
 })
 export class SignUp {
-    userData : any = {
-        nom: "",
-        prenom:  "",
-        email: "",
-        mot_de_passe: ""
-    }
+    userData: any = {
+        nom: '',
+        prenom: '',
+        email: '',
+        mot_de_passe: '',
+        telephone: '',
+        adresse: '',
+        date_naissance: ''
+    };
 
-    signupInvalid : boolean = false
-    signupSuccessfull : boolean = false
+    signupErrors: any;
 
-    constructor (
-        private authService : AuthentificationService,
-        private router : Router
+    signupInvalid: boolean = false;
+    signupSuccessfull: boolean = false;
+
+    constructor(
+        private authService: AuthentificationService,
+        private router: Router
     ) {}
 
     onSignup() {
-       this.authService.register(this.userData).subscribe({
-        next: (response) => {
-            this.signupSuccessfull = true
-        },
-        error: (err) => {
-            this.signupInvalid = true
-        }
-       }) 
+        this.authService.register(this.userData).subscribe({
+            next: (response) => {
+                this.signupSuccessfull = true;
+                this.signupInvalid = false;
+
+                this.userData = {
+                    nom: '',
+                    prenom: '',
+                    email: '',
+                    mot_de_passe: '',
+                    telephone: '',
+                    adresse: '',
+                    date_naissance: ''
+                }
+            },
+            error: (err) => {
+                this.signupInvalid = true;
+
+                this.signupErrors = err.error.error;
+                console.log(this.signupErrors)
+            }
+        });
     }
 
     onErrorMessageClosed() {
