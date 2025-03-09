@@ -4,8 +4,8 @@ const jsonwebtoken = require("jsonwebtoken");
 const config = require("../config/auth.config");
 
 // Models
-const Utilisateur = require("../model/utilisateur");
-const RoleUtilisateur = require("../model/roleUtilisateur");
+const Utilisateur = require("../model/Utilisateur/utilisateur");
+const RoleUtilisateur = require("../model/Utilisateur/roleUtilisateur");
 const { verifyToken } = require("../middlewares/jwt");
 
 // Login utilisateur

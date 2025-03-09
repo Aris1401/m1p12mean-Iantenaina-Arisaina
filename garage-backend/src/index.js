@@ -42,8 +42,8 @@ app.listen(PORT, () =>
 
 // Initializing the database
 function initialize() {
-  const RoleUtilisateur = require("./model/roleUtilisateur");
-  const Utilisateur = require("./model/utilisateur");
+  const RoleUtilisateur = require("./model/Utilisateur/roleUtilisateur");
+  const Utilisateur = require("./model/Utilisateur/utilisateur");
 
   const roles = [
     { role: "ROLE_USER" },
