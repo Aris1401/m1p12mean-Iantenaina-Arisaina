@@ -9,9 +9,7 @@ const vehiculeSchema = new mongoose.Schema({
     boite_de_vitesse: { type: String },
     carburant: { type: String },
     utilisateur: { type: mongoose.Types.ObjectId, ref: "Utilisateur" },
-    images: [
-        {
-            fichier: { type: String }
-        }
-    ],
+    images: [ { type: String } ],
 }, { timestamps: true })
+
+module.exports = mongoose.model("Vehicule", vehiculeSchema)
