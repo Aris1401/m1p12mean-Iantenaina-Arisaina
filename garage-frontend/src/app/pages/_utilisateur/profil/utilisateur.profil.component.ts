@@ -17,6 +17,8 @@ import { DividerModule } from 'primeng/divider';
 import { UtilisateurService } from '../../../_services/utilisateur/utilisateur.service';
 import { TableLazyLoadEvent, TableModule } from 'primeng/table';
 import { CommonModule } from '@angular/common';
+import { environment } from '../../../../_env/environment';
+import { Router } from '@angular/router';
 
 @Component({
     selector: 'app-utilisateur.profil',
@@ -194,7 +196,9 @@ import { CommonModule } from '@angular/common';
 									</p>
 								</td>
                                 <td>
-									<p-button label="Telecharger" icon="pi pi-download" />
+									<a class="p-button" [href]="getDowloadPath(item._id)">
+										Telecharger
+									</a>
 								</td>
                             </tr>
                         </ng-template>
@@ -227,10 +231,16 @@ import { CommonModule } from '@angular/common';
     styles: ``
 })
 export class UtilisateurProfilComponent implements OnInit {
+	environementApi : string = ""
+
     profileItems: MenuItem[] = [
         {
             label: 'Se deconnecter',
-            icon: PrimeIcons.SIGN_OUT
+            icon: PrimeIcons.SIGN_OUT,
+			command: () => {
+				this.authStorage.clear()
+				this.router.navigate(['login'])
+			}
         }
     ];
 
@@ -261,10 +271,13 @@ export class UtilisateurProfilComponent implements OnInit {
         private authStorage: AuthStorageService,
         private authService: AuthentificationService,
         private messageService: MessageService,
-        private userService: UtilisateurService
+        private userService: UtilisateurService,
+		private router : Router
     ) {}
 
     ngOnInit(): void {
+		this.environementApi = environment.apiUrl;
+
         this.authStorage.getUser().then((user: any) => {
             this.userData = user;
             this.documentsUser = user.documents;
@@ -296,6 +309,10 @@ export class UtilisateurProfilComponent implements OnInit {
 
 	showUserDocumentModal() {
 		this.uploadDocumentVisible = true
+	}
+
+	getDowloadPath(documentId : string) {
+		return this.environementApi + "user/document/dowload/" + documentId
 	}
 
     onLoadUserDocs(event: TableLazyLoadEvent): void {

@@ -27,10 +27,10 @@ route.put('/document', [verifyToken, upload.single('document')], async (req, res
     })
 })
 
-route.get('/document/dowload/:id', [verifyToken], async (req, res) => {
-    const utilisateur = await Utilisateur.findOne({ _id: req.utilisateurId })
+route.get('/document/dowload/:id', async (req, res) => {
+    const utilisateur = await Utilisateur.findOne({ "documents._id": req.params.id }, { "documents.$": 1 })
 
-    
+    return res.download(utilisateur.documents[0].chemin)
 })
 
 module.exports = route
