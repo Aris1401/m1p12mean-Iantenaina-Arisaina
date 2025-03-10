@@ -11,7 +11,8 @@ const utilisateurSchema = new mongoose.Schema({
     documents : [
         { 
             titre: { type: String },
-            chemin: { type: String}
+            chemin: { type: String},
+            date_ajout: { type: Date }
         }
     ],
     photo_profil: { type: String },

@@ -30,6 +30,9 @@ const baseUrl = "/api/v1";
 // Authentification
 app.use(baseUrl, require("./controllers/auth.controller"));
 
+// Utilisateur
+app.use(baseUrl + "/user", require('./controllers/utilisateur.controller'))
+
 app.get(baseUrl + "/test", [verifyToken, isUtilisateur], (req, res) => {
   res.status(200).send({ message: "Test réussi !" });
 });

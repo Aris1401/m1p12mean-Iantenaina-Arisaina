@@ -33,6 +33,11 @@ export class AuthentificationService {
     return this.http.get(environment.apiUrl + "login/user");
   }
 
+  // Mettre a jour les informations de l'utilisateur
+  updateUser(utilisateur : any) {
+    return this.http.put(environment.apiUrl + "login/user", utilisateur)
+  }
+
   // TEST
   test () {
     return this.http.get(environment.apiUrl + 'test');

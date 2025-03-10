@@ -56,6 +56,40 @@ route.get("/login/user", [verifyToken], async (req, res) => {
   });
 });
 
+// Modifier les informations de l'utilisateur
+route.put('/login/user', [verifyToken], async (req, res) => {
+  const {
+    nom,
+    prenom,
+    email,
+    adresse,
+    date_naissance,
+    telephone,
+  } = req.body;
+
+  const utilisateur = new Utilisateur({
+    nom: nom,
+    prenom: prenom,
+    email: email,
+    mot_de_passe: "template",
+    adresse: adresse,
+    date_naissance: date_naissance,
+    telephone: telephone
+  });
+  
+  const errors = utilisateur.validateSync()
+  
+  if (errors) {
+    return res.status(400).send({ error: errors.errors });
+  }
+  
+  await Utilisateur.findByIdAndUpdate(req.utilisateurId, req.body)
+  return res.status(200).send({
+    message: "Informations mis a jour avec success",
+    user: utilisateur
+  })
+})
+
 // Inscription utilisateur
 route.post("/register", async (req, res) => {
   const roleUtilisateur = await RoleUtilisateur.findOne({ role: "ROLE_USER" });
