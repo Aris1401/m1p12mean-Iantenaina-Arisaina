@@ -117,7 +117,10 @@ export class AppTopbar {
     items: MenuItem[] = [
         {
             icon: PrimeIcons.USER,
-            label: "Profil"
+            label: "Profil",
+            command: (event) => {
+                this.router.navigate(['profil'])
+            }
         },
         {
             icon: PrimeIcons.SIGN_OUT,
