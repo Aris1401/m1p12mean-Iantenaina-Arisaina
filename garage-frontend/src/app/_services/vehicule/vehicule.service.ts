@@ -6,7 +6,6 @@ import { environment } from '../../../_env/environment';
   providedIn: 'root'
 })
 export class VehiculeService {
-
   constructor(
     private http : HttpClient
   ) { }
@@ -19,6 +18,10 @@ export class VehiculeService {
     return this.http.get(environment.apiUrl + "vehicules/" + id);
   }
 
+  addVehicule(data : any) {
+    return this.http.post(environment.apiUrl + "vehicules", data)
+  } 
+
   // Docuemnts
   getDocumentVehicule(idVehicule : string) {
     return this.http.get(environment.apiUrl + "vehicules/" + idVehicule + "/documents")
@@ -27,4 +30,25 @@ export class VehiculeService {
   addDocumentVehicule(idVehicule : string, data : any) {
     return this.http.post(environment.apiUrl + "vehicules/" + idVehicule + "/documents", data)
   } 
+
+  // Informations
+  getMarques() {
+    return this.http.get(environment.apiUrl + "vehicules/marques")
+  }
+
+  getModeles(annee : string, marque: string) {
+    return this.http.get(environment.apiUrl + "vehicules/modeles?annee=" + annee + "&marque=" + marque)
+  }
+
+  getAnnees() {
+    return this.http.get(environment.apiUrl + "vehicules/annees")
+  }
+
+  getCarburants() {
+    return this.http.get(environment.apiUrl + "vehicules/carburant")
+  }
+
+  getBoiteDeVitesse() {
+    return this.http.get(environment.apiUrl + "vehicules/boite-vitesse")
+  }
 }

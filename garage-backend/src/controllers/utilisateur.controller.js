@@ -6,9 +6,9 @@ const Utilisateur = require("../model/Utilisateur/utilisateur");
 
 // Middleware
 const { verifyToken } = require("../middlewares/jwt");
-const upload = require('../middlewares/upload')
+const { uploadFiles } = require('../middlewares/upload')
 
-route.put('/document', [verifyToken, upload.single('document')], async (req, res) => {
+route.put('/document', [verifyToken, uploadFiles.single('document')], async (req, res) => {
     const utilisateur = await Utilisateur.findOne({ _id: req.utilisateurId })
 
     // New document
