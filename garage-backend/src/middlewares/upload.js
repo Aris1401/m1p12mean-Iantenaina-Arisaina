@@ -1,6 +1,7 @@
 const util = require("util");
 const path = require("path");
 const multer = require("multer");
+const fs = require('fs')
 
 var storage = multer.diskStorage({
   destination: (req, file, callback) => {
@@ -12,5 +13,17 @@ var storage = multer.diskStorage({
   }
 });
 
+const deleteUploadedFiles = (files) => {
+  if (!files) return;
+  files.forEach((file) => {
+    fs.unlink(file.path, (err) => {
+      if (err) console.error(`Error deleting file ${file.path}:`, err);
+    });
+  });
+};
+
 var uploadFiles = multer({ storage: storage })
-module.exports = uploadFiles;
+module.exports = {
+  uploadFiles,
+  deleteUploadedFiles
+};
