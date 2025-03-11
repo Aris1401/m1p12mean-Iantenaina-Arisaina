@@ -197,6 +197,7 @@ import { Router } from '@angular/router';
 								</td>
                                 <td>
 									<a class="p-button" [href]="getDowloadPath(item._id)">
+                                        <i class="pi pi-download"></i>
 										Telecharger
 									</a>
 								</td>
@@ -341,7 +342,12 @@ export class UtilisateurProfilComponent implements OnInit {
 				// Mis a jour de la liste
 				this.documentsUser = response.data
             },
-            error: (err) => {}
+            error: (err) => {
+                this.messageService.add({
+                    severity: 'error',
+                    summary: err.error.error
+                })
+            }
         });
     }
 

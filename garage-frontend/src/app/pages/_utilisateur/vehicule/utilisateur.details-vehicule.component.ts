@@ -14,6 +14,7 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { CarouselModule } from 'primeng/carousel';
 import { ChipModule } from 'primeng/chip';
+import { environment } from '../../../../_env/environment';
 
 @Component({
     selector: 'app-utilisateur.details-vehicule',
@@ -90,7 +91,7 @@ import { ChipModule } from 'primeng/chip';
                                 <div class="flex flex-col gap-2">
                                     @for (document of items; track document._id) {
                                         <p-card>
-                                            <div class="flex justify-between">
+                                            <div class="flex justify-between align-middle">
                                                 <div class="flex flex-col gap-2">
                                                     <div class="flex gap-2">
                                                         <h6 class="mb-0">{{ document.titre }}</h6>
@@ -99,7 +100,9 @@ import { ChipModule } from 'primeng/chip';
                                                     <p>{{ document.description }}</p>
                                                 </div>
 
-                                                <p-button icon="pi pi-download" />
+                                                <a class="p-button w-fit h-fit" [href]="getDocumentDowloadLink(document._id)">
+                                                    <i class="pi pi-download"></i>
+                                                </a>
                                             </div>
                                         </p-card>
                                     }
@@ -211,5 +214,9 @@ export class UtilisateurDetailsVehiculeComponent implements OnInit {
             },
             error: (err) => {}
         });
+    }
+
+    getDocumentDowloadLink(documentId : string) {
+        return environment.apiUrl + "vehicules/" + this.currentVehicule._id + "/documents/" + documentId
     }
 }

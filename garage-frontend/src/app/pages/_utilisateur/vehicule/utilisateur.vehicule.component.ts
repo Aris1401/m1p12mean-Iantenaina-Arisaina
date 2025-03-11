@@ -16,21 +16,37 @@ import { FormsModule } from '@angular/forms';
 import { ToastModule } from 'primeng/toast';
 import { CarouselModule } from 'primeng/carousel';
 import { ChipModule } from 'primeng/chip';
+import { InputGroupModule } from 'primeng/inputgroup';
+import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
 
 @Component({
     selector: 'app-utilisateur.vehicule',
-    imports: [CarouselModule, ToastModule, CardModule, DataViewModule, ButtonModule, ChipModule, RouterModule, DialogModule, SelectModule, InputTextModule, DividerModule, FileUploadModule, FormsModule],
+    imports: [CarouselModule, InputGroupModule, InputGroupAddonModule, ToastModule, CardModule, DataViewModule, ButtonModule, ChipModule, RouterModule, DialogModule, SelectModule, InputTextModule, DividerModule, FileUploadModule, FormsModule],
     template: `
         <p-toast></p-toast>
 
         <p-card>
-            <div class="flex justify-between">
-                <h3>Mes voitures</h3>
+            <div class="flex flex-col gap-1">
+                <div class="flex justify-between">
+                    <h3>Mes voitures</h3>
+    
+                    <p-button label="Ajouter une voiture" icon="pi pi-plus" (onClick)="showAddVehiculeModal()" />
+                </div>
 
-                <p-button label="Ajouter une voiture" icon="pi pi-plus" (onClick)="showAddVehiculeModal()" />
+                <div class="justify-end">
+                    <p-input-group>
+                        <input pInputText type='text' name="seach" id="seach" placeholder="Rechercher" [(ngModel)]="vehiculeSearch" />
+                        
+                        <p-inputgroup-addon>
+                            <p-button icon="pi pi-search" (onClick)="vehiculesData.filter(vehiculeSearch)" />
+                        </p-inputgroup-addon>
+                    </p-input-group>
+                </div>
             </div>
 
-            <p-data-view [value]="userVehiculesData" emptyMessage="Aucune voiture" layout="grid">
+            <p-divider />
+
+            <p-data-view [value]="userVehiculesData" emptyMessage="Aucune voiture" layout="grid" #vehiculesData filterBy="modele,marque,annee,immatriculation">
                 <ng-template #grid let-items>
                     <div class="grid grid-cols-12 gap-2">
                         @for (vehicule of items; track vehicule._id) {
@@ -271,6 +287,9 @@ export class UtilisateurVehiculeComponent implements OnInit {
     };
 
     uploadVehiculeErrors: any = {};
+
+    // Recherhce
+    vehiculeSearch : string = ""
 
     constructor(
         private vehiculeService: VehiculeService,

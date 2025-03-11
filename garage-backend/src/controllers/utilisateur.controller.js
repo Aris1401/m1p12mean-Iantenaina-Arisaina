@@ -11,6 +11,12 @@ const { uploadFiles } = require('../middlewares/upload')
 route.put('/document', [verifyToken, uploadFiles.single('document')], async (req, res) => {
     const utilisateur = await Utilisateur.findOne({ _id: req.utilisateurId })
 
+    if (!req.file) {
+        return res.status(400).json({
+            error: "Veuillez fournir un fichier"
+        })
+    }
+
     // New document
     const document = {
         titre: req.body.titre,

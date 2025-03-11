@@ -137,6 +137,12 @@ router.get('/:id/documents', [verifyToken], async (req, res) => {
     })
 })
 
+router.get('/:id/documents/:idDoc', async (req, res) => {
+    const document = await DocumentVehicule.findOne({ vehicule: req.params.id, _id: req.params.idDoc })
+
+    return res.download(document.fichier)
+})
+
 router.post('/:id/documents', [verifyToken, uploadFiles.single('document')], async (req, res) => {
     const document = new DocumentVehicule({
         titre: req.body.titre,
