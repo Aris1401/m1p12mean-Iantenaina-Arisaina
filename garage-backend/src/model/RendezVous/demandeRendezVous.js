@@ -1,11 +1,12 @@
 const mongoose = require('mongoose')
 
 const demandeRendezVousSchema = new mongoose.Schema({
-    utilisateur: { type: mongoose.Types.ObjectId, ref: "Utilisateur" },
-    vehicule: {}, // TODO: Ajouter reference au vehicule
+    utilisateur: { type: mongoose.Types.ObjectId, ref: "Utilisateur", required: true },
+    vehicule: { type: mongoose.Types.ObjectId, ref: "Vehicule", required: true },
     titre: { type: String},
-    type_rendez_vous: {}, // TODO: Ajouter reference au type de rendez vous
-    date_souhaiter: { type: Date },
+    description: { type: String },
+    type_rendez_vous: { type: mongoose.Types.ObjectId, ref: "TypeRendezVous", required: true},
+    date_souhaiter: { type: Date, required: true },
     date_suggerer: { type: Date },
     etat_demande: { type: Number, default: 0 },
     intervention: { type: mongoose.Types.ObjectId, ref: "Intervention" }
