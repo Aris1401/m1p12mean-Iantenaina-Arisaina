@@ -20,7 +20,7 @@ import { DataViewModule } from 'primeng/dataview';
 import { UtilisateurRendezVousListeDemandeComponent } from './utilisateur.rendez-vous.liste-demande.component';
 import { ChipModule } from 'primeng/chip';
 import { DividerModule } from 'primeng/divider';
-import { Subject } from 'rxjs';
+import { forkJoin, Subject } from 'rxjs';
 
 @Component({
     selector: 'app-utilisateur.rendez-vous',
@@ -41,7 +41,7 @@ import { Subject } from 'rxjs';
         SelectModule,
         ButtonModule,
         ChipModule,
-        DividerModule,
+        DividerModule
     ],
     template: `
         <p-toast></p-toast>
@@ -206,7 +206,7 @@ export class UtilisateurRendezVousComponent implements OnInit {
     isDetailsRendezVousVisible: boolean = false;
     rendezVousClicked: any;
 
-    refreshCalendar = new Subject<void>()
+    refreshCalendar = new Subject<void>();
 
     constructor(
         private rendezVousService: RendezVousService,
@@ -257,6 +257,26 @@ export class UtilisateurRendezVousComponent implements OnInit {
                         }
                     };
                 });
+
+                // Obtenir les indisponibiltes
+                this.rendezVousService.getIndisponibilites().subscribe({
+                    next: (response: any) => {
+                        const indisponibilite = response.data;
+
+                        const indisponibiliteEvent = indisponibilite
+                            .map((item: any) => {
+                                return {
+                                    titre: '',
+                                    start: new Date(item.start),
+                                    end: new Date(item.end),
+                                    color: { primary: '#ff0000', secondary: '#FF6F6F' }
+                                };
+                            })
+                            .flat();
+
+                        this.rendezVousEvents = [...this.rendezVousEvents, ...indisponibiliteEvent];
+                    }
+                });
             }
         });
     }
@@ -272,39 +292,39 @@ export class UtilisateurRendezVousComponent implements OnInit {
         this.rendezVousData.date = format(new Date(date), 'yyyy-MM-dd HH:mm');
     }
 
-    getEtatRendezVous(etat_rendez_vous : any) {
+    getEtatRendezVous(etat_rendez_vous: any) {
         if (etat_rendez_vous == 0) {
-            return "En attente"
+            return 'En attente';
         } else if (etat_rendez_vous == 10) {
-            return "En cours"
+            return 'En cours';
         } else if (etat_rendez_vous == 20) {
-            return "Fini"
+            return 'Fini';
         } else {
-            return "Annuler"
+            return 'Annuler';
         }
     }
 
-    onAnnulerRendezVous(rendezVous : any) {
+    onAnnulerRendezVous(rendezVous: any) {
         this.rendezVousService.annulerRendezVous(rendezVous._id).subscribe({
-            next: (response : any) => {
-                this.isDetailsRendezVousVisible = false
+            next: (response: any) => {
+                this.isDetailsRendezVousVisible = false;
 
                 this.messageService.add({
                     severity: 'success',
                     summary: response.message
-                })
+                });
 
-                this.rendezVousEvents = this.rendezVousEvents.filter((event : any) => event._id != rendezVous._id)
+                this.rendezVousEvents = this.rendezVousEvents.filter((event: any) => event._id != rendezVous._id);
 
-                this.refreshCalendar.next()
+                this.refreshCalendar.next();
             },
             error: (err) => {
                 this.messageService.add({
                     severity: 'error',
                     summary: err.error.error
-                })
+                });
             }
-        })
+        });
     }
 
     onSubmitDemandeRendezVous() {
@@ -336,7 +356,9 @@ export class UtilisateurRendezVousComponent implements OnInit {
     }
 
     onEventRendezVousClicked(event: CalendarEvent<any>) {
-        this.isDetailsRendezVousVisible = true;
-        this.rendezVousClicked = event.meta.rendezVous;
+        if (event.meta && event.meta.rendezVous) {
+            this.isDetailsRendezVousVisible = true;
+            this.rendezVousClicked = event.meta.rendezVous;
+        }
     }
 }

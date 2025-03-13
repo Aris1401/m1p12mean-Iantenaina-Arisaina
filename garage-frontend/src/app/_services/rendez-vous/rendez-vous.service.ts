@@ -40,4 +40,9 @@ export class RendezVousService {
   annulerRendezVous(idRendezVous : string) {
     return this.http.delete(environment.apiUrl + "rendez-vous/" + idRendezVous + "/annuler")
   }
+
+  // Obtenir les indisponibilites
+  getIndisponibilites() {
+    return this.http.get(environment.apiUrl + "rendez-vous/indisponibilite")
+  }
 }
