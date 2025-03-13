@@ -15,12 +15,16 @@ import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { VehiculeService } from '../../../_services/vehicule/vehicule.service';
+import { ToastModule } from 'primeng/toast';
+import { MessageService } from 'primeng/api';
 
 @Component({
     selector: 'app-utilisateur-rendez-vous-liste-demande',
-    imports: [TableModule, MultiSelectModule, SelectModule, IconFieldModule, FormsModule, InputIconModule, SelectModule, InputGroupModule, InputGroupAddonModule, InputTextModule, CardModule, ButtonModule, ChipModule, CommonModule, FormsModule],
+    imports: [TableModule, ToastModule, MultiSelectModule, SelectModule, IconFieldModule, FormsModule, InputIconModule, SelectModule, InputGroupModule, InputGroupAddonModule, InputTextModule, CardModule, ButtonModule, ChipModule, CommonModule, FormsModule],
     standalone: true,
     template: `
+        <p-toast></p-toast>
+
         <p-table
             [value]="demandesRendezVous"
             [paginator]="true"
@@ -139,7 +143,9 @@ import { VehiculeService } from '../../../_services/vehicule/vehicule.service';
                     </td>
 
                     <td>
-                        <p-button icon="pi pi-times" label="Annuler" />
+                        @if (demande.etat_demande == 0) {
+                            <p-button icon="pi pi-times" label="Annuler" (onClick)="onAnnuler(demande)" />
+                        }
                     </td>
                 </tr>
             </ng-template>
@@ -168,7 +174,8 @@ export class UtilisateurRendezVousListeDemandeComponent implements OnInit {
 
     constructor(
         private rendezVousService: RendezVousService,
-        private vehiculeService: VehiculeService
+        private vehiculeService: VehiculeService,
+        private messageService: MessageService
     ) {}
 
     ngOnInit(): void {
@@ -183,5 +190,24 @@ export class UtilisateurRendezVousListeDemandeComponent implements OnInit {
                 this.vehiculesUtilisateurs = response.data;
             }
         });
+    }
+
+    onAnnuler(demande : any) {
+        this.rendezVousService.annulerDemandeRendezVous(demande._id).subscribe({
+            next: (response : any) => {
+                this.messageService.add({
+                    summary: response.message,
+                    severity: 'success'
+                })
+
+                this.demandesRendezVous = this.demandesRendezVous.filter(_demande => _demande != demande)
+            },
+            error: (err) => {
+                this.messageService.add({
+                    summary: err.error.error,
+                    severity: 'error'
+                })
+            }
+        })
     }
 }

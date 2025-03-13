@@ -20,6 +20,7 @@ import { DataViewModule } from 'primeng/dataview';
 import { UtilisateurRendezVousListeDemandeComponent } from './utilisateur.rendez-vous.liste-demande.component';
 import { ChipModule } from 'primeng/chip';
 import { DividerModule } from 'primeng/divider';
+import { Subject } from 'rxjs';
 
 @Component({
     selector: 'app-utilisateur.rendez-vous',
@@ -60,15 +61,16 @@ import { DividerModule } from 'primeng/divider';
                         @if (view == 'week') {
                             <mwl-calendar-week-view
                                 [events]="rendezVousEvents"
+                                [refresh]="refreshCalendar"
                                 [viewDate]="viewDate"
                                 (dayHeaderClicked)="changeDay($event.day.date)"
                                 (hourSegmentClicked)="onAddDemandeRendezVous($event.date)"
                                 (eventClicked)="onEventRendezVousClicked($event.event)"
                             />
                         } @else if (view == 'day') {
-                            <mwl-calendar-day-view [events]="rendezVousEvents" [viewDate]="viewDate" (hourSegmentClicked)="onAddDemandeRendezVous($event.date)" (eventClicked)="onEventRendezVousClicked($event.event)" />
+                            <mwl-calendar-day-view [events]="rendezVousEvents" [refresh]="refreshCalendar" [viewDate]="viewDate" (hourSegmentClicked)="onAddDemandeRendezVous($event.date)" (eventClicked)="onEventRendezVousClicked($event.event)" />
                         } @else {
-                            <mwl-calendar-month-view [events]="rendezVousEvents" [viewDate]="viewDate" (dayClicked)="changeDay($event.day.date)" (eventClicked)="onEventRendezVousClicked($event.event)" />
+                            <mwl-calendar-month-view [events]="rendezVousEvents" [refresh]="refreshCalendar" [viewDate]="viewDate" (dayClicked)="changeDay($event.day.date)" (eventClicked)="onEventRendezVousClicked($event.event)" />
                         }
                     </p-tabpanel>
 
@@ -116,7 +118,7 @@ import { DividerModule } from 'primeng/divider';
 
                 <div class="flex gap-2 justify-between">
                     <p-chip class="w-fit" [label]="this.rendezVousClicked && getEtatRendezVous(this.rendezVousClicked.etat_rendez_vous)" />
-                    <p-button label="Annuler" />
+                    <p-button label="Annuler" (onClick)="onAnnulerRendezVous(this.rendezVousClicked)" />
                 </div>
             </div>
         </p-dialog>
@@ -204,6 +206,8 @@ export class UtilisateurRendezVousComponent implements OnInit {
     isDetailsRendezVousVisible: boolean = false;
     rendezVousClicked: any;
 
+    refreshCalendar = new Subject<void>()
+
     constructor(
         private rendezVousService: RendezVousService,
         private vehiculeService: VehiculeService,
@@ -278,6 +282,29 @@ export class UtilisateurRendezVousComponent implements OnInit {
         } else {
             return "Annuler"
         }
+    }
+
+    onAnnulerRendezVous(rendezVous : any) {
+        this.rendezVousService.annulerRendezVous(rendezVous._id).subscribe({
+            next: (response : any) => {
+                this.isDetailsRendezVousVisible = false
+
+                this.messageService.add({
+                    severity: 'success',
+                    summary: response.message
+                })
+
+                this.rendezVousEvents = this.rendezVousEvents.filter((event : any) => event._id != rendezVous._id)
+
+                this.refreshCalendar.next()
+            },
+            error: (err) => {
+                this.messageService.add({
+                    severity: 'error',
+                    summary: err.error.error
+                })
+            }
+        })
     }
 
     onSubmitDemandeRendezVous() {

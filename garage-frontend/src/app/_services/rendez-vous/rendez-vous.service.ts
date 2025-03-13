@@ -21,6 +21,11 @@ export class RendezVousService {
     return this.http.post(environment.apiUrl + 'rendez-vous/demandes', demande)
   }
 
+  // Annuler demande rendez-vous
+  annulerDemandeRendezVous(idDemande : string) {
+    return this.http.delete(environment.apiUrl + "rendez-vous/demandes/" + idDemande + "/annuler")
+  } 
+
   // Types de rendez vous
   getTypesRendezVous() {
     return this.http.get(environment.apiUrl + "rendez-vous/types")
@@ -29,5 +34,10 @@ export class RendezVousService {
   // Obtenir les rendez-vous de l'utilisateur
   getRendezVousUtilisateur() {
     return this.http.get(environment.apiUrl + "rendez-vous/utilisateur")
+  }
+
+  // Annuler rendez vous 
+  annulerRendezVous(idRendezVous : string) {
+    return this.http.delete(environment.apiUrl + "rendez-vous/" + idRendezVous + "/annuler")
   }
 }
