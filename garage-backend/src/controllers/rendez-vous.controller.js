@@ -4,10 +4,11 @@ const router = express.Router()
 // Modeles
 const TypeRendezVous = require('../model/RendezVous/typeRendezVous')
 const DemandeRendezVous = require('../model/RendezVous/demandeRendezVous')
+const RendezVous = require('../model/RendezVous/rendezVous')
 
 const { EtatDemandeRendezVous } = require('../model/Etats')
 
-const { verifyToken, isManager } = require('../middlewares/jwt')
+const { verifyToken, isManager, isUtilisateur } = require('../middlewares/jwt')
 
 // Services
 const RendezVousService = require('../services/rendezVousService')
@@ -70,6 +71,19 @@ router.post('/demandes', [verifyToken], async (req, res) => {
     await demande.save()
     return res.status(200).json({
         message: "Demande enregistrer avec succes"
+    })
+})
+
+// Liste des rendez vous de l'utilisateur
+router.get('/utilisateur', [verifyToken, isUtilisateur], async (req, res) => {
+    const rendezVous = await RendezVous.find().populate({
+        path: "demande_rendez_vous",
+        match: { utilisateur: req.utilisateurId },
+        populate: ["vehicule", "type_rendez_vous"]
+    })
+
+    return res.status(200).json({
+        data: rendezVous
     })
 })
 

@@ -25,4 +25,9 @@ export class RendezVousService {
   getTypesRendezVous() {
     return this.http.get(environment.apiUrl + "rendez-vous/types")
   }
+
+  // Obtenir les rendez-vous de l'utilisateur
+  getRendezVousUtilisateur() {
+    return this.http.get(environment.apiUrl + "rendez-vous/utilisateur")
+  }
 }

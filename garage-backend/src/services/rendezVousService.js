@@ -26,6 +26,9 @@ class RendezVousService {
         demandeRendezVous.etat_demande = EtatDemandeRendezVous.VALIDER
         await demandeRendezVous.save()
     }
+
+    // Obtenir les indisponibilites
+    
 }
 
 module.exports = RendezVousService

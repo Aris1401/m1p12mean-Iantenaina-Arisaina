@@ -7,7 +7,7 @@ import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { format } from 'date-fns';
+import { endOfDay, endOfMonth, endOfWeek, format, startOfDay, startOfMonth, startOfWeek } from 'date-fns';
 import { TextareaModule } from 'primeng/textarea';
 import { RendezVousService } from '../../../_services/rendez-vous/rendez-vous.service';
 import { SelectModule } from 'primeng/select';
@@ -18,44 +18,110 @@ import { ToastModule } from 'primeng/toast';
 import { TabsModule } from 'primeng/tabs';
 import { DataViewModule } from 'primeng/dataview';
 import { UtilisateurRendezVousListeDemandeComponent } from './utilisateur.rendez-vous.liste-demande.component';
+import { ChipModule } from 'primeng/chip';
+import { DividerModule } from 'primeng/divider';
 
 @Component({
     selector: 'app-utilisateur.rendez-vous',
-	standalone: true,
-    imports: [UtilisateurRendezVousListeDemandeComponent, TabsModule, DataViewModule, ToastModule, CalendarModule, CardModule, CalendarHeaderComponent, DialogModule, InputTextModule, FormsModule, CommonModule, TextareaModule, SelectModule, ButtonModule],
+    standalone: true,
+    imports: [
+        UtilisateurRendezVousListeDemandeComponent,
+        TabsModule,
+        DataViewModule,
+        ToastModule,
+        CalendarModule,
+        CardModule,
+        CalendarHeaderComponent,
+        DialogModule,
+        InputTextModule,
+        FormsModule,
+        CommonModule,
+        TextareaModule,
+        SelectModule,
+        ButtonModule,
+        ChipModule,
+        DividerModule,
+    ],
     template: `
         <p-toast></p-toast>
 
         <p-card header="Mes rendez-vous">
-			<p-tabs value="0">
-				<p-tablist>
-					<p-tab value="0">Mon calendrier</p-tab>
-					<p-tab value="1">Mes demandes</p-tab>
-				</p-tablist>
+            <p-tabs value="0">
+                <p-tablist>
+                    <p-tab value="0">Mon calendrier</p-tab>
+                    <p-tab value="1">Mes demandes</p-tab>
+                </p-tablist>
 
-				<p-tabpanels>
-					<!-- Calendrier -->
-					 <p-tabpanel value="0">
-						 <app-calendar-header [(view)]="view" [(viewDate)]="viewDate" />
-			 
-						 @if (view == 'week') {
-							 <mwl-calendar-week-view [events]="rendezVousEvents" [viewDate]="viewDate" (dayHeaderClicked)="changeDay($event.day.date)" (hourSegmentClicked)="onAddDemandeRendezVous($event.date)" />
-						 } @else if (view == 'day') {
-							 <mwl-calendar-day-view [events]="rendezVousEvents" [viewDate]="viewDate" (hourSegmentClicked)="onAddDemandeRendezVous($event.date)" />
-						 } @else {
-							 <mwl-calendar-month-view [events]="rendezVousEvents" [viewDate]="viewDate" (dayClicked)="changeDay($event.day.date)" />
-						 }
-					 </p-tabpanel>
+                <p-tabpanels>
+                    <!-- Calendrier -->
+                    <p-tabpanel value="0">
+                        <app-calendar-header [(view)]="view" [(viewDate)]="viewDate" />
 
-					 <!-- Demandes -->
-					  <p-tabpanel value="1">
-						<app-utilisateur-rendez-vous-liste-demande />
-					  </p-tabpanel>
-				</p-tabpanels>
-			</p-tabs>
+                        @if (view == 'week') {
+                            <mwl-calendar-week-view
+                                [events]="rendezVousEvents"
+                                [viewDate]="viewDate"
+                                (dayHeaderClicked)="changeDay($event.day.date)"
+                                (hourSegmentClicked)="onAddDemandeRendezVous($event.date)"
+                                (eventClicked)="onEventRendezVousClicked($event.event)"
+                            />
+                        } @else if (view == 'day') {
+                            <mwl-calendar-day-view [events]="rendezVousEvents" [viewDate]="viewDate" (hourSegmentClicked)="onAddDemandeRendezVous($event.date)" (eventClicked)="onEventRendezVousClicked($event.event)" />
+                        } @else {
+                            <mwl-calendar-month-view [events]="rendezVousEvents" [viewDate]="viewDate" (dayClicked)="changeDay($event.day.date)" (eventClicked)="onEventRendezVousClicked($event.event)" />
+                        }
+                    </p-tabpanel>
 
+                    <!-- Demandes -->
+                    <p-tabpanel value="1">
+                        <app-utilisateur-rendez-vous-liste-demande />
+                    </p-tabpanel>
+                </p-tabpanels>
+            </p-tabs>
         </p-card>
 
+        <!-- Details de rendez-vous -->
+        <p-dialog header="Details rendez-vous" [(visible)]="isDetailsRendezVousVisible">
+            <div class="flex flex-col gap-2">
+                <div class="flex flex-col gap-2">
+                    <div class="flex gap-2 items-center">
+                        <h5 class="m-0 p-0">{{ this.rendezVousClicked && this.rendezVousClicked.demande_rendez_vous.titre }}</h5>
+                        <p-chip class="text-sm" [label]="this.rendezVousClicked && (this.rendezVousClicked.date_rendez_vous | date: 'yyyy-MM-dd HH:mm')" />
+                    </div>
+
+                    <p>{{ this.rendezVousClicked && this.rendezVousClicked.demande_rendez_vous.description }}</p>
+
+                    <p-chip class="w-fit max-w-fit" [label]="this.rendezVousClicked && this.rendezVousClicked.demande_rendez_vous.type_rendez_vous.designation" />
+                </div>
+
+                <p-divider />
+
+                <div class="flex flex-col gap-2">
+                    <div class="flex gap-4 align-middle items-center">
+                        <i class="pi pi-car"></i>
+
+                        <div class="flex flex-col gap-2">
+                            <p class="m-0 font-extrabold">{{ this.rendezVousClicked && this.rendezVousClicked.demande_rendez_vous.vehicule.immatriculation }}</p>
+
+                            <div class="flex gap-2">
+                                <p class="m-0">{{ this.rendezVousClicked && this.rendezVousClicked.demande_rendez_vous.vehicule.modele }}</p>
+                                <p class="m-0">{{ this.rendezVousClicked && this.rendezVousClicked.demande_rendez_vous.vehicule.marque }}</p>
+                                <p class="m-0">{{ this.rendezVousClicked && this.rendezVousClicked.demande_rendez_vous.vehicule.annee }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <p-divider />
+
+                <div class="flex gap-2 justify-between">
+                    <p-chip class="w-fit" [label]="this.rendezVousClicked && getEtatRendezVous(this.rendezVousClicked.etat_rendez_vous)" />
+                    <p-button label="Annuler" />
+                </div>
+            </div>
+        </p-dialog>
+
+        <!-- Ajout de rendez-vous -->
         <p-dialog header="Ajouter un rendez-vous" [(visible)]="isAddRendezVousVisible" [style]="{ width: '30rem' }">
             <form class="flex flex-col gap-2" (submit)="onSubmitDemandeRendezVous()">
                 <div class="w-full">
@@ -74,7 +140,7 @@ import { UtilisateurRendezVousListeDemandeComponent } from './utilisateur.rendez
                         [options]="vehiculesData"
                         optionLabel="immatriculation"
                         optionValue="_id"
-						name="vehicule"
+                        name="vehicule"
                         [(ngModel)]="rendezVousData.vehicule"
                     >
                         <ng-template #item let-vehicule>
@@ -134,6 +200,10 @@ export class UtilisateurRendezVousComponent implements OnInit {
     typesRendezVousData: any[] = [];
     vehiculesData: any[] = [];
 
+    // Details rendez vous
+    isDetailsRendezVousVisible: boolean = false;
+    rendezVousClicked: any;
+
     constructor(
         private rendezVousService: RendezVousService,
         private vehiculeService: VehiculeService,
@@ -152,6 +222,39 @@ export class UtilisateurRendezVousComponent implements OnInit {
                 this.vehiculesData = response.data;
             }
         });
+
+        this.obtenirRendezVousUtilisateur();
+    }
+
+    obtenirRendezVousUtilisateur() {
+        const getStart: any = {
+            month: startOfMonth,
+            week: startOfWeek,
+            day: startOfDay
+        }[this.view];
+
+        const getEnd: any = {
+            month: endOfMonth,
+            week: endOfWeek,
+            day: endOfDay
+        }[this.view];
+
+        this.rendezVousService.getRendezVousUtilisateur().subscribe({
+            next: (response: any) => {
+                const rendezVous = response.data;
+
+                // Ajout des evenements
+                this.rendezVousEvents = rendezVous.map((item: any) => {
+                    return {
+                        title: item.demande_rendez_vous.titre,
+                        start: new Date(item.date_rendez_vous),
+                        meta: {
+                            rendezVous: item
+                        }
+                    };
+                });
+            }
+        });
     }
 
     changeDay(date: any) {
@@ -163,6 +266,18 @@ export class UtilisateurRendezVousComponent implements OnInit {
         this.isAddRendezVousVisible = true;
 
         this.rendezVousData.date = format(new Date(date), 'yyyy-MM-dd HH:mm');
+    }
+
+    getEtatRendezVous(etat_rendez_vous : any) {
+        if (etat_rendez_vous == 0) {
+            return "En attente"
+        } else if (etat_rendez_vous == 10) {
+            return "En cours"
+        } else if (etat_rendez_vous == 20) {
+            return "Fini"
+        } else {
+            return "Annuler"
+        }
     }
 
     onSubmitDemandeRendezVous() {
@@ -182,14 +297,19 @@ export class UtilisateurRendezVousComponent implements OnInit {
                     vehicule: ''
                 };
 
-				this.isAddRendezVousVisible = false
+                this.isAddRendezVousVisible = false;
             },
-			error: (err) => {
-				this.messageService.add({
-					severity: 'error',
-					summary: err.error.error
-				})
-			}
+            error: (err) => {
+                this.messageService.add({
+                    severity: 'error',
+                    summary: err.error.error
+                });
+            }
         });
+    }
+
+    onEventRendezVousClicked(event: CalendarEvent<any>) {
+        this.isDetailsRendezVousVisible = true;
+        this.rendezVousClicked = event.meta.rendezVous;
     }
 }
