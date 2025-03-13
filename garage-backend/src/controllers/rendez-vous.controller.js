@@ -138,12 +138,12 @@ router.get('/utilisateur', [verifyToken, isUtilisateur], async (req, res) => {
         etat_rendez_vous: { $ne: EtatRendezVous.ANNULER }
     }).populate({
         path: "demande_rendez_vous",
-        match: { utilisateur: req.utilisateurId },
-        populate: ["vehicule", "type_rendez_vous"]
+        match: { utilisateur: { $eq: req.utilisateurId }},
+        populate: ["vehicule", "type_rendez_vous"],
     })
 
     return res.status(200).json({
-        data: rendezVous
+        data: rendezVous.filter(item => item.demande_rendez_vous != null)
     })
 })
 
@@ -157,6 +157,8 @@ router.delete('/:id/annuler', [verifyToken], async (req, res) => {
         match: { utilisateur: req.utilisateurId }
     })
 
+    rendezVous = rendezVous.filter(item => item.demande_rendez_vous != null)
+
     if (!rendezVous) {
         return res.status(400).json({
             error: "Une erreur est survenue"
@@ -168,6 +170,13 @@ router.delete('/:id/annuler', [verifyToken], async (req, res) => {
 
     return res.status(200).json({
         message: "Demande annuler avec succes"
+    })
+})
+
+// Obtnir les indisponibiles
+router.get('/indisponibilite', async (req, res) => {
+    return res.status(200).json({
+        data: await RendezVousService.obtenirHeuresIndisponibles()
     })
 })
 
