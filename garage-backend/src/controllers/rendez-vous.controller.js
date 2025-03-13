@@ -7,7 +7,10 @@ const DemandeRendezVous = require('../model/RendezVous/demandeRendezVous')
 
 const { EtatDemandeRendezVous } = require('../model/Etats')
 
-const { verifyToken } = require('../middlewares/jwt')
+const { verifyToken, isManager } = require('../middlewares/jwt')
+
+// Services
+const RendezVousService = require('../services/rendezVousService')
 
 // Types de rendez-vous
 router.get('/types', async (req, res) => {
@@ -24,6 +27,21 @@ router.get('/demandes', [verifyToken], async (req, res) => {
 
     return res.status(200).json({
         data: demandes
+    })
+})
+
+// Validation de demande rendez vous
+router.post('/demandes/:id/valider', [verifyToken, isManager], async (req, res) => {
+    try {
+        await RendezVousService.validerDemandeRendezVous(req.params.id)
+    } catch (err) {
+        return res.status(200).json({
+            error: err.message
+        })
+    }
+
+    return res.status(200).json({
+        message: "Demande de rendez-vous valider avec success"
     })
 })
 
