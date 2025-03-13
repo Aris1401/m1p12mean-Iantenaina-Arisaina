@@ -23,6 +23,7 @@ export class AppMenu {
             {
                 label: "Client",
                 items: [
+                    { label: 'Mes rendez-vous', icon: 'pi pi-fw pi-calendar', routerLink: ['/rendez-vous'] },
                     { label: 'Mes voitures', icon: 'pi pi-fw pi-car', routerLink: ['/vehicule'] }
                 ]
             },

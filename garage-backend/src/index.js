@@ -36,6 +36,9 @@ app.use(baseUrl + "/user", require('./controllers/utilisateur.controller'))
 // Vehicules
 app.use(baseUrl + "/vehicules", require('./controllers/vehicule.controller'))
 
+// Rendez-Vous
+app.use(baseUrl + "/rendez-vous", require('./controllers/rendez-vous.controller'))
+
 app.get(baseUrl + "/test", [verifyToken, isUtilisateur], (req, res) => {
   res.status(200).send({ message: "Test réussi !" });
 });

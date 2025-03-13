@@ -7,6 +7,8 @@ import { providePrimeNG } from 'primeng/config';
 import { appRoutes } from './app.routes';
 import { provideHttpRequestInterceptor } from './app/_helpers/http.interceptor';
 import { MessageService } from 'primeng/api';
+import { CalendarModule, DateAdapter } from 'angular-calendar';
+import { adapterFactory } from 'angular-calendar/date-adapters/date-fns'
 
 export const appConfig: ApplicationConfig = {
     providers: [
@@ -14,6 +16,10 @@ export const appConfig: ApplicationConfig = {
         provideHttpClient(withFetch(), withInterceptorsFromDi()),
         provideAnimationsAsync(),
         providePrimeNG({ theme: { preset: Aura, options: { darkModeSelector: '.app-dark' } } }),
+        importProvidersFrom(CalendarModule.forRoot({
+            provide: DateAdapter,
+            useFactory: adapterFactory
+        })),
         provideHttpRequestInterceptor,
         MessageService
     ]
