@@ -30,7 +30,8 @@ export class AppMenu {
             {
                 label: "Manager",
                 items: [
-                    { label: 'Mecaniciens', icon: 'pi pi-user', routerLink: ['/manager/mecaniciens'] }
+                    { label: 'Mecaniciens', icon: 'pi pi-user', routerLink: ['/manager/mecaniciens'] },
+                    { label: 'Pieces', icon: 'pi pi-wrench', routerLink: ['/manager/pieces'] }
                 ]
             },
             {
