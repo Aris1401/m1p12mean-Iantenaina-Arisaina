@@ -28,6 +28,12 @@ export class AppMenu {
                 ]
             },
             {
+                label: "Manager",
+                items: [
+                    { label: 'Mecaniciens', icon: 'pi pi-user', routerLink: ['/manager/mecaniciens'] }
+                ]
+            },
+            {
                 label: 'Home',
                 items: [{ label: 'Dashboard', icon: 'pi pi-fw pi-home', routerLink: ['/'] }]
             },
