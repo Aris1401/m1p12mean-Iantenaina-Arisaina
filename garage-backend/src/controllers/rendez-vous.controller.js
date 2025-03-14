@@ -78,6 +78,15 @@ router.post('/demandes', [verifyToken], async (req, res) => {
         etat_demande: EtatDemandeRendezVous.EN_COURS,
     })
 
+    // Valider l'heure de demande de rendez-vous
+    const isValid = await RendezVousService.verifierHeureDemandeRendezVous(demande)
+
+    if (!isValid) {
+        return res.status(400).json({
+            error: "Heure deja reserver"
+        })
+    }
+
     const errors = demande.validateSync()
 
     if (errors) {
@@ -149,7 +158,7 @@ router.get('/utilisateur', [verifyToken, isUtilisateur], async (req, res) => {
 
 // Annulation de rendez-vous
 router.delete('/:id/annuler', [verifyToken], async (req, res) => {
-    const rendezVous = await RendezVous.findOne({ 
+    let rendezVous = await RendezVous.findOne({ 
         _id: req.params.id, 
         etat_rendez_vous: EtatRendezVous.EN_ATTENTE 
     }).populate({
@@ -157,7 +166,7 @@ router.delete('/:id/annuler', [verifyToken], async (req, res) => {
         match: { utilisateur: req.utilisateurId }
     })
 
-    rendezVous = rendezVous.filter(item => item.demande_rendez_vous != null)
+    rendezVous = rendezVous.demande_rendez_vous ? rendezVous : null
 
     if (!rendezVous) {
         return res.status(400).json({
