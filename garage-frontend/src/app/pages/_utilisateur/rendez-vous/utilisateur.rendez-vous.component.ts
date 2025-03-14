@@ -165,7 +165,7 @@ import { forkJoin, Subject } from 'rxjs';
 
                 <div class="w-full">
                     <label for="date" class="block">Date</label>
-                    <input pInputText type="datetime-local" name="date" id="date" class="w-full" [(ngModel)]="rendezVousData.date" disabled />
+                    <input pInputText type="datetime-local" name="date" id="date" class="w-full" [(ngModel)]="rendezVousData.date" />
                 </div>
 
                 <div class="w-full">

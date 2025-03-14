@@ -78,6 +78,36 @@ class RendezVousService {
 
     return clumpedHours;
   }
+
+  // Valider la demande de rendez-vous
+  static async verifierHeureDemandeRendezVous(demandeRendezVous) {
+    const heuresIndisponibles = await this.obtenirHeuresIndisponibles();
+
+	const dateSouhaiter = new Date(demandeRendezVous.date_souhaiter);
+	console.log("Heure demandée:", dateSouhaiter.toISOString());
+
+    for (let i = 0; i < heuresIndisponibles.length; i++) {
+		const start = new Date(heuresIndisponibles[i].start);
+        let end = new Date(heuresIndisponibles[i].end);
+
+		if (start.getTime() === end.getTime()) {
+            end = new Date(start.getTime() + 30 * 60 * 1000); 
+        }
+
+		console.log(`Indisponible ${i + 1}: Start = ${start.toISOString()}, End = ${end.toISOString()}`);
+
+		console.log(dateSouhaiter >= start &&
+			dateSouhaiter <= end)
+      if (
+        dateSouhaiter >= start &&
+        dateSouhaiter <= end
+      ) {
+        return false; // Time slot is unavailable
+      }
+    }
+
+    return true; // Time slot is available
+  }
 }
 
 module.exports = RendezVousService;
