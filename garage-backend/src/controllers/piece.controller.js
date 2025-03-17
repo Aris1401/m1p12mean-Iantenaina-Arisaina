@@ -3,6 +3,7 @@ const router = express.Router()
 
 // Modeles
 const Piece = require('../model/Piece/piece')
+const StockPiece = require('../model/Piece/stockPiece')
 
 const PieceService = require('../services/pieceService')
 
@@ -75,6 +76,15 @@ router.post('/', [verifyToken], async (req, res) => {
 })
 
 // Obtenir l'etat de stock
+// Mouvement de stock
+router.get('/mouvement/:id', async (req, res) => {
+    const mouvementPiece = await StockPiece.find({ piece: req.params.id }).populate('piece')
+
+    return res.status(200).json({
+        data: mouvementPiece
+    })
+})
+
 router.get('/stock', async (req, res) => {
     const etatDeStock = await PieceService.obtenirEtatStock()
 
@@ -82,5 +92,6 @@ router.get('/stock', async (req, res) => {
         data: etatDeStock
     })
 })
+
 
 module.exports = router

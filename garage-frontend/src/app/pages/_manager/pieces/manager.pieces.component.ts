@@ -10,10 +10,11 @@ import { FormsModule } from '@angular/forms';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { ManagerListePiecesComponent } from './manager.liste-pieces.component';
+import { ManagerMouvementsPieceComponent } from './manager.mouvements-piece.component';
 
 @Component({
     selector: 'app-manager.pieces',
-    imports: [TableModule, ButtonModule, DialogModule, CardModule, InputTextModule, SelectModule, FormsModule, ToastModule, ManagerListePiecesComponent],
+    imports: [TableModule, ButtonModule, DialogModule, CardModule, InputTextModule, SelectModule, FormsModule, ToastModule, ManagerListePiecesComponent, ManagerMouvementsPieceComponent],
     template: `
         <p-card header="Etat du stock">
             <p-table [value]="stockPieces" #stockTable [paginator]="true" [rows]="10" [globalFilterFields]="['reference', 'designation']">
@@ -40,9 +41,9 @@ import { ManagerListePiecesComponent } from './manager.liste-pieces.component';
                 </ng-template>
                 <ng-template let-piece #body>
                     <tr>
-                        <td>{{ piece.reference }}</td>
-                        <td>{{ piece.designation }}</td>
-                        <td>{{ piece.prix_cump }}</td>
+                        <td (click)="showMouvementsPiece(piece._id)" class="underline cursor-pointer" >{{ piece.reference }}</td>
+                        <td (click)="showMouvementsPiece(piece._id)" class="underline cursor-pointer" >{{ piece.designation }}</td>
+                        <td>{{ piece.prix_cump }} Ar</td>
                         <td>{{ piece.total_entree }}</td>
                         <td>{{ piece.total_sortie }}</td>
                         <td>{{ piece.stock }}</td>
@@ -148,10 +149,14 @@ import { ManagerListePiecesComponent } from './manager.liste-pieces.component';
                 <button pButton type="submit" label="Ajouter" icon="pi pi-check" class="w-full"></button>
             </form>
         </p-dialog>
-
+        
         <div class="mt-3">
             <app-manager-liste-pieces />
         </div>
+
+        <p-dialog header="Mouvement de piece" [(visible)]="isMouvementsPieceVisible" [style]="{ width: '50vw' }">
+            <app-manager-mouvements-piece [idPiece]="idPieceMouvement" />
+        <p-dialog>
     `,
     styles: ``
 })
@@ -173,6 +178,10 @@ export class ManagerPiecesComponent implements OnInit {
     isPieceSelected: boolean = false;
 
     addStockErrors: any;
+
+    // Mouvement piece
+    isMouvementsPieceVisible: boolean = false;
+    idPieceMouvement : string = ""
 
     constructor(
         private piecesService: PiecesService,
@@ -236,5 +245,10 @@ export class ManagerPiecesComponent implements OnInit {
                 this.addStockErrors = error.error.data;
             }
         });
+    }
+
+    showMouvementsPiece(idPiece : string) {
+        this.isMouvementsPieceVisible = true
+        this.idPieceMouvement = idPiece
     }
 }
