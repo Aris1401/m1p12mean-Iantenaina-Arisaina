@@ -45,4 +45,18 @@ export class RendezVousService {
   getIndisponibilites() {
     return this.http.get(environment.apiUrl + "rendez-vous/indisponibilite")
   }
+
+  // Obtenir tout les rendez vous (coter manager)
+  getRendezVousManager() {
+    return this.http.get(environment.apiUrl + "rendez-vous/manager")
+  }
+
+  // Obtenir tout les demandes de rendez-vous (coter manager)
+  getDemandesRendezVousManager() {
+    return this.http.get(environment.apiUrl + "rendez-vous/demandes/manager")
+  }
+
+  validerDemandeRendezVousManager(idDemande : string) {
+    return this.http.put(environment.apiUrl + "rendez-vous/demandes/" + idDemande + "/valider", {})
+  }
 }
