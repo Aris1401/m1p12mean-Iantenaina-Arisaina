@@ -33,12 +33,27 @@ router.get('/demandes', [verifyToken], async (req, res) => {
     })
 })
 
+// Liste de tout les rendez-vous
+router.get('/manager', [verifyToken, isManager], async (req, res) => {
+    const rendezVous = await RendezVous.find().populate({
+        path: "demande_rendez_vous",
+        populate: ["vehicule", "type_rendez_vous", {
+            path: "utilisateur",
+            select: ["-mot_de_passe"]
+        }]
+    }).sort({ date_rendez_vous: -1 })
+
+    return res.status(200).json({
+        data: rendezVous
+    })
+})
+
 // Validation de demande rendez vous
-router.post('/demandes/:id/valider', [verifyToken, isManager], async (req, res) => {
+router.put('/demandes/:id/valider', [verifyToken, isManager], async (req, res) => {
     try {
         await RendezVousService.validerDemandeRendezVous(req.params.id)
     } catch (err) {
-        return res.status(200).json({
+        return res.status(400).json({
             error: err.message
         })
     }
@@ -140,6 +155,18 @@ router.get('/rdv/:id', async (req, res) => {
 
 
 
+
+// Obtenir tout les demandes de rendez-vous
+router.get('/demandes/manager', [verifyToken, isManager], async (req, res) => {
+    const demandes = await DemandeRendezVous.find({ etat_demande: EtatDemandeRendezVous.EN_COURS }).populate('vehicule').populate('type_rendez_vous').populate({
+        path: "utilisateur",
+        select: ["-mot_de_passe"]
+    }).sort({ date_souhaiter: -1 })
+
+    return res.status(200).json({
+        data: demandes
+    })
+});
 
 // Liste des rendez vous de l'utilisateur
 router.get('/utilisateur', [verifyToken, isUtilisateur], async (req, res) => {
