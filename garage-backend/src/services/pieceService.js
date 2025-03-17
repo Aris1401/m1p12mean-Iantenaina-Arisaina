@@ -25,7 +25,7 @@ class PieceService {
         {
           // Projection finale des champs désirés
           $project: {
-            _id: 0,
+            _id: 1,
             reference: 1,
             designation: 1,
             stock: { $subtract: ["$total_entree", "$total_sortie"] },

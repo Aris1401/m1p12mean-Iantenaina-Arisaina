@@ -25,5 +25,9 @@ export class PiecesService {
 
   modifierPiece(data : any) {
     return this.http.put(environment.apiUrl + "pieces", data)
-  } 
+  }
+  
+  getMouvementStock(idPiece : any) {
+    return this.http.get(environment.apiUrl + "pieces/mouvement/" + idPiece)
+  }
 }
