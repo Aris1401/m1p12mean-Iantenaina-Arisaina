@@ -45,6 +45,9 @@ app.use(baseUrl + "/mecaniciens", require('./controllers/mecanicien.controller')
 // Pieces
 app.use(baseUrl + "/pieces", require('./controllers/piece.controller'))
 
+// Manager
+app.use(baseUrl + "/manager", require('./controllers/manager.controller'))
+
 app.get(baseUrl + "/test", [verifyToken, isUtilisateur], (req, res) => {
   res.status(200).send({ message: "Test réussi !" });
 });
