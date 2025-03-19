@@ -5,10 +5,11 @@ import { ImageModule } from 'primeng/image';
 import { InputTextModule } from 'primeng/inputtext';
 import { MecanicienService } from '../../../_services/mecaniciens/mecanicien.service';
 import { FormsModule } from '@angular/forms';
+import { ManagerMecaniciensInterventionsComponent } from './manager.mecaniciens-interventions.component';
 
 @Component({
     selector: 'app-manager.details-mecanicien',
-    imports: [CardModule, InputTextModule, ImageModule, FormsModule],
+    imports: [CardModule, InputTextModule, ImageModule, FormsModule, ManagerMecaniciensInterventionsComponent],
     template: `
         <div class="flex gap-2 w-full">
             <!-- Details -->
@@ -67,6 +68,11 @@ import { FormsModule } from '@angular/forms';
                     </div>
                 </p-card>
             </div>
+        </div>
+
+        <!-- Liste des intervetions des mecaniciens -->
+        <div class="mt-2">
+            <app-manager-mecaniciens-interventions></app-manager-mecaniciens-interventions>
         </div>
     `,
     styles: ``
