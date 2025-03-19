@@ -22,5 +22,5 @@ import { TableModule } from 'primeng/table';
   styles: ``
 })
 export class ManagerMecaniciensInterventionsComponent {
-
+  // TODO: Obtenir depuis backend
 }
