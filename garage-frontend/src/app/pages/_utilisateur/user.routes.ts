@@ -8,5 +8,8 @@ export default [
     { path: 'profil', component: UtilisateurProfilComponent },
     { path: 'vehicule', component: UtilisateurVehiculeComponent },
     { path: 'vehicule/:id', component: UtilisateurDetailsVehiculeComponent },
-    { path: 'rendez-vous', component: UtilisateurRendezVousComponent }
+    { path: 'rendez-vous', component: UtilisateurRendezVousComponent },
+    
+    
+
 ] as Routes;
