@@ -10,8 +10,6 @@ const { EtatDemandeRendezVous, EtatRendezVous } = require('../model/Etats')
 const { verifyToken, isManager, isUtilisateur , isManager, isUtilisateur} = require('../middlewares/jwt')
 const rendezVous = require('../model/RendezVous/rendezVous')
 
-const { verifyToken, isManager, isUtilisateur } = require('../middlewares/jwt')
-
 // Services
 const RendezVousService = require('../services/rendezVousService')
 

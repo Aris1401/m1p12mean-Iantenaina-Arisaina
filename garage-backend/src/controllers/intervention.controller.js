@@ -10,7 +10,28 @@ const RendezVous = require('../model/RendezVous/rendezVous');
 const Utilisateur = require('../model/Utilisateur/utilisateur');
 const Vehicule=require('../model/Vehicule/vehicule');
 
+// Etats
+const { EtatIntervention } = require('../model/Etats')
 
+const { verifyToken } = require('../middlewares/jwt');
+
+// Obtenir l'intervetion courante d'un vehicule
+router.get('/:vehiculeId/actif', [verifyToken], async (req, res) => {
+    const interventions = await Intervention.find({ vehicule: req.params.vehiculeId, etat_intervention: EtatIntervention.EN_COURS }).sort({ createdAt: -1 }).limit(1)
+
+    return res.status(200).json({
+        data: interventions[0]
+    })
+})
+
+// Obtenir la liste des intervetions d'un vehicule
+router.get('/:vehiculeId', [verifyToken], async (req, res) => {
+    const interventions = await Intervention.find({ vehicule: req.params.vehiculeId }).sort({ createdAt: -1 })
+
+    return res.status(200).json({
+        data: interventions
+    })
+})
 
 router.post('/new', async (req, res) => {
     const { idRdv } = req.body;

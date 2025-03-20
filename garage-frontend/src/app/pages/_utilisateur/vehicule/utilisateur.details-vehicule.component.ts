@@ -26,7 +26,7 @@ import { UtilisateurVehiculesIntervetionsComponent } from './utilisateur.vehicul
                 <!-- Details vehicule -->
                 <p-card>
                     <div class="flex gap-10">
-                        @if (currentVehicule.images && currentVehicule.images.length > 0) {
+                        @if (currentVehicule && currentVehicule.images && currentVehicule.images.length > 0) {
                             <p-carousel [value]="currentVehicule.images">
                                 <ng-template let-image #item>
                                     <div class="bg-surface-50 flex justify-center rounded p-4">
@@ -40,37 +40,37 @@ import { UtilisateurVehiculesIntervetionsComponent } from './utilisateur.vehicul
                         } @else {
                             <div class="bg-surface-50 flex justify-center rounded p-4 w-1/3">
                                 <div class="relative mx-auto">
-                                    <img class="rounded w-full" [src]="'https://upload.wikimedia.org/wikipedia/commons/1/14/No_Image_Available.jpg'" [alt]="currentVehicule.modele" style="max-width: 300px" />
+                                    <img class="rounded w-full" [src]="'https://upload.wikimedia.org/wikipedia/commons/1/14/No_Image_Available.jpg'" [alt]="currentVehicule && currentVehicule.modele" style="max-width: 300px" />
                                     <!-- <p-tag [value]="product.inventoryStatus" [severity]="getSeverity(product)" class="absolute" styleClass="dark:!bg-surface-900" [style.left.px]="4" [style.top.px]="4" /> -->
                                 </div>
                             </div>
                         }
 
                         <div class="flex flex-col gap-2 mt-auto mb-auto w-2/3">
-                            <h3>{{ currentVehicule.immatriculation }}</h3>
+                            <h3>{{ currentVehicule && currentVehicule.immatriculation }}</h3>
 
                             <div class="flex gap-2 align-middle">
-                                <p class="m-0">Marque: <p-chip [label]="currentVehicule.marque" /></p>
+                                <p class="m-0">Marque: <p-chip [label]="currentVehicule && currentVehicule.marque" /></p>
                                 <p-divider layout="vertical" />
                                 <p class="m-0">Type: <p-chip label="N/A" /></p>
                             </div>
 
                             <div class="flex gap-2 align-middle">
-                                <p class="m-0">Modele: <p-chip [label]="currentVehicule.modele || 'N/A'" /></p>
+                                <p class="m-0">Modele: <p-chip [label]="currentVehicule && currentVehicule.modele || 'N/A'" /></p>
                                 <p-divider layout="vertical" />
-                                <p class="m-0">Annne modele: <p-chip [label]="currentVehicule.annee" /></p>
+                                <p class="m-0">Annne modele: <p-chip [label]="currentVehicule && currentVehicule.annee" /></p>
                             </div>
 
                             <div class="flex gap-2 align-middle">
                                 <p class="m-0">Couleur: <p-chip [label]="'N/A'" /></p>
                                 <p-divider layout="vertical" />
-                                <p class="m-0">Boite de vitesse: <p-chip [label]="currentVehicule.boite_de_vitesse" /></p>
+                                <p class="m-0">Boite de vitesse: <p-chip [label]="currentVehicule && currentVehicule.boite_de_vitesse" /></p>
                                 <p-divider layout="vertical" />
-                                <p class="m-0">Energie: <p-chip [label]="currentVehicule.carburant" /></p>
+                                <p class="m-0">Energie: <p-chip [label]="currentVehicule && currentVehicule.carburant" /></p>
                             </div>
 
                             <div class="flex gap-2 align-middle">
-                                <p class="m-0">Kilometrage: <p-chip [label]="currentVehicule.kilometrage + ' km'" /></p>
+                                <p class="m-0">Kilometrage: <p-chip [label]="currentVehicule && currentVehicule.kilometrage + ' km'" /></p>
                             </div>
                         </div>
                     </div>
