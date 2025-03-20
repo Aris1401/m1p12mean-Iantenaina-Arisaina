@@ -1,0 +1,37 @@
+<div class="container mx-auto my-10 px-4">
+    <h2 class="text-2xl font-bold mb-6">Liste des Rendez-Vous</h2>
+    <table class="min-w-full table-auto bg-white border border-gray-300 rounded-lg shadow-md">
+      <thead>
+        <tr class="bg-blue-600 text-white">
+          <th class="py-3 px-6 text-left">ID</th>
+          <th class="py-3 px-6 text-left">Date du Rendez-Vous</th>
+          <th class="py-3 px-6 text-left">État</th>
+          <th class="py-3 px-6 text-left">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let ok of ArrayRDV" class="hover:bg-gray-100">
+          <td class="py-3 px-6">{{ ok._id }}</td>
+          <td class="py-3 px-6">{{ ok.date_rendez_vous }}</td>
+          <td class="py-3 px-6">
+            <span
+              class="inline-block px-4 py-1 rounded-full text-white"
+              [ngClass]="{
+                'bg-green-500': ok.etat_rendez_vous === 1,
+                'bg-yellow-500': ok.etat_rendez_vous === 2,
+                'bg-red-500': ok.etat_rendez_vous === 3
+              }"
+            >
+              {{ ok.etat_rendez_vous }}
+            </span>
+          </td>
+          <td class="py-3 px-6">
+            <button (click)="goToCreateIntervention(ok._id)" class="bg-blue-500 text-white p-2 rounded">
+              Créer une intervention
+            </button>                                        
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  
