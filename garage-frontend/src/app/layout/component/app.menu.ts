@@ -34,6 +34,20 @@ export class AppMenu {
                 ]
             },
             {
+                label: "Manager",
+                items: [
+                    { label: 'Tableau de bord', icon: 'pi pi-chart-bar', routerLink: ['/manager/tableau-de-bord'] },
+                    { label: 'Rendez-vous', icon: 'pi pi-calendar', routerLink: ['/manager/rendez-vous'] },
+                    { label: 'Pieces', icon: 'pi pi-wrench', routerLink: ['/manager/pieces'] },
+                    { label: 'Mecaniciens', icon: 'pi pi-user', routerLink: ['/manager/mecaniciens'] },
+                    { label: 'Factures', icon: 'pi pi-money-bill', routerLink: ['/manager/factures'] }
+                ]
+            },
+            {
+                label: 'Home',
+                items: [{ label: 'Dashboard', icon: 'pi pi-fw pi-home', routerLink: ['/'] }]
+            },
+            {
                 label: 'UI Components',
                 items: [
                     { label: 'Form Layout', icon: 'pi pi-fw pi-id-card', routerLink: ['/uikit/formlayout'] },
