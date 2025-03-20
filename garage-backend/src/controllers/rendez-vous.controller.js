@@ -1,6 +1,5 @@
 const express = require('express')
 const router = express.Router()
-
 // Modeles
 const TypeRendezVous = require('../model/RendezVous/typeRendezVous')
 const DemandeRendezVous = require('../model/RendezVous/demandeRendezVous')
@@ -8,19 +7,22 @@ const RendezVous = require('../model/RendezVous/rendezVous')
 
 const { EtatDemandeRendezVous, EtatRendezVous } = require('../model/Etats')
 
+const { verifyToken } = require('../middlewares/jwt')
+const rendezVous = require('../model/RendezVous/rendezVous')
+
 const { verifyToken, isManager, isUtilisateur } = require('../middlewares/jwt')
 
 // Services
 const RendezVousService = require('../services/rendezVousService')
 
+
 // Types de rendez-vous
 router.get('/types', async (req, res) => {
-    const types = await TypeRendezVous.find()
-
-    return res.status(200).json({
-        data: types
-    })
-})
+        const types = await TypeRendezVous.find();
+        return res.status(200).json({
+            data: types
+        });
+});
 
 // Liste de tout les demandes
 router.get('/demandes', [verifyToken], async (req, res) => {
@@ -117,6 +119,42 @@ router.post('/demandes', [verifyToken], async (req, res) => {
         message: "Demande enregistrer avec succes"
     })
 })
+
+
+// Liste de tous les rendez-vous
+router.get('/rdv', async (req, res) => {
+    const rdv = await rendezVous.find();
+
+    return res.status(200).json({
+        data: rdv
+    });
+});
+
+// Récupérer un rendez-vous par ID
+const mongoose = require('mongoose');
+
+router.get('/rdv/:id', async (req, res) => {
+    const { id } = req.params; 
+
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+        return res.status(400).json({
+            error: 'ID invalide'
+        });
+    }
+
+    const rdv = await rendezVous.findById(id);
+
+    if (!rdv) {
+        return res.status(404).json({
+            error: 'Rendez-vous non trouvé'
+        });
+    }
+
+    return res.status(200).json({
+        data: rdv
+    });
+});
 
 // Obtenir tout les demandes de rendez-vous
 router.get('/demandes/manager', [verifyToken, isManager], async (req, res) => {

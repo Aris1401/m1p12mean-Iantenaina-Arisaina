@@ -39,6 +39,9 @@ app.use(baseUrl + "/vehicules", require('./controllers/vehicule.controller'))
 // Rendez-Vous
 app.use(baseUrl + "/rendez-vous", require('./controllers/rendez-vous.controller'))
 
+// Intervention
+app.use(baseUrl + "/intervention", require('./controllers/intervention.controller'))
+
 // Mecaniciens
 app.use(baseUrl + "/mecaniciens", require('./controllers/mecanicien.controller'))
 

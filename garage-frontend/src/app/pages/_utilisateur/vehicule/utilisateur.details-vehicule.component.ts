@@ -15,10 +15,11 @@ import { CommonModule } from '@angular/common';
 import { CarouselModule } from 'primeng/carousel';
 import { ChipModule } from 'primeng/chip';
 import { environment } from '../../../../_env/environment';
+import { UtilisateurVehiculesIntervetionsComponent } from './utilisateur.vehicules-intervetions.component';
 
 @Component({
     selector: 'app-utilisateur.details-vehicule',
-    imports: [CarouselModule, CardModule, ChipModule, DividerModule, ButtonModule, DataViewModule, DialogModule, InputTextModule, TextareaModule, FileUpload, FormsModule, CommonModule],
+    imports: [CarouselModule, CardModule, ChipModule, DividerModule, ButtonModule, DataViewModule, DialogModule, InputTextModule, TextareaModule, FileUpload, FormsModule, CommonModule, UtilisateurVehiculesIntervetionsComponent],
     template: `
         <div class="flex gap-2">
             <div class="w-2/3">
@@ -137,6 +138,10 @@ import { environment } from '../../../../_env/environment';
                     </form>
                 </p-dialog>
             </div>
+        </div>
+
+        <div class="mt-2">
+            <app-utilisateur-vehicules-intervetions [vehiculeId]="currentVehiculeId"></app-utilisateur-vehicules-intervetions>
         </div>
     `,
     styles: ``

@@ -103,5 +103,5 @@ export class ManagerFacturesComponent {
             total: 20000,
             total_ttc: 24000
         }
-    ];
+    ]; // TODO: Obtenir depuis backend
 }
