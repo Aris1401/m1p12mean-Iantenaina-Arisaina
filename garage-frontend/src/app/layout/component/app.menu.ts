@@ -24,12 +24,14 @@ export class AppMenu {
                 label: "Client",
                 items: [
                     { label: 'Mes rendez-vous', icon: 'pi pi-fw pi-calendar', routerLink: ['/rendez-vous'] },
-                    { label: 'Mes voitures', icon: 'pi pi-fw pi-car', routerLink: ['/vehicule'] }
+                    { label: 'Mes voitures', icon: 'pi pi-fw pi-car', routerLink: ['/vehicule'] },
                 ]
             },
             {
-                label: 'Home',
-                items: [{ label: 'Dashboard', icon: 'pi pi-fw pi-home', routerLink: ['/'] }]
+                label: "Mecanicien",
+                items: [
+                    { label: 'Creer Intervention ', icon: 'pi pi-fw pi-calendar', routerLink: ['/liste'] },
+                ]
             },
             {
                 label: 'UI Components',

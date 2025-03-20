@@ -18,7 +18,8 @@ export const appRoutes: Routes = [
             { path: 'uikit', loadChildren: () => import('./app/pages/uikit/uikit.routes') },
             { path: 'documentation', component: Documentation },
             { path: '', loadChildren: () => import('./app/pages/pages.routes') },
-            { path: '', loadChildren: () => import('./app/pages/_utilisateur/user.routes') }
+            { path: '', loadChildren: () => import('./app/pages/_utilisateur/user.routes') },
+            {path: '', loadChildren: () => import('./app/pages/intervention/intervention.routes') },
         ]
     },
     { path: 'landing', component: Landing },
