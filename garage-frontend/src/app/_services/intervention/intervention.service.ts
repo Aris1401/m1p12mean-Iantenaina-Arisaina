@@ -22,17 +22,4 @@ export class InterventionService {
   getIntervetionVehiculeCourante(vehiculeId : any) {
     return this.http.get(environment.apiUrl + "intervention/vehicule/" + vehiculeId + "/actif")
   }
-
-  // Fiche intervention
-  getFicheIntervetion(ficheId : any) {
-    return this.http.get(environment.apiUrl + "intervention/fiche/" + ficheId)
-  } 
-
-  getTravauxFicheIntervention(ficheId : any) {
-    return this.http.get(environment.apiUrl + "intervention/fiche/" + ficheId + "/travaux")
-  }
-
-  getPiecesFicheIntervention(ficheId: any) {
-    return this.http.get(environment.apiUrl + "intervention/fiche/" + ficheId + "/pieces")
-  }
 }

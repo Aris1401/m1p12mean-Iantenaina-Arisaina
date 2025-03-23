@@ -7,6 +7,7 @@ import { DividerModule } from 'primeng/divider';
 import { TableModule } from 'primeng/table';
 import { InterventionService } from '../../../_services/intervention/intervention.service';
 import { CommonModule } from '@angular/common';
+import { FicheInterventionService } from '../../../_services/fiche-intervention/fiche-intervention.service';
 
 @Component({
     selector: 'app-utilisateur.intervention',
@@ -61,7 +62,7 @@ import { CommonModule } from '@angular/common';
 
                 <p-divider />
 
-                <p-table [value]="piecesData">
+                <p-table [value]="piecesData" [stripedRows]="true">
                     <ng-template #caption>
                         <h3>Resumer des pieces</h3>
                     </ng-template>
@@ -136,7 +137,8 @@ export class UtilisateurInterventionComponent implements OnInit {
 
     constructor(
         private route: ActivatedRoute,
-        private interventionService: InterventionService
+        private interventionService: InterventionService,
+        private ficheIntervetionService : FicheInterventionService
     ) {
         effect(() => {
             if (this.currentIntervetionId().trim().length > 0) {
@@ -148,14 +150,14 @@ export class UtilisateurInterventionComponent implements OnInit {
                         // Obtenir la fiche d'intervetion
                         this.ficheInterventionData = this.intervetionData.fiche_intervention;
 
-                        this.interventionService.getTravauxFicheIntervention(this.ficheInterventionData._id).subscribe({
+                        this.ficheIntervetionService.getTravauxFicheIntervention(this.ficheInterventionData._id).subscribe({
                             next: (response: any) => {
                                 this.travauxData = response.data;
                             }
                         });
 
                         // Obtenir les pieces de fiche intervention
-                        this.interventionService.getPiecesFicheIntervention(this.ficheInterventionData._id).subscribe({
+                        this.ficheIntervetionService.getPiecesFicheIntervention(this.ficheInterventionData._id).subscribe({
                             next: (response : any) => {
                                 this.piecesData = response.data
                             }
