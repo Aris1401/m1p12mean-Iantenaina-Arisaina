@@ -3,7 +3,10 @@
 const express = require('express');
 const router = express.Router();
 
-
+const TravauxFicheIntervention = require('../model/Intervention/FicheIntervention/travauxFicheIntervention')
+const PieceFicheIntervention = require('../model/Intervention/FicheIntervention/pieceFicheIntervention')
+const TypeEvenement = require('../model/Intervention/FicheIntervention/typeEvenement')
+const FicheIntervention = require('../model/Intervention/FicheIntervention/ficheIntervetion')
 const Intervention = require('../model/Intervention/intervention');
 const DemandeRendezVous = require('../model/RendezVous/demandeRendezVous');
 const RendezVous = require('../model/RendezVous/rendezVous');  
@@ -15,21 +18,62 @@ const { EtatIntervention } = require('../model/Etats')
 
 const { verifyToken } = require('../middlewares/jwt');
 
+// Obtenir fiche intervention
+router.get('/fiche/:ficheId', [verifyToken], async (req, res) => {
+    const ficheIntervention = await FicheIntervention.findOne({ _id: req.params.ficheId })
+
+    return res.status(200).json({
+        data: ficheIntervention
+    })
+})
+
+// Obtenir les travaux d'une fiche d'intervention
+router.get('/fiche/:ficheId/travaux', [verifyToken], async (req, res) => {
+    const travaux = await TravauxFicheIntervention.find({ fiche_intervention: req.params.ficheId })
+
+    return res.status(200).json({
+        data: travaux
+    })
+})
+
+// Obtenir les travaux d'une fiche d'intervention
+router.get('/fiche/:ficheId/pieces', [verifyToken], async (req, res) => {
+    const travaux = await PieceFicheIntervention.find({ fiche_intervention: req.params.ficheId }).populate('piece')
+
+    return res.status(200).json({
+        data: travaux
+    })
+})
+
 // Obtenir l'intervetion courante d'un vehicule
-router.get('/:vehiculeId/actif', [verifyToken], async (req, res) => {
+router.get('/vehicule/:vehiculeId/actif', [verifyToken], async (req, res) => {
     const interventions = await Intervention.find({ vehicule: req.params.vehiculeId, etat_intervention: EtatIntervention.EN_COURS }).sort({ createdAt: -1 }).limit(1)
 
     return res.status(200).json({
-        data: interventions[0]
+        data: interventions[0] ?? null
     })
 })
 
 // Obtenir la liste des intervetions d'un vehicule
-router.get('/:vehiculeId', [verifyToken], async (req, res) => {
+router.get('/vehicule/:vehiculeId', [verifyToken], async (req, res) => {
     const interventions = await Intervention.find({ vehicule: req.params.vehiculeId }).sort({ createdAt: -1 })
 
     return res.status(200).json({
         data: interventions
+    })
+})
+
+// Obtenir les details d'une intervention
+router.get('/:interventionId', [verifyToken], async (req, res) => {
+    const intervention = await Intervention.findOne({ _id: req.params.interventionId }).populate([
+        { 
+            path: 'fiche_intervention',
+            populate: 'type_evenement'
+        }
+    ])
+
+    return res.status(200).json({
+        data: intervention
     })
 })
 
