@@ -18,33 +18,6 @@ const { EtatIntervention } = require('../model/Etats')
 
 const { verifyToken } = require('../middlewares/jwt');
 
-// Obtenir fiche intervention
-router.get('/fiche/:ficheId', [verifyToken], async (req, res) => {
-    const ficheIntervention = await FicheIntervention.findOne({ _id: req.params.ficheId })
-
-    return res.status(200).json({
-        data: ficheIntervention
-    })
-})
-
-// Obtenir les travaux d'une fiche d'intervention
-router.get('/fiche/:ficheId/travaux', [verifyToken], async (req, res) => {
-    const travaux = await TravauxFicheIntervention.find({ fiche_intervention: req.params.ficheId })
-
-    return res.status(200).json({
-        data: travaux
-    })
-})
-
-// Obtenir les travaux d'une fiche d'intervention
-router.get('/fiche/:ficheId/pieces', [verifyToken], async (req, res) => {
-    const travaux = await PieceFicheIntervention.find({ fiche_intervention: req.params.ficheId }).populate('piece')
-
-    return res.status(200).json({
-        data: travaux
-    })
-})
-
 // Obtenir l'intervetion courante d'un vehicule
 router.get('/vehicule/:vehiculeId/actif', [verifyToken], async (req, res) => {
     const interventions = await Intervention.find({ vehicule: req.params.vehiculeId, etat_intervention: EtatIntervention.EN_COURS }).sort({ createdAt: -1 }).limit(1)
