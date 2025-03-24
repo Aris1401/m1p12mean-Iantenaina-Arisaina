@@ -18,8 +18,15 @@ const EtatRendezVous = {
     FINI: 20
 }
 
+const EtatDevis = {
+    EN_ATTENTE: 0,
+    VALIDER: 10,
+    REFUSER: -10
+}
+
 module.exports = {
     EtatDemandeRendezVous,
     EtatIntervention,
-    EtatRendezVous
+    EtatRendezVous,
+    EtatDevis
 }
