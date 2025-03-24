@@ -1,4 +1,4 @@
-import { Component, input, OnInit } from '@angular/core';
+import { Component, inject, input, OnInit } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
@@ -9,10 +9,12 @@ import { TableModule } from 'primeng/table';
 import { InterventionService } from '../../../_services/intervention/intervention.service';
 import { ChipModule } from 'primeng/chip';
 import { CommonModule } from '@angular/common';
+import { EtatsService } from '../../../_services/etats.service';
+import { BadgeModule } from 'primeng/badge';
 
 @Component({
     selector: 'app-utilisateur-vehicules-intervetions',
-    imports: [CardModule, TableModule, ButtonModule, CommonModule, IconFieldModule, InputIconModule, InputTextModule, RouterModule, ChipModule],
+    imports: [CardModule, TableModule, BadgeModule, ButtonModule, CommonModule, IconFieldModule, InputIconModule, InputTextModule, RouterModule, ChipModule],
     template: `
         @if (interventionCourante) {
             <p-card header="Intervention courante">
@@ -28,7 +30,7 @@ import { CommonModule } from '@angular/common';
                         <p class="m-0">Date debut: {{ (interventionCourante.date_debut | date: "yyyy-MM-dd HH:mm") ?? "N/A" }}</p>
                       </div>
                     </div>
-                    <p>Etat: {{ getEtatIntervention(interventionCourante.etat_intervention) }}</p>
+                    <p-badge [value]="etatsService.getEtatIntervention(interventionCourante.etat_intervention).etatString" [severity]="etatsService.getEtatIntervention(interventionCourante.etat_intervention).etatColor" />
                     <div>
                         <button pButton label="Afficher details" type="button" icon="pi pi-eye" class="p-button-rounded p-button-text" [routerLink]="['/intervention', interventionCourante._id]"></button>
                     </div>
@@ -68,7 +70,7 @@ import { CommonModule } from '@angular/common';
                             <td>{{ intervention.devis?.reference ?? 'N/A' }}</td>
                             <td>{{ intervention.facture?.reference ?? 'N/A' }}</td>
                             <td>
-                                <p-chip [label]="getEtatIntervention(intervention.etat_intervention)" />
+                            <p-badge [value]="etatsService.getEtatIntervention(intervention.etat_intervention).etatString" [severity]="etatsService.getEtatIntervention(intervention.etat_intervention).etatColor" />
                             </td>
                             <td>
                                 <button pButton label="Afficher details" type="button" icon="pi pi-eye" class="p-button-rounded p-button-text" [routerLink]="['/intervention', intervention._id]"></button>
@@ -88,6 +90,8 @@ export class UtilisateurVehiculesIntervetionsComponent implements OnInit {
 
     interventionCourante : any 
 
+    etatsService = inject(EtatsService)
+
     constructor(private interventionService: InterventionService) {}
 
     ngOnInit(): void {
@@ -102,18 +106,5 @@ export class UtilisateurVehiculesIntervetionsComponent implements OnInit {
             this.interventionCourante = response.data
           }
         })
-    }
-
-    getEtatIntervention(etatIntervention: any) {
-        switch (etatIntervention) {
-            case -10:
-                return 'En attente';
-            case 0:
-                return 'En cours';
-            case 10:
-                return 'En attente de piece';
-            default:
-                return 'Fini';
-        }
     }
 }
