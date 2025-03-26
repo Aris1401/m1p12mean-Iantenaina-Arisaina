@@ -291,6 +291,8 @@ export class ManagerDemandeRendezVousComponent implements OnInit {
             next: (response : any) => {
                 this.isAssignerMecanicienVisible = false
 
+                this.fetchMecanicienAssigner(this.rendezVousClicked._id)
+
                 this.messageService.add({
                     summary: "Assignation reussi",
                     detail: response.message,

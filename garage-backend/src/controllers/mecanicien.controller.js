@@ -4,6 +4,10 @@ const router = express.Router();
 // Models
 const Utilisateur = require("../model/Utilisateur/utilisateur");
 const RoleUtilisateur = require("../model/Utilisateur/roleUtilisateur");
+const AssignationIntervention = require('../model/Intervention/assignationIntervention')
+const Intervention = require('../model/Intervention/intervention')
+const Facture = require('../model/Intervention/Facture/facture')
+const Devis = require('../model/Intervention/Devis/devis')
 
 router.get("/", async (req, res) => {
   const utilisateurs = await Utilisateur.find()
@@ -33,19 +37,32 @@ router.get("/:id", async (req, res) => {
   });
 });
 
+// Liste des intervetions de mecaniciens
+router.get('/:id/interventions', async (req, res) => {
+  const assignations = await AssignationIntervention.find({ mecanicien: req.params.id }).populate([{
+    path: "intervention",
+    populate: ["devis", "facture", "vehicule", {
+      path: "utilisateur",
+      select: ["-mot_de_passe", "-documents"] 
+  }]
+  }, {
+    path: "mecanicien",
+    select: ["-mot_de_passe", "-documents"]
+  }])
+
+  return res.status(200).json({
+    data: assignations
+  })
+})
+
 router.post("/", async (req, res) => {
-  const roleUtilisateur = await RoleUtilisateur.findOne({ role: "ROLE_MECANICIEN" });
+  const roleUtilisateur = await RoleUtilisateur.findOne({
+    role: "ROLE_MECANICIEN",
+  });
 
-  const {
-    nom,
-    prenom,
-    email,
-    adresse,
-    date_naissance,
-    telephone,
-  } = req.body;
+  const { nom, prenom, email, adresse, date_naissance, telephone } = req.body;
 
-  const mot_de_passe = 'default'
+  const mot_de_passe = "default";
 
   const utilisateur = new Utilisateur({
     nom: nom,
