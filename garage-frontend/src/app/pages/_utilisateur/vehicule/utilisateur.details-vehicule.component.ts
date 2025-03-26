@@ -16,65 +16,16 @@ import { CarouselModule } from 'primeng/carousel';
 import { ChipModule } from 'primeng/chip';
 import { environment } from '../../../../_env/environment';
 import { UtilisateurVehiculesIntervetionsComponent } from './utilisateur.vehicules-intervetions.component';
+import { InfosVehiculeComponent } from '../../utils/vehicule/infos-vehicule.component';
 
 @Component({
     selector: 'app-utilisateur.details-vehicule',
-    imports: [CarouselModule, CardModule, ChipModule, DividerModule, ButtonModule, DataViewModule, DialogModule, InputTextModule, TextareaModule, FileUpload, FormsModule, CommonModule, UtilisateurVehiculesIntervetionsComponent],
+    imports: [InfosVehiculeComponent, CarouselModule, CardModule, ChipModule, DividerModule, ButtonModule, DataViewModule, DialogModule, InputTextModule, TextareaModule, FileUpload, FormsModule, CommonModule, UtilisateurVehiculesIntervetionsComponent],
     template: `
         <div class="flex gap-2">
             <div class="w-2/3">
                 <!-- Details vehicule -->
-                <p-card>
-                    <div class="flex gap-10">
-                        @if (currentVehicule.images && currentVehicule.images.length > 0) {
-                            <p-carousel [value]="currentVehicule.images">
-                                <ng-template let-image #item>
-                                    <div class="bg-surface-50 flex justify-center rounded p-4">
-                                        <div class="relative mx-auto">
-                                            <img class="rounded w-full" [src]="'data:image/png;base64, ' + image" [alt]="currentVehicule.modele" style="max-height: 200px" />
-                                            <!-- <p-tag [value]="product.inventoryStatus" [severity]="getSeverity(product)" class="absolute" styleClass="dark:!bg-surface-900" [style.left.px]="4" [style.top.px]="4" /> -->
-                                        </div>
-                                    </div>
-                                </ng-template>
-                            </p-carousel>
-                        } @else {
-                            <div class="bg-surface-50 flex justify-center rounded p-4 w-1/3">
-                                <div class="relative mx-auto">
-                                    <img class="rounded w-full" [src]="'https://upload.wikimedia.org/wikipedia/commons/1/14/No_Image_Available.jpg'" [alt]="currentVehicule.modele" style="max-width: 300px" />
-                                    <!-- <p-tag [value]="product.inventoryStatus" [severity]="getSeverity(product)" class="absolute" styleClass="dark:!bg-surface-900" [style.left.px]="4" [style.top.px]="4" /> -->
-                                </div>
-                            </div>
-                        }
-
-                        <div class="flex flex-col gap-2 mt-auto mb-auto w-2/3">
-                            <h3>{{ currentVehicule.immatriculation }}</h3>
-
-                            <div class="flex gap-2 align-middle">
-                                <p class="m-0">Marque: <p-chip [label]="currentVehicule.marque" /></p>
-                                <p-divider layout="vertical" />
-                                <p class="m-0">Type: <p-chip label="N/A" /></p>
-                            </div>
-
-                            <div class="flex gap-2 align-middle">
-                                <p class="m-0">Modele: <p-chip [label]="currentVehicule.modele || 'N/A'" /></p>
-                                <p-divider layout="vertical" />
-                                <p class="m-0">Annne modele: <p-chip [label]="currentVehicule.annee" /></p>
-                            </div>
-
-                            <div class="flex gap-2 align-middle">
-                                <p class="m-0">Couleur: <p-chip [label]="'N/A'" /></p>
-                                <p-divider layout="vertical" />
-                                <p class="m-0">Boite de vitesse: <p-chip [label]="currentVehicule.boite_de_vitesse" /></p>
-                                <p-divider layout="vertical" />
-                                <p class="m-0">Energie: <p-chip [label]="currentVehicule.carburant" /></p>
-                            </div>
-
-                            <div class="flex gap-2 align-middle">
-                                <p class="m-0">Kilometrage: <p-chip [label]="currentVehicule.kilometrage + ' km'" /></p>
-                            </div>
-                        </div>
-                    </div>
-                </p-card>
+                <app-infos-vehicule [vehicule]="currentVehicule" />
             </div>
 
             <div class="w-1/3">

@@ -2,11 +2,43 @@ const express = require('express')
 const router = express.Router()
 
 // Modèle
-const FicheIntervention = require('../models/ficheIntervention')
+const FicheIntervention = require('../model/Intervention/FicheIntervention/ficheIntervetion')
+const PieceFicheIntervention = require('../model/Intervention/FicheIntervention/pieceFicheIntervention')
+const TravauxFicheIntervention = require('../model/Intervention/FicheIntervention/travauxFicheIntervention')
+
+// Middelwares
 const { verifyToken } = require('../middlewares/jwt')
 
+
+// Obtenir fiche intervention
+router.get('/:ficheId', [verifyToken], async (req, res) => {
+    const ficheIntervention = await FicheIntervention.findOne({ _id: req.params.ficheId })
+
+    return res.status(200).json({
+        data: ficheIntervention
+    })
+})
+
+// Obtenir les travaux d'une fiche d'intervention
+router.get('/:ficheId/travaux', [verifyToken], async (req, res) => {
+    const travaux = await TravauxFicheIntervention.find({ fiche_intervention: req.params.ficheId })
+
+    return res.status(200).json({
+        data: travaux
+    })
+})
+
+// Obtenir les travaux d'une fiche d'intervention
+router.get('/:ficheId/pieces', [verifyToken], async (req, res) => {
+    const travaux = await PieceFicheIntervention.find({ fiche_intervention: req.params.ficheId }).populate('piece')
+
+    return res.status(200).json({
+        data: travaux
+    })
+})
+
 // 1. Lire toutes les fiches d'intervention
-router.get('/fiche-interventions', async (req, res) => {
+router.get('/', async (req, res) => {
     try {
         const fiches = await FicheIntervention.find()
             .populate('intervention')  // Populate l'objet intervention référencé
@@ -25,7 +57,7 @@ router.get('/fiche-interventions', async (req, res) => {
 })
 
 // 2. Lire une fiche d'intervention par son ID
-router.get('/fiche-intervention/:id', async (req, res) => {
+router.get('/:id', async (req, res) => {
     try {
         const fiche = await FicheIntervention.findById(req.params.id)
             .populate('intervention')
@@ -50,7 +82,7 @@ router.get('/fiche-intervention/:id', async (req, res) => {
 })
 
 // 3. Créer une nouvelle fiche d'intervention
-router.post('/fiche-intervention', [verifyToken], async (req, res) => {
+router.post('/', [verifyToken], async (req, res) => {
     try {
         const fiche = new FicheIntervention({
             description: req.body.description,
@@ -85,7 +117,7 @@ router.post('/fiche-intervention', [verifyToken], async (req, res) => {
 })
 
 // 4. Mettre à jour une fiche d'intervention
-router.put('/fiche-intervention/:id', [verifyToken], async (req, res) => {
+router.put('/:id', [verifyToken], async (req, res) => {
     try {
         const fiche = await FicheIntervention.findByIdAndUpdate(
             req.params.id,
@@ -119,7 +151,7 @@ router.put('/fiche-intervention/:id', [verifyToken], async (req, res) => {
 })
 
 // 5. Supprimer une fiche d'intervention
-router.delete('/fiche-intervention/:id', [verifyToken], async (req, res) => {
+router.delete('/:id', [verifyToken], async (req, res) => {
     try {
         const fiche = await FicheIntervention.findByIdAndDelete(req.params.id)
 

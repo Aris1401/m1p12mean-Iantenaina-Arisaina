@@ -63,6 +63,8 @@ class RendezVousService {
     // Mettre a jour l'etat de la demande en valider
     demandeRendezVous.etat_demande = EtatDemandeRendezVous.VALIDER;
     await demandeRendezVous.save();
+
+    return rendezVous
   }
 
   // Obtenir les indisponibilites
@@ -102,11 +104,11 @@ class RendezVousService {
         dateSouhaiter >= start &&
         dateSouhaiter <= end
       ) {
-        return false; // Time slot is unavailable
+        return false;
       }
     }
 
-    return true; // Time slot is available
+    return true;
   }
 }
 
