@@ -37,6 +37,11 @@ router.get('/vehicule/:vehiculeId', [verifyToken], async (req, res) => {
     })
 })
 
+// Liste des mecaciens assigner
+router.get('/mecaniciens', [verifyToken], async (req, res) => {
+    
+})
+
 // Obtenir les details d'une intervention
 router.get('/:interventionId', [verifyToken], async (req, res) => {
     const intervention = await Intervention.findOne({ _id: req.params.interventionId }).populate([
