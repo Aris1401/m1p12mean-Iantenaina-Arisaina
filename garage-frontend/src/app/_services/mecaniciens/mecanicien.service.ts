@@ -22,4 +22,8 @@ export class MecanicienService {
   ajouterMecanicien(mecanicienData : any) {
     return this.http.post(environment.apiUrl + "mecaniciens", mecanicienData)
   } 
+
+  getInterventions(idMecanicien : any) {
+    return this.http.get(environment.apiUrl + "mecaniciens/" + idMecanicien + "/interventions")
+  }
 }

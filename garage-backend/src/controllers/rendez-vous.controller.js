@@ -4,6 +4,9 @@ const router = express.Router()
 const TypeRendezVous = require('../model/RendezVous/typeRendezVous')
 const DemandeRendezVous = require('../model/RendezVous/demandeRendezVous')
 const RendezVous = require('../model/RendezVous/rendezVous')
+const Intervention = require('../model/Intervention/intervention')
+const AssignationIntervention = require('../model/Intervention/assignationIntervention')
+const Utilisateur = require('../model/Utilisateur/utilisateur')
 
 const { EtatDemandeRendezVous, EtatRendezVous } = require('../model/Etats')
 
@@ -12,7 +15,90 @@ const rendezVous = require('../model/RendezVous/rendezVous')
 
 // Services
 const RendezVousService = require('../services/rendezVousService')
+const IntervetionService = require('../services/interventionService')
 
+// Liste des mecanicien assugner
+router.get('/:rendezVousId/assigner', [verifyToken], async (req, res) => {
+    // Obtenir le rendez vous
+    const rendezVous = await RendezVous.findOne({ _id: req.params.rendezVousId }).populate("demande_rendez_vous")
+
+    if (!rendezVous.demande_rendez_vous.intervention) {
+        return res.status(200).json({
+            data: []
+        })
+    }
+
+    // Obtenir les mecaniciens assigner
+    const assignations = await AssignationIntervention.find({ intervention: rendezVous.demande_rendez_vous.intervention }).populate(["intervention", 
+        {
+            path: "mecanicien",
+            select: "-mot_de_passe"
+        }])
+
+    return res.status(200).json({
+        data: assignations
+    })
+})
+
+// Assigner mecanicien
+router.post('/:rendezVousId/assigner', [verifyToken, isManager], async (req, res) => {
+    const idMecanicien = req.body.idMecanicien
+
+    // Obtenir le rendez vous
+    const rendezVous = await RendezVous.findOne({ _id: req.params.rendezVousId })
+
+    if (!rendezVous) {
+        return res.status(400).json({
+            error: "Une erreur s\'est produite"
+        })
+    }
+
+    // Obtenir la demande rendez-vous
+    const demandeRendezVous = await DemandeRendezVous.findOne({ _id: rendezVous.demande_rendez_vous }).populate("intervention")
+
+    let intervention = demandeRendezVous.intervention
+    if (!intervention) {
+        intervention = await IntervetionService.creerIntervention(rendezVous._id)
+    }
+
+    try {
+        await IntervetionService.assignerMecanicien(intervention._id, idMecanicien)
+    } catch (error) {
+        return res.status(400).json({
+            error: error.message
+        })
+    }
+
+    return res.status(200).json({
+        message: "Mecanicien assigner"
+    })
+})
+
+// Annulation de rendez-vous
+router.delete('/:id/annuler', [verifyToken], async (req, res) => {
+    let rendezVous = await RendezVous.findOne({ 
+        _id: req.params.id, 
+        etat_rendez_vous: EtatRendezVous.EN_ATTENTE 
+    }).populate({
+        path: "demande_rendez_vous",
+        match: { utilisateur: req.utilisateurId }
+    })
+
+    rendezVous = rendezVous.demande_rendez_vous ? rendezVous : null
+
+    if (!rendezVous) {
+        return res.status(400).json({
+            error: "Une erreur est survenue"
+        })
+    }
+
+    rendezVous.etat_rendez_vous = EtatRendezVous.ANNULER
+    rendezVous.save()
+
+    return res.status(200).json({
+        message: "Demande annuler avec succes"
+    })
+})
 
 // Types de rendez-vous
 router.get('/types', async (req, res) => {
@@ -38,7 +124,7 @@ router.get('/demandes', [verifyToken], async (req, res) => {
 router.get('/manager', [verifyToken, isManager], async (req, res) => {
     const rendezVous = await RendezVous.find().populate({
         path: "demande_rendez_vous",
-        populate: ["vehicule", "type_rendez_vous", {
+        populate: ["vehicule", "intervention", "type_rendez_vous", {
             path: "utilisateur",
             select: ["-mot_de_passe"]
         }]
@@ -181,31 +267,6 @@ router.get('/utilisateur', [verifyToken, isUtilisateur], async (req, res) => {
     })
 })
 
-// Annulation de rendez-vous
-router.delete('/:id/annuler', [verifyToken], async (req, res) => {
-    let rendezVous = await RendezVous.findOne({ 
-        _id: req.params.id, 
-        etat_rendez_vous: EtatRendezVous.EN_ATTENTE 
-    }).populate({
-        path: "demande_rendez_vous",
-        match: { utilisateur: req.utilisateurId }
-    })
-
-    rendezVous = rendezVous.demande_rendez_vous ? rendezVous : null
-
-    if (!rendezVous) {
-        return res.status(400).json({
-            error: "Une erreur est survenue"
-        })
-    }
-
-    rendezVous.etat_rendez_vous = EtatRendezVous.ANNULER
-    rendezVous.save()
-
-    return res.status(200).json({
-        message: "Demande annuler avec succes"
-    })
-})
 
 // Obtnir les indisponibiles
 router.get('/indisponibilite', async (req, res) => {

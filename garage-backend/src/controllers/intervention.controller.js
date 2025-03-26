@@ -13,6 +13,10 @@ const DemandeRendezVous = require('../model/RendezVous/demandeRendezVous');
 const RendezVous = require('../model/RendezVous/rendezVous');  
 const Utilisateur = require('../model/Utilisateur/utilisateur');
 const Vehicule=require('../model/Vehicule/vehicule');
+const AssignationIntervention = require('../model/Intervention/assignationIntervention')
+
+// Services
+const InterventionService = require('../services/interventionService')
 
 // Etats
 const { EtatIntervention, EtatDevis } = require('../model/Etats')
@@ -37,6 +41,48 @@ router.get('/vehicule/:vehiculeId', [verifyToken], async (req, res) => {
     })
 })
 
+// Liste des mecaciens assigner
+router.get('/:interventionId/mecaniciens', [verifyToken], async (req, res) => {
+    const assignations = await AssignationIntervention.find({ intervention: req.params.interventionId }).populate(
+        ["intervention", {
+            path: "mecanicien",
+            select: ["-documents", "-mot_de_passe"]
+        }]
+    )
+
+    return res.status(200).json({
+        data: assignations
+    })
+})
+
+// Assigner mecanicien
+router.post('/:interventionId/mecaniciens', [verifyToken], async (req, res) => {
+    const idMecanicien = req.body.mecanicienId
+
+    try {
+        await InterventionService.assignerMecanicien(req.params.interventionId, idMecanicien)
+    } catch (error) {
+        return res.status(400).json({
+            error: error.message
+        })
+    }
+
+    return res.status(200).json({
+        message: "Mecanicien assigner avec succes"
+    })
+})
+
+// Desaffecter mecanicier 
+router.delete('/:interventionId/mecaniciens/:mecanicienId', [verifyToken], async (req, res) => {
+    const idMecanicien = req.params.mecanicienId
+
+    await InterventionService.desaffecterMecanicien(req.params.interventionId, idMecanicien)
+
+    return res.status(200).json({
+        message: "Mecanicien desaffecter avec success"
+    })
+})
+
 // Obtenir les details d'une intervention
 router.get('/:interventionId', [verifyToken], async (req, res) => {
     const intervention = await Intervention.findOne({ _id: req.params.interventionId }).populate([
@@ -46,6 +92,11 @@ router.get('/:interventionId', [verifyToken], async (req, res) => {
         },
         {
             path: 'devis'
+        },
+        "vehicule",
+        {
+            path: "utilisateur",
+            select: ["-mot_de_passe", "-documents"]
         }
     ])
 

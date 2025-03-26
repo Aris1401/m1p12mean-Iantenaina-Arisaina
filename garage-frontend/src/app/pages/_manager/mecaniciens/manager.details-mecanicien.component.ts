@@ -72,7 +72,7 @@ import { ManagerMecaniciensInterventionsComponent } from './manager.mecaniciens-
 
         <!-- Liste des intervetions des mecaniciens -->
         <div class="mt-2">
-            <app-manager-mecaniciens-interventions></app-manager-mecaniciens-interventions>
+            <app-manager-mecaniciens-interventions [idMecanicien]="currentMecanicienId" />
         </div>
     `,
     styles: ``
