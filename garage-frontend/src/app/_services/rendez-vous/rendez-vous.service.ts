@@ -36,6 +36,11 @@ export class RendezVousService {
     return this.http.get(environment.apiUrl + "rendez-vous/manager")
   }
 
+  // Obtenir les mecanicien assigner
+  getMecanicienAssigner(idRendezVous : any) {
+    return this.http.get(environment.apiUrl + 'rendez-vous/' + idRendezVous + "/assigner")
+  }
+
   // Assigner mecanicien
   assignerMecanicien(idRendezVous : any, idMecanicien : any) {
     return this.http.post(environment.apiUrl + 'rendez-vous/' + idRendezVous + "/assigner", {
