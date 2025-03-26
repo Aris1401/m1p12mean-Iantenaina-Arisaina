@@ -4,6 +4,7 @@ const router = express.Router()
 const TypeRendezVous = require('../model/RendezVous/typeRendezVous')
 const DemandeRendezVous = require('../model/RendezVous/demandeRendezVous')
 const RendezVous = require('../model/RendezVous/rendezVous')
+const Intervetion = require('../model/Intervention/intervention')
 
 const { EtatDemandeRendezVous, EtatRendezVous } = require('../model/Etats')
 
@@ -12,7 +13,67 @@ const rendezVous = require('../model/RendezVous/rendezVous')
 
 // Services
 const RendezVousService = require('../services/rendezVousService')
+const IntervetionService = require('../services/interventionService')
 
+// Assigner mecanicien
+router.post('/:rendezVousId/assigner', [verifyToken, isManager], async (req, res) => {
+    const idMecanicien = req.body.idMecanicien
+
+    // Obtenir le rendez vous
+    const rendezVous = await RendezVous.findOne({ _id: req.params.rendezVousId })
+
+    if (!rendezVous) {
+        return res.status(400).json({
+            error: "Une erreur s\'est produite"
+        })
+    }
+
+    // Obtenir la demande rendez-vous
+    const demandeRendezVous = await DemandeRendezVous.findOne({ _id: rendezVous.demande_rendez_vous }).populate("intervention")
+
+    let intervention = demandeRendezVous.intervention
+    if (!intervention) {
+        intervention = await IntervetionService.creerIntervention(rendezVous._id)
+    }
+
+    try {
+        await IntervetionService.assignerMecanicien(intervention._id, idMecanicien)
+    } catch (error) {
+        return res.status(400).json({
+            error: error.message
+        })
+    }
+
+    return res.status(200).json({
+        message: "Mecanicien assigner"
+    })
+})
+
+// Annulation de rendez-vous
+router.delete('/:id/annuler', [verifyToken], async (req, res) => {
+    let rendezVous = await RendezVous.findOne({ 
+        _id: req.params.id, 
+        etat_rendez_vous: EtatRendezVous.EN_ATTENTE 
+    }).populate({
+        path: "demande_rendez_vous",
+        match: { utilisateur: req.utilisateurId }
+    })
+
+    rendezVous = rendezVous.demande_rendez_vous ? rendezVous : null
+
+    if (!rendezVous) {
+        return res.status(400).json({
+            error: "Une erreur est survenue"
+        })
+    }
+
+    rendezVous.etat_rendez_vous = EtatRendezVous.ANNULER
+    rendezVous.save()
+
+    return res.status(200).json({
+        message: "Demande annuler avec succes"
+    })
+})
 
 // Types de rendez-vous
 router.get('/types', async (req, res) => {
@@ -181,31 +242,6 @@ router.get('/utilisateur', [verifyToken, isUtilisateur], async (req, res) => {
     })
 })
 
-// Annulation de rendez-vous
-router.delete('/:id/annuler', [verifyToken], async (req, res) => {
-    let rendezVous = await RendezVous.findOne({ 
-        _id: req.params.id, 
-        etat_rendez_vous: EtatRendezVous.EN_ATTENTE 
-    }).populate({
-        path: "demande_rendez_vous",
-        match: { utilisateur: req.utilisateurId }
-    })
-
-    rendezVous = rendezVous.demande_rendez_vous ? rendezVous : null
-
-    if (!rendezVous) {
-        return res.status(400).json({
-            error: "Une erreur est survenue"
-        })
-    }
-
-    rendezVous.etat_rendez_vous = EtatRendezVous.ANNULER
-    rendezVous.save()
-
-    return res.status(200).json({
-        message: "Demande annuler avec succes"
-    })
-})
 
 // Obtnir les indisponibiles
 router.get('/indisponibilite', async (req, res) => {
