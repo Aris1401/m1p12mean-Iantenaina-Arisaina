@@ -11,21 +11,6 @@ export class RendezVousService {
     private http : HttpClient
   ) { }
 
-  // All demandes rendez-vous
-  getDemandesRendezVous() {
-    return this.http.get(environment.apiUrl + "rendez-vous/demandes")
-  }
-
-  // Ajouter demande de rendez-vous
-  addDemandeRendezVous(demande : any) {
-    return this.http.post(environment.apiUrl + 'rendez-vous/demandes', demande)
-  }
-
-  // Annuler demande rendez-vous
-  annulerDemandeRendezVous(idDemande : string) {
-    return this.http.delete(environment.apiUrl + "rendez-vous/demandes/" + idDemande + "/annuler")
-  } 
-
   // Types de rendez vous
   getTypesRendezVous() {
     return this.http.get(environment.apiUrl + "rendez-vous/types")
@@ -51,6 +36,15 @@ export class RendezVousService {
     return this.http.get(environment.apiUrl + "rendez-vous/manager")
   }
 
+  // Assigner mecanicien
+  assignerMecanicien(idRendezVous : any, idMecanicien : any) {
+    return this.http.post(environment.apiUrl + 'rendez-vous/' + idRendezVous + "/assigner", {
+      idMecanicien: idMecanicien
+    })
+  }
+
+  // Demandes rendez-vous
+
   // Obtenir tout les demandes de rendez-vous (coter manager)
   getDemandesRendezVousManager() {
     return this.http.get(environment.apiUrl + "rendez-vous/demandes/manager")
@@ -59,4 +53,19 @@ export class RendezVousService {
   validerDemandeRendezVousManager(idDemande : string) {
     return this.http.put(environment.apiUrl + "rendez-vous/demandes/" + idDemande + "/valider", {})
   }
+
+  // All demandes rendez-vous
+  getDemandesRendezVous() {
+    return this.http.get(environment.apiUrl + "rendez-vous/demandes")
+  }
+
+  // Ajouter demande de rendez-vous
+  addDemandeRendezVous(demande : any) {
+    return this.http.post(environment.apiUrl + 'rendez-vous/demandes', demande)
+  }
+
+  // Annuler demande rendez-vous
+  annulerDemandeRendezVous(idDemande : string) {
+    return this.http.delete(environment.apiUrl + "rendez-vous/demandes/" + idDemande + "/annuler")
+  } 
 }
