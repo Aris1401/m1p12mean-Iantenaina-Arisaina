@@ -12,11 +12,12 @@ import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { ManagerAssignationRendezVousComponent } from './manager.assignation-rendez-vous.component';
 import { DataViewModule } from 'primeng/dataview';
+import { RouterModule } from '@angular/router';
 
 @Component({
     selector: 'app-manager.demande-rendez-vous',
     standalone: true,
-    imports: [CardModule, CalendarHeaderComponent, CalendarModule, ButtonModule, ChipModule, DialogModule, DividerModule, CommonModule, ToastModule, ManagerAssignationRendezVousComponent, DataViewModule],
+    imports: [CardModule, CalendarHeaderComponent, RouterModule, CalendarModule, ButtonModule, ChipModule, DialogModule, DividerModule, CommonModule, ToastModule, ManagerAssignationRendezVousComponent, DataViewModule],
     template: `
         <p-toast></p-toast>
 
@@ -93,6 +94,10 @@ import { DataViewModule } from 'primeng/dataview';
     
                     <div class="flex gap-2 justify-between">
                         <p-chip class="w-fit" [label]="this.rendezVousClicked && getEtatRendezVous(this.rendezVousClicked.etat_rendez_vous)" />
+
+                        @if (this.rendezVousClicked?.demande_rendez_vous.intervention) {
+                            <p-button label="Afficher intervention" [routerLink]="['/manager/intervention', this.rendezVousClicked?.demande_rendez_vous.intervention?._id]" />
+                        }
                     </div>
                 </div>
     

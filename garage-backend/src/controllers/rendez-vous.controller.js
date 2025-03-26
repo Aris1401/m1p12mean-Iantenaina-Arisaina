@@ -124,7 +124,7 @@ router.get('/demandes', [verifyToken], async (req, res) => {
 router.get('/manager', [verifyToken, isManager], async (req, res) => {
     const rendezVous = await RendezVous.find().populate({
         path: "demande_rendez_vous",
-        populate: ["vehicule", "type_rendez_vous", {
+        populate: ["vehicule", "intervention", "type_rendez_vous", {
             path: "utilisateur",
             select: ["-mot_de_passe"]
         }]
