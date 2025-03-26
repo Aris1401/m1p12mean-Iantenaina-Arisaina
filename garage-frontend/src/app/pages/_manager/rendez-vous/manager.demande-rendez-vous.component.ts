@@ -11,11 +11,12 @@ import { CommonModule } from '@angular/common';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { ManagerAssignationRendezVousComponent } from './manager.assignation-rendez-vous.component';
+import { DataViewModule } from 'primeng/dataview';
 
 @Component({
     selector: 'app-manager.demande-rendez-vous',
     standalone: true,
-    imports: [CardModule, CalendarHeaderComponent, CalendarModule, ButtonModule, ChipModule, DialogModule, DividerModule, CommonModule, ToastModule, ManagerAssignationRendezVousComponent],
+    imports: [CardModule, CalendarHeaderComponent, CalendarModule, ButtonModule, ChipModule, DialogModule, DividerModule, CommonModule, ToastModule, ManagerAssignationRendezVousComponent, DataViewModule],
     template: `
         <p-toast></p-toast>
 
@@ -103,6 +104,25 @@ import { ManagerAssignationRendezVousComponent } from './manager.assignation-ren
     
                         <p-button label="Assigner mecanicien" icon="pi pi-plus" (onClick)="onAssignerMecanicien()" />
                     </div>
+
+                    <p-data-view [value]="mecanicienAssignerData">
+                        <ng-template #list let-mecaniciens>
+                            <div class="flex flex-col gap-2">
+                                @for (mecanicien of mecaniciens; track mecanicien._id) {
+                                    <p-card>
+                                        <div class="flex gap-2 items-center">
+                                            <i class="pi pi-wrench"></i>
+
+                                            <div class="flex flex-col">
+                                                <p class="uppercase m-0">{{ mecanicien?.mecanicien?.nom }}</p>
+                                                <p class="m-0">{{ mecanicien?.mecanicien?.prenom }}</p>
+                                            </div>
+                                        </div>
+                                    </p-card>
+                                }
+                            </div>
+                        </ng-template>
+                    </p-data-view>
                 </div>
             </div>
         </p-dialog>
@@ -187,6 +207,7 @@ export class ManagerDemandeRendezVousComponent implements OnInit {
 
     // Assignation de mecanicien
     isAssignerMecanicienVisible: boolean = false;
+    mecanicienAssignerData : any[] = []
 
     constructor(
         private rendezVousService: RendezVousService,
@@ -228,6 +249,14 @@ export class ManagerDemandeRendezVousComponent implements OnInit {
         });
     }
 
+    fetchMecanicienAssigner(idRendezVous : any) {
+        this.rendezVousService.getMecanicienAssigner(idRendezVous).subscribe({
+            next: (response : any) => {
+                this.mecanicienAssignerData = response.data
+            }
+        })
+    }
+
     changeDay(date: any) {
         this.viewDate = date;
         this.view = CalendarView.Day;
@@ -237,6 +266,7 @@ export class ManagerDemandeRendezVousComponent implements OnInit {
         if (event.meta && event.meta.rendezVous) {
             this.isDetailsRendezVousVisible = true;
             this.rendezVousClicked = event.meta.rendezVous;
+            this.fetchMecanicienAssigner(this.rendezVousClicked._id)
         }
 
         if (event.meta && event.meta.demandeRendezVous) {
