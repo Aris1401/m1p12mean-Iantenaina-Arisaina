@@ -25,6 +25,20 @@ export class InterventionService {
     })
   }
 
+  getMecaniciensAssigner(intervetionId : any) {
+    return this.http.get(environment.apiUrl + "intervention/" + intervetionId + "/mecaniciens")
+  } 
+
+  desaffecterMecanicien(interventionId : any, mecanicienId : any) {
+    return this.http.delete(environment.apiUrl + "intervention/" + interventionId + "/mecaniciens/" + mecanicienId)
+  }
+
+  assignerMecanicien(intervetionId : any, mecanicienId : any) {
+    return this.http.post(environment.apiUrl + "intervention/" + intervetionId + "/mecaniciens", {
+      mecanicienId: mecanicienId
+    })
+  }
+
   refuserDevisIntervetion(interventionId : any) {
     return this.http.get(environment.apiUrl + "intervention/" + interventionId + "/devis/refuser")
   }

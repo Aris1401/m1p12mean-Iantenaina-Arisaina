@@ -51,6 +51,12 @@ class InterventionService {
         
         await assignation.save()
     }
+
+    static async desaffecterMecanicien(idIntervention, idMecanicien) {
+        const desaffectation = await AssignationIntervention.findOneAndDelete({ mecanicien: idMecanicien, intervention: idIntervention })
+
+        return desaffectation
+    }
 }
 
 module.exports = InterventionService

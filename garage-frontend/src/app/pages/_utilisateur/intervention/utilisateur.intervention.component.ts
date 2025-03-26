@@ -14,10 +14,11 @@ import { EtatsService } from '../../../_services/etats.service';
 import { BadgeModule } from 'primeng/badge';
 import { DialogModule } from 'primeng/dialog';
 import { UtilisateurDebutInterventionComponent } from './utilisateur.debut-intervention.component';
+import { InfosTravauxPiecesComponent } from '../../utils/intervention/infos-travaux-pieces.component';
 
 @Component({
     selector: 'app-utilisateur.intervention',
-    imports: [UtilisateurDebutInterventionComponent, ChipModule, CardModule, ToastModule, BadgeModule, TableModule, DividerModule, ButtonModule, CommonModule, DialogModule],
+    imports: [UtilisateurDebutInterventionComponent, InfosTravauxPiecesComponent, ChipModule, CardModule, ToastModule, BadgeModule, TableModule, DividerModule, ButtonModule, CommonModule, DialogModule],
     template: `
         <p-toast></p-toast>
 
@@ -49,61 +50,7 @@ import { UtilisateurDebutInterventionComponent } from './utilisateur.debut-inter
         </div>
 
         <div class="mt-2">
-            <p-card>
-                <p-table [value]="travauxData" [stripedRows]="true">
-                    <ng-template #caption>
-                        <h3>Resumer des travaux</h3>
-                    </ng-template>
-                    <ng-template #header>
-                        <tr>
-                            <th>Designation</th>
-                            <th>Quantite</th>
-                            <th>Prix Unitaire</th>
-                            <th>Prix (HT)</th>
-                            <th>Etat intervention</th>
-                        </tr>
-                    </ng-template>
-
-                    <ng-template #body let-travaux>
-                        <tr>
-                            <td>{{ travaux.designation }}</td>
-                            <td>{{ travaux.quantite }}</td>
-                            <td>{{ travaux.prix_unitaire }} Ar</td>
-                            <td>{{ travaux.prix_ht }} Ar</td>
-                            <td>{{ travaux.etat_intervention }}</td>
-                        </tr>
-                    </ng-template>
-                </p-table>
-
-                <p-divider />
-
-                <p-table [value]="piecesData" [stripedRows]="true">
-                    <ng-template #caption>
-                        <h3>Resumer des pieces</h3>
-                    </ng-template>
-                    <ng-template #header>
-                        <tr>
-                            <th>Reference</th>
-                            <th>Designation</th>
-                            <th>Quantite</th>
-                            <th>Prix Unitaire</th>
-                            <th>Prix (HT)</th>
-                            <th>Etat intervention</th>
-                        </tr>
-                    </ng-template>
-
-                    <ng-template let-piece #body>
-                        <tr>
-                            <td>{{ piece.piece.reference }}</td>
-                            <td>{{ piece.piece.designation }}</td>
-                            <td>{{ piece.quantite }}</td>
-                            <td>{{ piece.prix_unitaire }} Ar</td>
-                            <td>{{ piece.prix_ht }} Ar</td>
-                            <td>{{ piece.etat_intervention }}</td>
-                        </tr>
-                    </ng-template>
-                </p-table>
-            </p-card>
+            <app-infos-travaux-pieces [travauxData]="travauxData" [piecesData]="piecesData" />
         </div>
 
         <div class="mt-2">

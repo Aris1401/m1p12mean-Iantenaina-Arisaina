@@ -6,10 +6,11 @@ import { EtatsService } from '../../../_services/etats.service';
 import { CommonModule } from '@angular/common';
 import { BadgeModule } from 'primeng/badge';
 import { ButtonModule } from 'primeng/button';
+import { RouterModule } from '@angular/router';
 
 @Component({
     selector: 'app-manager-mecaniciens-interventions',
-    imports: [CardModule, TableModule, CommonModule, BadgeModule, ButtonModule],
+    imports: [CardModule, TableModule, CommonModule, BadgeModule, ButtonModule, RouterModule],
     template: `
         <p-card header="Liste des interventions">
             <p-table [value]="interventionData">
@@ -71,7 +72,7 @@ import { ButtonModule } from 'primeng/button';
                           <p-badge [severity]="etatsService.getEtatIntervention(assignation.intervention.etat_intervention).etatColor" [value]="etatsService.getEtatIntervention(assignation.intervention.etat_intervention).etatString" />
                         </td>
                         <td>
-                          <p-button label="Plus de details" />
+                          <p-button label="Plus de details" [routerLink]="['/manager/intervention', assignation.intervention._id]" />
                         </td>
                     </tr>
                 </ng-template>
