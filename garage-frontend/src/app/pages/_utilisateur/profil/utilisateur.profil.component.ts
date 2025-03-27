@@ -17,7 +17,7 @@ import { DividerModule } from 'primeng/divider';
 import { UtilisateurService } from '../../../_services/utilisateur/utilisateur.service';
 import { TableLazyLoadEvent, TableModule } from 'primeng/table';
 import { CommonModule } from '@angular/common';
-import { environment } from '../../../../_env/environment';
+import { environment } from '../../../../environments/environment';
 import { Router } from '@angular/router';
 
 @Component({

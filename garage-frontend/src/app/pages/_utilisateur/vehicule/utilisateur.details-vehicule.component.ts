@@ -14,7 +14,7 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { CarouselModule } from 'primeng/carousel';
 import { ChipModule } from 'primeng/chip';
-import { environment } from '../../../../_env/environment';
+import { environment } from '../../../../environments/environment';
 import { UtilisateurVehiculesIntervetionsComponent } from './utilisateur.vehicules-intervetions.component';
 import { InfosVehiculeComponent } from '../../utils/vehicule/infos-vehicule.component';
 
