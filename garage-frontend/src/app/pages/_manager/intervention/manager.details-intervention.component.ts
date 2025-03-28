@@ -134,7 +134,7 @@ import { FormsModule } from '@angular/forms';
                                 <td>{{ devis?.total }} Ar</td>
                                 <td>
                                     <div class="flex gap-2 justify-end">
-                                        @if (devis?.etat == 10 && interventionData?.etat_intervention == 100) {
+                                        @if (devis?.etat == 10 && interventionData?.etat_intervention == 100 && !interventionData?.facture) {
                                             <p-button label="Generer facture" (onClick)="isGenererFactureVisible = true" />
                                         }
                                         <p-button icon="pi pi-download" label="Telecharger" />

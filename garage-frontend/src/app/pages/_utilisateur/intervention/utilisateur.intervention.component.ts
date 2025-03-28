@@ -176,18 +176,20 @@ export class UtilisateurInterventionComponent implements OnInit {
                 // Obtenir la fiche d'intervetion
                 this.ficheInterventionData = this.intervetionData.fiche_intervention;
 
-                this.ficheIntervetionService.getTravauxFicheIntervention(this.ficheInterventionData._id).subscribe({
-                    next: (response: any) => {
-                        this.travauxData = response.data;
-                    }
-                });
-
-                // Obtenir les pieces de fiche intervention
-                this.ficheIntervetionService.getPiecesFicheIntervention(this.ficheInterventionData._id).subscribe({
-                    next: (response: any) => {
-                        this.piecesData = response.data;
-                    }
-                });
+                if (this.ficheInterventionData) {
+                    this.ficheIntervetionService.getTravauxFicheIntervention(this.ficheInterventionData._id).subscribe({
+                        next: (response: any) => {
+                            this.travauxData = response.data;
+                        }
+                    });
+    
+                    // Obtenir les pieces de fiche intervention
+                    this.ficheIntervetionService.getPiecesFicheIntervention(this.ficheInterventionData._id).subscribe({
+                        next: (response: any) => {
+                            this.piecesData = response.data;
+                        }
+                    });
+                }
 
                 // Check si il faut selectionner une date de debut
                 this.checkDebutSelecionVisibility();
@@ -202,7 +204,7 @@ export class UtilisateurInterventionComponent implements OnInit {
     }
 
     checkDebutSelecionVisibility() {
-        if (!this.intervetionData && !(this.devisData || this.devisData[0])) return;
+        if (!this.intervetionData || !(this.devisData || this.devisData[0])) return;
 
         if (this.intervetionData.etat_intervention == -10 && this.devisData[0].etat == 10 && !this.intervetionData.date_debut) {
             this.isSelectionDateVisible = true;
