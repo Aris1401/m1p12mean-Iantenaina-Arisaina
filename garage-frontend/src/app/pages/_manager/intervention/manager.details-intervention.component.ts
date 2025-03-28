@@ -18,6 +18,7 @@ import { ManagerAssignationRendezVousComponent } from '../rendez-vous/manager.as
 import { DialogModule } from 'primeng/dialog';
 import { TextareaModule } from 'primeng/textarea';
 import { FormsModule } from '@angular/forms';
+import { FactureService } from '../../../_services/facture/facture.service';
 
 @Component({
     selector: 'app-manager.details-intervention',
@@ -75,7 +76,7 @@ import { FormsModule } from '@angular/forms';
                                     <td>{{ facture?.total_ttc }} Ar</td>
                                     <td>
                                         <div class="flex gap-2 justify-end">
-                                            <p-button icon="pi pi-download" label="Telecharger" />
+                                            <p-button icon="pi pi-download" label="Telecharger" (onClick)="factureService.downloadFacture(facture?._id)" />
                                         </div>
                                     </td>
                                 </tr>
@@ -137,7 +138,7 @@ import { FormsModule } from '@angular/forms';
                                         @if (devis?.etat == 10 && interventionData?.etat_intervention == 100 && !interventionData?.facture) {
                                             <p-button label="Generer facture" (onClick)="isGenererFactureVisible = true" />
                                         }
-                                        <p-button icon="pi pi-download" label="Telecharger" />
+                                        <p-button icon="pi pi-download" label="Telecharger" (onClick)="factureService.downloadDevis(devis?._id)" />
                                     </div>
                                 </td>
                             </tr>
@@ -217,6 +218,7 @@ export class ManagerDetailsInterventionComponent {
     observation = '';
 
     etatsService: EtatsService = inject(EtatsService);
+    factureService : FactureService = inject(FactureService)
 
     constructor(
         private route: ActivatedRoute,

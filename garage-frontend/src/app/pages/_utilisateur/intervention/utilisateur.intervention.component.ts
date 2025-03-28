@@ -15,6 +15,7 @@ import { BadgeModule } from 'primeng/badge';
 import { DialogModule } from 'primeng/dialog';
 import { UtilisateurDebutInterventionComponent } from './utilisateur.debut-intervention.component';
 import { InfosTravauxPiecesComponent } from '../../utils/intervention/infos-travaux-pieces.component';
+import { FactureService } from '../../../_services/facture/facture.service';
 
 @Component({
     selector: 'app-utilisateur.intervention',
@@ -51,7 +52,7 @@ import { InfosTravauxPiecesComponent } from '../../utils/intervention/infos-trav
                                 <td>{{ facture?.total_ttc }} Ar</td>
                                 <td>
                                     <div class="flex gap-2 justify-end">
-                                        <p-button icon="pi pi-download" label="Telecharger" />
+                                        <p-button icon="pi pi-download" label="Telecharger" (onClick)="factureService.downloadFacture(facture?._id)" />
                                     </div>
                                 </td>
                             </tr>
@@ -115,7 +116,7 @@ import { InfosTravauxPiecesComponent } from '../../utils/intervention/infos-trav
                             <td>{{ devis?.total }} Ar</td>
                             <td>
                                 <div class="flex gap-2 justify-end">
-                                    <p-button icon="pi pi-download" label="Telecharger" />
+                                    <p-button icon="pi pi-download" label="Telecharger" (onClick)="factureService.downloadDevis(devis?._id)" />
                                     @if (devis?.etat == 0) {
                                         <p-button icon="pi pi-check" label="Valider" (onClick)="onValiderDevis(devis.intervention)" />
                                         <p-button severity="danger" icon="pi pi-check" label="Refuser" (onClick)="onRefuserDevis(devis.intervention)" />
@@ -147,6 +148,7 @@ export class UtilisateurInterventionComponent implements OnInit {
     factureData: any[] = [];
 
     etatsService = inject(EtatsService);
+    factureService = inject(FactureService)
 
     isSelectionDateVisible: boolean = false;
 
