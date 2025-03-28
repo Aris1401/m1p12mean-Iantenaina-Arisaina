@@ -51,4 +51,14 @@ export class InterventionService {
     return this.http.get(environment.apiUrl + "intervention/vehicule/" + vehiculeId + "/actif")
   }
 
+  // Facturation
+  genererDevis(idIntervention : any) {
+    return this.http.post(environment.apiUrl + 'intervention/' + idIntervention + "/devis", {})
+  }
+
+  genererFacture(idIntervention : any, observation : string = "") {
+    return this.http.post(environment.apiUrl + 'intervention/' + idIntervention + "/facture", {
+      observation: observation
+    })
+  }
 }

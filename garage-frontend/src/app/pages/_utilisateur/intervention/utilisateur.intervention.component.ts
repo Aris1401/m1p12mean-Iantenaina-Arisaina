@@ -22,7 +22,44 @@ import { InfosTravauxPiecesComponent } from '../../utils/intervention/infos-trav
     template: `
         <p-toast></p-toast>
 
-        <div>
+        <div class="flex flex-col gap-2">
+            @if (intervetionData?.facture) {
+
+                <p-card header="Devis">
+                    <p-table [value]="factureData" [stripedRows]="true">
+                        <ng-template #header>
+                            <tr>
+                                <th>Reference</th>
+                                <th>Date creation</th>
+                                <th>Etat</th>
+                                <th>Total</th>
+                                <th>Total (TTC)</th>
+                                <th style="width: 20%"></th>
+                            </tr>
+                        </ng-template>
+    
+                        <ng-template #body let-facture>
+                            <tr>
+                                <td class="font-bold">{{ facture?.reference }}</td>
+                                <td>
+                                    <p-chip label="{{ facture?.createdAt | date: 'yyyy-MM-dd HH:mm' }}" />
+                                </td>
+                                <td>
+                                    <p-badge [severity]="etatsService.getEtatDevis(facture?.etat).etatColor" [value]="etatsService.getEtatDevis(facture?.etat).etatString" />
+                                </td>
+                                <td>{{ facture?.total }} Ar</td>
+                                <td>{{ facture?.total_ttc }} Ar</td>
+                                <td>
+                                    <div class="flex gap-2 justify-end">
+                                        <p-button icon="pi pi-download" label="Telecharger" />
+                                    </div>
+                                </td>
+                            </tr>
+                        </ng-template>
+                    </p-table>
+                </p-card>
+            }
+
             <p-card>
                 <ng-template #title>
                     <div class="flex gap-2 items-center pb-2">
@@ -92,9 +129,9 @@ import { InfosTravauxPiecesComponent } from '../../utils/intervention/infos-trav
         </div>
 
         <!-- Selection date debut -->
-         <p-dialog [(visible)]="isSelectionDateVisible" [modal]="true" header="Selectionner une date de debut d'intervetion" style="width: 30rem">
+        <p-dialog [(visible)]="isSelectionDateVisible" [modal]="true" header="Selectionner une date de debut d'intervetion" style="width: 30rem">
             <app-utilisateur-debut-intervention style="width: 100%;" [intervetionId]="currentIntervetionId()" (dateValider)="onDateValider()" />
-         </p-dialog>
+        </p-dialog>
     `,
     styles: ``
 })
@@ -106,33 +143,35 @@ export class UtilisateurInterventionComponent implements OnInit {
 
     travauxData = [];
     piecesData = [];
-    devisData : any[] = [];
+    devisData: any[] = [];
+    factureData: any[] = [];
 
-    etatsService = inject(EtatsService)
+    etatsService = inject(EtatsService);
 
-    isSelectionDateVisible : boolean = false
+    isSelectionDateVisible: boolean = false;
 
     constructor(
         private route: ActivatedRoute,
-        private messageService : MessageService,
+        private messageService: MessageService,
         private interventionService: InterventionService,
-        private ficheIntervetionService : FicheInterventionService,
+        private ficheIntervetionService: FicheInterventionService
     ) {
         effect(() => {
             if (this.currentIntervetionId().trim().length > 0) {
                 // Obtenir les details de l'intervetion
-                this.fetchIntervetion()
+                this.fetchIntervetion();
             }
         });
     }
 
     fetchIntervetion() {
-        this.isSelectionDateVisible = false
+        this.isSelectionDateVisible = false;
 
         this.interventionService.getDetailsIntervention(this.currentIntervetionId()).subscribe({
             next: (response: any) => {
                 this.intervetionData = response.data;
-                this.devisData = [this.intervetionData.devis]
+                this.devisData = [this.intervetionData.devis];
+                this.factureData = [this.intervetionData.facture];
 
                 // Obtenir la fiche d'intervetion
                 this.ficheInterventionData = this.intervetionData.fiche_intervention;
@@ -145,13 +184,13 @@ export class UtilisateurInterventionComponent implements OnInit {
 
                 // Obtenir les pieces de fiche intervention
                 this.ficheIntervetionService.getPiecesFicheIntervention(this.ficheInterventionData._id).subscribe({
-                    next: (response : any) => {
-                        this.piecesData = response.data
+                    next: (response: any) => {
+                        this.piecesData = response.data;
                     }
-                })
+                });
 
                 // Check si il faut selectionner une date de debut
-                this.checkDebutSelecionVisibility()
+                this.checkDebutSelecionVisibility();
             }
         });
     }
@@ -163,56 +202,56 @@ export class UtilisateurInterventionComponent implements OnInit {
     }
 
     checkDebutSelecionVisibility() {
-        if (!this.intervetionData && !(this.devisData && this.devisData[0])) return;
+        if (!this.intervetionData && !(this.devisData || this.devisData[0])) return;
 
         if (this.intervetionData.etat_intervention == -10 && this.devisData[0].etat == 10 && !this.intervetionData.date_debut) {
-            this.isSelectionDateVisible = true
+            this.isSelectionDateVisible = true;
         }
     }
 
-    onValiderDevis(intervetionId : any) {
+    onValiderDevis(intervetionId: any) {
         this.interventionService.validerDevisIntervetion(intervetionId).subscribe({
-            next: (response : any) => {
-                this.fetchIntervetion()
+            next: (response: any) => {
+                this.fetchIntervetion();
 
                 this.messageService.add({
-                    summary: "Devis valider",
+                    summary: 'Devis valider',
                     detail: response.message,
                     severity: 'success'
-                })
-            }, 
+                });
+            },
             error: (err) => {
                 this.messageService.add({
-                    summary: "Erreur",
+                    summary: 'Erreur',
                     detail: err.error.error,
                     severity: 'error'
-                })
+                });
             }
-        })
+        });
     }
 
-    onRefuserDevis(interventionId : any) {
+    onRefuserDevis(interventionId: any) {
         this.interventionService.refuserDevisIntervetion(interventionId).subscribe({
-            next: (response : any) => {
-                this.fetchIntervetion()
+            next: (response: any) => {
+                this.fetchIntervetion();
 
                 this.messageService.add({
-                    summary: "Devis refuser",
+                    summary: 'Devis refuser',
                     detail: response.message,
                     severity: 'success'
-                })
-            }, 
+                });
+            },
             error: (err) => {
                 this.messageService.add({
-                    summary: "Erreur",
+                    summary: 'Erreur',
                     detail: err.error.error,
                     severity: 'error'
-                })
+                });
             }
-        })
+        });
     }
 
     onDateValider() {
-        this.fetchIntervetion()
+        this.fetchIntervetion();
     }
 }
