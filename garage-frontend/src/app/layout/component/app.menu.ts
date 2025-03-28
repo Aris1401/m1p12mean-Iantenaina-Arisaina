@@ -9,7 +9,7 @@ import { AppMenuitem } from './app.menuitem';
     standalone: true,
     imports: [CommonModule, AppMenuitem, RouterModule],
     template: `<ul class="layout-menu">
-        <ng-container *ngFor="let item of model; let i = index">
+        <ng-container *ngFor="let item of filteredModel; let i = index">
             <li app-menuitem *ngIf="!item.separator" [item]="item" [index]="i" [root]="true"></li>
             <li *ngIf="item.separator" class="menu-separator"></li>
         </ng-container>
@@ -17,22 +17,31 @@ import { AppMenuitem } from './app.menuitem';
 })
 export class AppMenu {
     model: MenuItem[] = [];
+    filteredModel : MenuItem[] = []
+    roleUtilisateur : any = null
 
     ngOnInit() {
+        const storedRoles = localStorage.getItem('roles');
+        this.roleUtilisateur = storedRoles ? JSON.parse(storedRoles)[0] : null;
+
+        console.log(this.roleUtilisateur)
+
         this.model = [
             {
                 label: "Client",
                 items: [
                     { label: 'Mes rendez-vous', icon: 'pi pi-fw pi-calendar', routerLink: ['/rendez-vous'] },
                     { label: 'Mes voitures', icon: 'pi pi-fw pi-car', routerLink: ['/vehicule'] },
-                ]
+                ],
+                role: "ROLE_USER"
             },
             {
                 label: "Mecanicien",
                 items: [
                     { label: 'Liste Render-Vous ', icon: 'pi pi-fw pi-calendar', routerLink: ['/liste'] },
                     { label: 'Liste Intervention ', icon: 'pi pi-fw pi-calendar', routerLink: ['/intervention'] },
-                ]
+                ],
+                role: "ROLE_MECANICIEN"
             },
             {
                 label: "Manager",
@@ -42,13 +51,8 @@ export class AppMenu {
                     { label: 'Pieces', icon: 'pi pi-wrench', routerLink: ['/manager/pieces'] },
                     { label: 'Mecaniciens', icon: 'pi pi-user', routerLink: ['/manager/mecaniciens'] },
                     { label: 'Factures', icon: 'pi pi-money-bill', routerLink: ['/manager/factures'] }
-                ]
-            },
-            {
-                label: "Mecanicien",
-                items: [
-                    { label: 'Creer Intervention ', icon: 'pi pi-fw pi-calendar', routerLink: ['/liste'] },
-                ]
+                ],
+                role: "ROLE_MANAGER"
             },
             {
                 label: 'Home',
@@ -183,5 +187,9 @@ export class AppMenu {
                 ]
             }
         ];
+
+        this.filteredModel = this.model.filter((item : any) => {
+            return item.role == this.roleUtilisateur
+        })
     }
 }
