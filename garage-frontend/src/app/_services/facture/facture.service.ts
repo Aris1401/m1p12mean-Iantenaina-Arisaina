@@ -8,6 +8,10 @@ import { environment } from '../../../environments/environment';
 export class FactureService {
     constructor(private http: HttpClient) {}
 
+    allFactures() {
+        return this.http.get(environment.apiUrl + "factures")
+    }
+
     downloadFacture(idFacture: any) {
         this.http
             .get(environment.apiUrl + 'factures/' + idFacture + '/download', {
