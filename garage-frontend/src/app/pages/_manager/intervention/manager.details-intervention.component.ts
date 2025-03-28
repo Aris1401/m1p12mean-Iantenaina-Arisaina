@@ -16,14 +16,75 @@ import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { ManagerAssignationRendezVousComponent } from '../rendez-vous/manager.assignation-rendez-vous.component';
 import { DialogModule } from 'primeng/dialog';
+import { TextareaModule } from 'primeng/textarea';
+import { FormsModule } from '@angular/forms';
 
 @Component({
     selector: 'app-manager.details-intervention',
-    imports: [CardModule, DialogModule, ToastModule, InfosVehiculeComponent, InfosTravauxPiecesComponent, InfosGeneralesInterventionComponent, ButtonModule, TableModule, ChipModule, BadgeModule, CommonModule, ManagerAssignationRendezVousComponent],
+    imports: [
+        CardModule,
+        DialogModule,
+        ToastModule,
+        FormsModule,
+        TextareaModule,
+        InfosVehiculeComponent,
+        InfosTravauxPiecesComponent,
+        InfosGeneralesInterventionComponent,
+        ButtonModule,
+        TableModule,
+        ChipModule,
+        BadgeModule,
+        CommonModule,
+        ManagerAssignationRendezVousComponent
+    ],
     template: `
         <p-toast></p-toast>
 
         <div class="flex flex-col gap-2">
+            @if (interventionData?.facture) {
+                <p-card>
+                    <ng-template #title>
+                        <div class="flex justify-between items-center">
+                            <h5 class="m-0">Facture</h5>
+                        </div>
+                    </ng-template>
+    
+                    <ng-template #content>
+                        <p-table [value]="factureData" [stripedRows]="true">
+                            <ng-template #header>
+                                <tr>
+                                    <th>Reference</th>
+                                    <th>Date creation</th>
+                                    <th>Etat</th>
+                                    <th>Total</th>
+                                    <th>Total (TTC)</th>
+                                    <th style="width: 20%"></th>
+                                </tr>
+                            </ng-template>
+    
+                            <ng-template #body let-facture>
+                                <tr>
+                                    <td class="font-bold">{{ facture?.reference }}</td>
+                                    <td>
+                                        <p-chip label="{{ facture?.createdAt | date: 'yyyy-MM-dd HH:mm' }}" />
+                                    </td>
+                                    <td>
+                                        <p-badge [severity]="etatsService.getEtatDevis(facture?.etat).etatColor" [value]="etatsService.getEtatDevis(facture?.etat).etatString" />
+                                    </td>
+                                    <td>{{ facture?.total }} Ar</td>
+                                    <td>{{ facture?.total_ttc }} Ar</td>
+                                    <td>
+                                        <div class="flex gap-2 justify-end">
+                                            <p-button icon="pi pi-download" label="Telecharger" />
+                                        </div>
+                                    </td>
+                                </tr>
+                            </ng-template>
+                        </p-table>
+                    </ng-template>
+                </p-card>
+            }
+
             <div class="flex gap-2">
                 <div class="w-full">
                     <app-infos-vehicule [vehicule]="interventionData?.vehicule" />
@@ -45,7 +106,7 @@ import { DialogModule } from 'primeng/dialog';
                     <div class="flex justify-between items-center">
                         <h5 class="m-0">Liste des devis</h5>
 
-                        <p-button label="Generer devis" />
+                        <p-button label="Generer devis" (onClick)="onGenererDevis()" />
                     </div>
                 </ng-template>
 
@@ -73,6 +134,9 @@ import { DialogModule } from 'primeng/dialog';
                                 <td>{{ devis?.total }} Ar</td>
                                 <td>
                                     <div class="flex gap-2 justify-end">
+                                        @if (devis?.etat == 10 && interventionData?.etat_intervention == 100) {
+                                            <p-button label="Generer facture" (onClick)="isGenererFactureVisible = true" />
+                                        }
                                         <p-button icon="pi pi-download" label="Telecharger" />
                                     </div>
                                 </td>
@@ -105,7 +169,7 @@ import { DialogModule } from 'primeng/dialog';
                         <tr>
                             <td>{{ assignation.mecanicien.nom }}</td>
                             <td>{{ assignation.mecanicien.prenom }}</td>
-                            <td>{{ assignation.createdAt | date: "yyyy-MM-dd HH:mm" }}</td>
+                            <td>{{ assignation.createdAt | date: 'yyyy-MM-dd HH:mm' }}</td>
                             <td>
                                 <p-button label="Desaffecter" icon="pi pi-user-minus" severity="warn" (onClick)="onDesaffecterMecanicien(assignation.intervention._id, assignation.mecanicien._id)" />
                             </td>
@@ -118,6 +182,18 @@ import { DialogModule } from 'primeng/dialog';
         <p-dialog [(visible)]="isAssignerMecanicienVisible" [modal]="true" header="Assigner mecanicien">
             <app-manager-assignation-rendez-vous (assignerMecanicienClicked)="onAssignerMecanicien($event)" />
         </p-dialog>
+
+        <!-- Observation facture -->
+        <p-dialog [(visible)]="isGenererFactureVisible" [modal]="true" header="Ajouter une observation de facture" [style]="{ width: '30rem' }">
+            <form (submit)="onGenererFacture()">
+                <div class="w-full">
+                    <label for="observation" class="block">Observation</label>
+                    <textarea id="observation" name="observation" [(ngModel)]="observation" pTextarea rows="8" class="w-full"></textarea>
+                </div>
+
+                <p-button label="Generer facture" styleClass="w-full" type="submit" />
+            </form>
+        </p-dialog>
     `,
     styles: ``
 })
@@ -126,14 +202,19 @@ export class ManagerDetailsInterventionComponent {
     interventionData: any;
     ficheInterventionData: any;
     devisData: any = [];
+    factureData: any = [];
 
     travauxData = [];
     piecesData = [];
 
     // Liste des mecaniciens
-    assignationsData : any = []
+    assignationsData: any = [];
 
-    isAssignerMecanicienVisible : boolean = false
+    isAssignerMecanicienVisible: boolean = false;
+
+    // Facture
+    isGenererFactureVisible: boolean = false;
+    observation = '';
 
     etatsService: EtatsService = inject(EtatsService);
 
@@ -141,7 +222,7 @@ export class ManagerDetailsInterventionComponent {
         private route: ActivatedRoute,
         private intervetionService: InterventionService,
         private ficheIntervetionService: FicheInterventionService,
-        private messageService : MessageService
+        private messageService: MessageService
     ) {
         this.route.params.subscribe((params: any) => {
             this.intervetionId.set(params.id);
@@ -160,73 +241,128 @@ export class ManagerDetailsInterventionComponent {
 
                 // Obtenir les travaux et pieces
                 if (this.interventionData.fiche_intervention) {
-                    this.ficheIntervetionService.getTravauxFicheIntervention(this.interventionData.fiche_intervention).subscribe({
+                    this.ficheIntervetionService.getTravauxFicheIntervention(this.interventionData.fiche_intervention._id).subscribe({
                         next: (response: any) => {
                             this.travauxData = response.data;
                         }
                     });
 
-                    this.ficheIntervetionService.getPiecesFicheIntervention(this.interventionData.fiche_intervention).subscribe({
+                    this.ficheIntervetionService.getPiecesFicheIntervention(this.interventionData.fiche_intervention._id).subscribe({
                         next: (response: any) => {
                             this.piecesData = response.data;
                         }
                     });
                 }
+
+                // Details de devis
+                if (this.interventionData.devis) {
+                    this.devisData = [this.interventionData.devis];
+                }
+
+                if (this.interventionData.facture) {
+                    this.factureData = [this.interventionData.facture]
+                }
             }
         });
     }
 
-    fetchMecaniciensAssigner(idIntervention : any) {
+    fetchMecaniciensAssigner(idIntervention: any) {
         this.intervetionService.getMecaniciensAssigner(idIntervention).subscribe({
-            next: (response : any) => {
-                this.assignationsData = response.data
+            next: (response: any) => {
+                this.assignationsData = response.data;
             }
-        })
+        });
     }
 
-    // TODO: Generer devis
+    onGenererDevis() {
+        if (!this.interventionData) return;
 
-    onDesaffecterMecanicien(idIntervetion : any, idMecanicien : any) {
-        this.intervetionService.desaffecterMecanicien(idIntervetion, idMecanicien).subscribe({
-            next: (response : any) => {
+        this.intervetionService.genererDevis(this.interventionData._id).subscribe({
+            next: (response: any) => {
+                this.fetchIntervetion(this.interventionData._id);
+
                 this.messageService.add({
-                    summary: "Desaffecter",
+                    summary: 'Success',
                     detail: response.message,
-                    severity: "success"
-                })
-
-                this.fetchMecaniciensAssigner(idIntervetion)
+                    severity: 'success'
+                });
             },
             error: (err) => {
                 this.messageService.add({
-                    summary: "Erreur",
-                    detail: "Une erreur s\'est produite",
-                    severity: "error"
-                })
-            }
-        })
-    }
-
-    onAssignerMecanicien(idMecanicien : any) {
-        this.intervetionService.assignerMecanicien(this.interventionData._id, idMecanicien).subscribe({
-            next: (response : any) => {
-                this.messageService.add({
-                    summary: "Assigner",
-                    detail: response.message,
-                    severity: "success"
-                })
-
-                this.fetchMecaniciensAssigner(this.interventionData._id)
-
-                this.isAssignerMecanicienVisible = false
-            },
-            error: (err) => {
-                this.messageService.add({
-                    summary: "Erreur",
+                    summary: 'Erreur',
                     detail: err.error.error,
-                    severity: "error"
-                })
+                    severity: 'error'
+                });
             }
-        })
+        });
+    }
+
+    onGenererFacture() {
+        if (!this.interventionData) return;
+
+        this.intervetionService.genererFacture(this.interventionData._id, this.observation).subscribe({
+            next: (response: any) => {
+                this.fetchIntervetion(this.interventionData._id);
+
+                this.isGenererFactureVisible = false;
+
+                this.messageService.add({
+                    summary: 'Success',
+                    detail: response.message,
+                    severity: 'success'
+                });
+            },
+            error: (err) => {
+                this.messageService.add({
+                    summary: 'Erreur',
+                    detail: err.error.error,
+                    severity: 'error'
+                });
+            }
+        });
+    }
+
+    onDesaffecterMecanicien(idIntervetion: any, idMecanicien: any) {
+        this.intervetionService.desaffecterMecanicien(idIntervetion, idMecanicien).subscribe({
+            next: (response: any) => {
+                this.messageService.add({
+                    summary: 'Desaffecter',
+                    detail: response.message,
+                    severity: 'success'
+                });
+
+                this.fetchMecaniciensAssigner(idIntervetion);
+            },
+            error: (err) => {
+                this.messageService.add({
+                    summary: 'Erreur',
+                    detail: "Une erreur s\'est produite",
+                    severity: 'error'
+                });
+            }
+        });
+    }
+
+    onAssignerMecanicien(idMecanicien: any) {
+        this.intervetionService.assignerMecanicien(this.interventionData._id, idMecanicien).subscribe({
+            next: (response: any) => {
+                this.messageService.add({
+                    summary: 'Assigner',
+                    detail: response.message,
+                    severity: 'success'
+                });
+
+                this.fetchMecaniciensAssigner(this.interventionData._id);
+
+                this.isAssignerMecanicienVisible = false;
+            },
+            error: (err) => {
+                this.messageService.add({
+                    summary: 'Erreur',
+                    detail: err.error.error,
+                    severity: 'error'
+                });
+            }
+        });
     }
 }
