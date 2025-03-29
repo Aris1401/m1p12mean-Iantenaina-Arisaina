@@ -46,6 +46,6 @@ export class InfosGeneralesInterventionComponent {
   onClickFicheIntervention = output<any>()
 
   onClick() {
-    this.onClickFicheIntervention.emit(this.ficheInterventionData()._id)
+    this.onClickFicheIntervention.emit(this.ficheInterventionData()?._id)
   }
 }
