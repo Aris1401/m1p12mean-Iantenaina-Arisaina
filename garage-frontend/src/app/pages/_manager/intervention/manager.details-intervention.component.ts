@@ -19,6 +19,7 @@ import { DialogModule } from 'primeng/dialog';
 import { TextareaModule } from 'primeng/textarea';
 import { FormsModule } from '@angular/forms';
 import { FactureService } from '../../../_services/facture/facture.service';
+import { DetailsFicheInterventionComponent } from '../../utils/fiche-intervention/details-fiche-intervention.component';
 
 @Component({
     selector: 'app-manager.details-intervention',
@@ -36,7 +37,8 @@ import { FactureService } from '../../../_services/facture/facture.service';
         ChipModule,
         BadgeModule,
         CommonModule,
-        ManagerAssignationRendezVousComponent
+        ManagerAssignationRendezVousComponent,
+        DetailsFicheInterventionComponent
     ],
     template: `
         <p-toast></p-toast>
@@ -98,7 +100,7 @@ import { FactureService } from '../../../_services/facture/facture.service';
                 </p-card>
             </div>
 
-            <app-infos-generales-intervention [interventionData]="interventionData" [ficheInterventionData]="ficheInterventionData" />
+            <app-infos-generales-intervention [interventionData]="interventionData" [ficheInterventionData]="ficheInterventionData" (onClickFicheIntervention)="onShowDetailsFicheIntervention($event)" />
 
             <app-infos-travaux-pieces [travauxData]="travauxData" [piecesData]="piecesData" />
 
@@ -195,6 +197,11 @@ import { FactureService } from '../../../_services/facture/facture.service';
                 <p-button label="Generer facture" styleClass="w-full" type="submit" />
             </form>
         </p-dialog>
+
+        <!-- Details fihe intervention -->
+         <p-dialog [(visible)]="isDetailsFicheIntervetionVisible" header="Details fiche intervetion" [style]="{  width: '50rem' }" [modal]="true">
+            <app-details-fiche-intervention [ficheInterventionId]="ficheInterventionData?._id" />
+         </p-dialog>
     `,
     styles: ``
 })
@@ -216,6 +223,9 @@ export class ManagerDetailsInterventionComponent {
     // Facture
     isGenererFactureVisible: boolean = false;
     observation = '';
+
+    // Details fiche intervention
+    isDetailsFicheIntervetionVisible : boolean = false
 
     etatsService: EtatsService = inject(EtatsService);
     factureService : FactureService = inject(FactureService)
@@ -243,6 +253,8 @@ export class ManagerDetailsInterventionComponent {
 
                 // Obtenir les travaux et pieces
                 if (this.interventionData.fiche_intervention) {
+                    this.ficheInterventionData = this.interventionData.fiche_intervention
+
                     this.ficheIntervetionService.getTravauxFicheIntervention(this.interventionData.fiche_intervention._id).subscribe({
                         next: (response: any) => {
                             this.travauxData = response.data;
@@ -366,5 +378,9 @@ export class ManagerDetailsInterventionComponent {
                 });
             }
         });
+    }
+
+    onShowDetailsFicheIntervention(ficheIntervention : any) {
+        this.isDetailsFicheIntervetionVisible = true
     }
 }

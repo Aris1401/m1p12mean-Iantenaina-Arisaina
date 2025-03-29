@@ -1,6 +1,7 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
+const path = require('path')
 const { verifyToken, isUtilisateur } = require("./middlewares/jwt");
 require("dotenv").config();
 
@@ -27,6 +28,8 @@ mongoose
 
 // ------------------- Routes
 const baseUrl = "/api/v1";
+
+app.use(baseUrl + '/storage', express.static(path.join(__dirname, '../upload')))
 
 // Authentification
 app.use(baseUrl, require("./controllers/auth.controller"));
