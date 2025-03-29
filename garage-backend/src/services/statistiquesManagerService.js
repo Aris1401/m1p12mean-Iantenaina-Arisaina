@@ -1,4 +1,8 @@
 const RendezVous = require('../model/RendezVous/rendezVous');
+const DemandeRendezVous = require('../model/RendezVous/demandeRendezVous')
+const Facture = require('../model/Intervention/Facture/facture')
+
+const { EtatDemandeRendezVous, EtatRendezVous } = require('../model/Etats')
 
 class StatistiquesManagerService {
     static async getRendezVousCountByYearAndMonth(year, state) {
@@ -80,6 +84,177 @@ class StatistiquesManagerService {
     
         return result.map(item => item.year);
     }
+
+    static async getTotalFacturesAnnee(annee) {
+        annee = Number(annee)
+
+        // Create date objects for the beginning and end of the requested year
+        const startDate = new Date(`${annee}-01-01T00:00:00.000Z`);
+        const endDate = new Date(`${annee + 1}-01-01T00:00:00.000Z`);
+        
+        // Find all invoices created in the specified year
+        const facturesAnnee = await Facture.find({
+          createdAt: {
+            $gte: startDate,
+            $lt: endDate
+          }
+        });
+        
+        // Calculate the total amount from all invoices
+        const totalAmount = facturesAnnee.reduce((sum, facture) => sum + facture.total, 0);
+        const totalTTC = facturesAnnee.reduce((sum, facture) => sum + facture.total_ttc, 0);
+        
+        // Calculate data for the previous year
+        const startDatePrevious = new Date(`${annee - 1}-01-01T00:00:00.000Z`);
+        const endDatePrevious = new Date(`${annee}-01-01T00:00:00.000Z`);
+        
+        const facturesPreviousYear = await Facture.find({
+          createdAt: {
+            $gte: startDatePrevious,
+            $lt: endDatePrevious
+          }
+        });
+        
+        const totalAmountPrevious = facturesPreviousYear.reduce((sum, facture) => sum + facture.total, 0);
+        const totalTTCPrevious = facturesPreviousYear.reduce((sum, facture) => sum + facture.total_ttc, 0);
+        
+        // Calculate growth percentages
+        let growthPercentage = 0;
+        let growthPercentageTTC = 0;
+        
+        if (totalAmountPrevious > 0) {
+          growthPercentage = ((totalAmount - totalAmountPrevious) / totalAmountPrevious) * 100;
+        }
+        
+        if (totalTTCPrevious > 0) {
+          growthPercentageTTC = ((totalTTC - totalTTCPrevious) / totalTTCPrevious) * 100;
+        }
+        
+        return {
+          count: facturesAnnee.length,
+          countPreviousYear: facturesPreviousYear.length,
+          total: totalAmount,
+          total_ttc: totalTTC,
+          previousYearTotal: totalAmountPrevious,
+          previousYearTotalTTC: totalTTCPrevious,
+          growthPercentage: parseFloat(growthPercentage.toFixed(2)),
+          growthPercentageTTC: parseFloat(growthPercentageTTC.toFixed(2)),
+          signe: growthPercentageTTC >= 0 ? "+" : "-",
+          facturesAnnee
+        };
+      }
+
+      static async getTotalFacturesJour() {
+        // Obtenir la date actuelle
+        const aujourdhui = new Date();
+        
+        // Créer les dates de début et fin pour aujourdhui
+        const debutJour = new Date(aujourdhui);
+        debutJour.setHours(0, 0, 0, 0);
+        
+        const finJour = new Date(aujourdhui);
+        finJour.setHours(23, 59, 59, 999);
+        
+        // Trouver toutes les factures créées aujourdhui
+        const facturesJour = await Facture.find({
+          createdAt: {
+            $gte: debutJour,
+            $lt: finJour
+          }
+        });
+        
+        // Calculer le montant total de toutes les factures du jour
+        const totalAmount = facturesJour.reduce((sum, facture) => sum + facture.total, 0);
+        const totalTTC = facturesJour.reduce((sum, facture) => sum + facture.total_ttc, 0);
+        
+        // Calculer les données pour le même jour de l'année précédente
+        const jourPrecedent = new Date(aujourdhui);
+        jourPrecedent.setFullYear(aujourdhui.getFullYear() - 1);
+        
+        const debutJourPrecedent = new Date(jourPrecedent);
+        debutJourPrecedent.setHours(0, 0, 0, 0);
+        
+        const finJourPrecedent = new Date(jourPrecedent);
+        finJourPrecedent.setHours(23, 59, 59, 999);
+        
+        const facturesJourPrecedent = await Facture.find({
+          createdAt: {
+            $gte: debutJourPrecedent,
+            $lt: finJourPrecedent
+          }
+        });
+        
+        const totalAmountPrecedent = facturesJourPrecedent.reduce((sum, facture) => sum + facture.total, 0);
+        const totalTTCPrecedent = facturesJourPrecedent.reduce((sum, facture) => sum + facture.total_ttc, 0);
+        
+        // Calculer les pourcentages de croissance
+        let growthPercentage = 0;
+        let growthPercentageTTC = 0;
+        
+        if (totalAmountPrecedent > 0) {
+          growthPercentage = ((totalAmount - totalAmountPrecedent) / totalAmountPrecedent) * 100;
+        }
+        
+        if (totalTTCPrecedent > 0) {
+          growthPercentageTTC = ((totalTTC - totalTTCPrecedent) / totalTTCPrecedent) * 100;
+        }
+        
+        return {
+          date: aujourdhui.toISOString().split('T')[0],
+          count: facturesJour.length,
+          countPreviousDay: facturesJourPrecedent.length,
+          total: totalAmount,
+          total_ttc: totalTTC,
+          previousDayTotal: totalAmountPrecedent,
+          previousDayTotalTTC: totalTTCPrecedent,
+          growthPercentage: parseFloat(growthPercentage.toFixed(2)),
+          growthPercentageTTC: parseFloat(growthPercentageTTC.toFixed(2)),
+          signe: growthPercentageTTC >= 0 ? "+" : "-",
+          facturesJour
+        };
+      }
+
+      static async getNombreDemandeRendezVous() {
+        const aujourdHui = new Date();
+        const debutJour = new Date(aujourdHui.setHours(0, 0, 0, 0));
+        const finJour = new Date(aujourdHui.setHours(23, 59, 59, 999));
+
+        const demandeRendezVous = await DemandeRendezVous.find({ 
+            etat_demande: EtatDemandeRendezVous.EN_COURS,
+            date_souhaiter: { $gte: debutJour, $lte: finJour}
+        })
+
+        const demandeRendezVousAnnuler = await DemandeRendezVous.find({ 
+            etat_demande: EtatDemandeRendezVous.ANNULER,
+            date_souhaiter: { $gte: debutJour, $lte: finJour}
+        }) 
+
+        return {
+            nombre: demandeRendezVous.length,
+            annuler: demandeRendezVousAnnuler.length
+        }
+      }
+
+      static async getNombreRendezVous() {
+        const aujourdHui = new Date();
+        const debutJour = new Date(aujourdHui.setHours(0, 0, 0, 0));
+        const finJour = new Date(aujourdHui.setHours(23, 59, 59, 999));
+
+        const rendezVous = await RendezVous.find({ 
+            etat_demande: EtatRendezVous.EN_ATTENTE,
+            date_souhaiter: { $gte: debutJour, $lte: finJour}
+        })
+
+        const rendezVousAnnuler = await RendezVous.find({ 
+            etat_demande: EtatRendezVous.ANNULER,
+            date_souhaiter: { $gte: debutJour, $lte: finJour}
+        }) 
+
+        return {
+            nombre: rendezVous.length,
+            annuler: rendezVousAnnuler.length
+        }
+      }
 }
 
 module.exports = StatistiquesManagerService;
