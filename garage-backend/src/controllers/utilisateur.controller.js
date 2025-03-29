@@ -17,15 +17,17 @@ route.put('/document', [verifyToken, uploadFiles.single('document')], async (req
         })
     }
 
+    // console.log(req.file)
+
     // New document
     const document = {
         titre: req.body.titre,
-        chemin: req.file.path,
+        chemin: req.file.filename,
         date_ajout: Date.now()
     }
 
     utilisateur.documents.push(document)
-    utilisateur.save()
+    await utilisateur.save({ validateBeforeSave: false })
 
     return res.status(200).json({
         message: "Document enregistrer avec success",
@@ -36,7 +38,7 @@ route.put('/document', [verifyToken, uploadFiles.single('document')], async (req
 route.get('/document/dowload/:id', async (req, res) => {
     const utilisateur = await Utilisateur.findOne({ "documents._id": req.params.id }, { "documents.$": 1 })
 
-    return res.download(utilisateur.documents[0].chemin)
+    return res.download("upload/" + utilisateur.documents[0].chemin)
 })
 
 module.exports = route

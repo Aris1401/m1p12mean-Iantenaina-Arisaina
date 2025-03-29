@@ -2,13 +2,17 @@ const util = require("util");
 const path = require("path");
 const multer = require("multer");
 const fs = require('fs')
+const crypto = require('crypto')
 
 var storage = multer.diskStorage({
   destination: (req, file, callback) => {
-    callback(null, path.join(`${__dirname}/../../upload`));
+    const dest = path.join(`${__dirname}/../../upload`)
+    fs.mkdirSync(dest, { recursive: true })
+
+    callback(null, dest);
   },
   filename: (req, file, callback) => {
-    var filename = `${Date.now()}-garage-${file.originalname}`;
+    var filename = `${Date.now()}-garage-${path.basename(file.originalname, path.extname(file.originalname))}-${crypto.randomBytes(16).toString('hex')}${path.extname(file.originalname)}`;
     callback(null, filename);
   }
 });
