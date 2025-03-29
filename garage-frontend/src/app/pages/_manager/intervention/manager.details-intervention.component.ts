@@ -109,7 +109,9 @@ import { DetailsFicheInterventionComponent } from '../../utils/fiche-interventio
                     <div class="flex justify-between items-center">
                         <h5 class="m-0">Liste des devis</h5>
 
-                        <p-button label="Generer devis" (onClick)="onGenererDevis()" />
+                        @if (interventionData?.etat_intervention != 100) {
+                            <p-button label="Generer devis" (onClick)="onGenererDevis()" />
+                        }
                     </div>
                 </ng-template>
 
