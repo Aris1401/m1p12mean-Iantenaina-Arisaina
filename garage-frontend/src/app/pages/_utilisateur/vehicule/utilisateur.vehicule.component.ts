@@ -312,6 +312,10 @@ export class UtilisateurVehiculeComponent implements OnInit {
     }
 
     ngOnInit(): void {
+        this.fetchVehicules()
+    }
+
+    fetchVehicules() {
         this.vehiculeService.getVehicules().subscribe({
             next: (response: any) => {
                 this.userVehiculesData = response.data;
@@ -392,6 +396,8 @@ export class UtilisateurVehiculeComponent implements OnInit {
                     severity: 'success',
                     summary: response.message
                 });
+
+                this.fetchVehicules()
             },
             error: (err) => {
                 this.uploadVehiculeErrors = err.error.error;

@@ -345,6 +345,8 @@ export class UtilisateurRendezVousComponent implements OnInit {
                 };
 
                 this.isAddRendezVousVisible = false;
+
+                // this.obtenirRendezVousUtilisateur()
             },
             error: (err) => {
                 this.messageService.add({
