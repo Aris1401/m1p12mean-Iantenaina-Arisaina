@@ -14,7 +14,7 @@ import { environment } from '../../../../environments/environment';
     <div>
       <h5>Type evenement</h5>
 
-      <p-chip [label]="ficheIntervention?.autre_evenement ?? ficheIntervention?.type_evenement.designation" />
+      <p-chip [label]="ficheIntervention?.autre_evenement ?? ficheIntervention?.type_evenement?.designation" />
     </div>
 
     <p-divider />
