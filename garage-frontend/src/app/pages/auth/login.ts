@@ -89,7 +89,7 @@ export class Login {
     onLogin() {
         this.authService.login(this.email, this.password).subscribe({
             next: (response) => {
-                this.authStorage.saveToken(response.token, response.roles);
+                this.authStorage.saveToken(response.token, response.roles, response.nom);
 
                 // Redirection vers le dashboard
                 this.router.navigate(['/dashboard']);

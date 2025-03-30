@@ -17,11 +17,13 @@ export class AuthStorageService {
   clear() {
     localStorage.removeItem('access-token')
     localStorage.removeItem('roles')
+    localStorage.removeItem('displayName')
   }
 
-  saveToken(token : string, roles : string[]) {
+  saveToken(token : string, roles : string[], nom : string = "") {
     localStorage.setItem('access-token', token);
     localStorage.setItem('roles', JSON.stringify(roles));
+    localStorage.setItem('displayName', nom)
   }
 
   getToken() {

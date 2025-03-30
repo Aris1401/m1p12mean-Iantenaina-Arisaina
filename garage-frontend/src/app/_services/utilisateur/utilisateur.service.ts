@@ -14,4 +14,8 @@ export class UtilisateurService {
   addUtilisateurDocument(data : any) {
     return this.http.put(environment.apiUrl + "user/document", data)
   }
+
+  deleteDocument(idDocument : any) {
+    return this.http.delete(environment.apiUrl + "user/document/" + idDocument)
+  }
 }
