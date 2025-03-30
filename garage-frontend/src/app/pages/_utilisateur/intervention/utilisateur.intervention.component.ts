@@ -25,7 +25,6 @@ import { FactureService } from '../../../_services/facture/facture.service';
 
         <div class="flex flex-col gap-2">
             @if (intervetionData?.facture) {
-
                 <p-card header="Devis">
                     <p-table [value]="factureData" [stripedRows]="true">
                         <ng-template #header>
@@ -38,7 +37,7 @@ import { FactureService } from '../../../_services/facture/facture.service';
                                 <th style="width: 20%"></th>
                             </tr>
                         </ng-template>
-    
+
                         <ng-template #body let-facture>
                             <tr>
                                 <td class="font-bold">{{ facture?.reference }}</td>
@@ -129,6 +128,34 @@ import { FactureService } from '../../../_services/facture/facture.service';
             </p-card>
         </div>
 
+        <div class="mt-2">
+            <p-card>
+                <ng-template #title>
+                    <div class="flex justify-between">
+                        <h5>Liste des mecaniciens</h5>
+                    </div>
+                </ng-template>
+
+                <p-table [value]="assignationsData" [stripedRows]="true" [rows]="10" [paginator]="true">
+                    <ng-template #header>
+                        <tr>
+                            <th>Nom</th>
+                            <th>Prenom</th>
+                            <th>Date assignation</th>
+                        </tr>
+                    </ng-template>
+
+                    <ng-template let-assignation #body>
+                        <tr>
+                            <td>{{ assignation.mecanicien.nom }}</td>
+                            <td>{{ assignation.mecanicien.prenom }}</td>
+                            <td>{{ assignation.createdAt | date: 'yyyy-MM-dd HH:mm' }}</td>
+                        </tr>
+                    </ng-template>
+                </p-table>
+            </p-card>
+        </div>
+
         <!-- Selection date debut -->
         <p-dialog [(visible)]="isSelectionDateVisible" [modal]="true" header="Selectionner une date de debut d'intervetion" style="width: 30rem">
             <app-utilisateur-debut-intervention style="width: 100%;" [intervetionId]="currentIntervetionId()" (dateValider)="onDateValider()" />
@@ -147,8 +174,10 @@ export class UtilisateurInterventionComponent implements OnInit {
     devisData: any[] = [];
     factureData: any[] = [];
 
+    assignationsData: any[] = [];
+
     etatsService = inject(EtatsService);
-    factureService = inject(FactureService)
+    factureService = inject(FactureService);
 
     isSelectionDateVisible: boolean = false;
 
@@ -184,7 +213,7 @@ export class UtilisateurInterventionComponent implements OnInit {
                             this.travauxData = response.data;
                         }
                     });
-    
+
                     // Obtenir les pieces de fiche intervention
                     this.ficheIntervetionService.getPiecesFicheIntervention(this.ficheInterventionData._id).subscribe({
                         next: (response: any) => {
@@ -195,6 +224,15 @@ export class UtilisateurInterventionComponent implements OnInit {
 
                 // Check si il faut selectionner une date de debut
                 this.checkDebutSelecionVisibility();
+                this.fetchMecaniciensAssigner(this.intervetionData._id);
+            }
+        });
+    }
+
+    fetchMecaniciensAssigner(idIntervention: any) {
+        this.interventionService.getMecaniciensAssigner(idIntervention).subscribe({
+            next: (response: any) => {
+                this.assignationsData = response.data;
             }
         });
     }
