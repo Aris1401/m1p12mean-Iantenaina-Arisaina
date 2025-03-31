@@ -40,4 +40,63 @@ router.get("/stats/rendez-vous", [verifyToken, isManager], async (req, res) => {
   });
 });
 
+router.get('/stats/rendez-vous/total', [verifyToken, isManager], async (req, res) => {
+  const nombreRendezVous = await StatistiquesManager.getNombreRendezVous()
+
+  return res.status(200).json({
+    data: nombreRendezVous
+  })
+})
+
+// Obtenir le total des factures d'une annee
+router.get('/stats/facture/total/annee/:annee', async (req, res) => {
+  const annee = req.params.annee ?? new Date().getFullYear()
+
+  const totalFacture = await StatistiquesManager.getTotalFacturesAnnee(annee)
+
+  return res.status(200).json({
+    data: totalFacture
+  })
+})
+
+// Obtenir le total des factures du jour
+router.get('/stats/facture/total', async (req, res) => {
+  const totalFacture = await StatistiquesManager.getTotalFacturesJour()
+
+  return res.status(200).json({
+    data: totalFacture
+  })
+})
+
+// Evolution de facture
+router.get('/stats/facture/evolution', async (req, res) => {
+  const annee = req.query.annee ?? new Date().getFullYear()
+  const mois = req.query.mois ?? new Date().getMonth()
+
+  const totalFacture = await StatistiquesManager.obtenirEvolutionFacture(annee, mois)
+
+  return res.status(200).json({
+    data: totalFacture
+  })
+})
+
+
+// Nombre de demande de rendez-vous
+router.get('/stats/demande-rendez-vous/total', [verifyToken], async (req, res) => {
+  const nombreDemandeRendezVous = await StatistiquesManager.getNombreDemandeRendezVous()
+
+  return res.status(200).json({
+    data: nombreDemandeRendezVous
+  })
+})
+
+// Nombre d'assignation de chaque mecanicien
+router.get('/stats/mecaniciens/assignations', async (req, res) => {
+  const nombreMecanicienAssigner = await StatistiquesManager.nombreAssignationMecanicien()
+
+  return res.status(200).json({
+    data: nombreMecanicienAssigner
+  })
+})
+
 module.exports = router;

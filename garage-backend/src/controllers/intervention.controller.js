@@ -8,6 +8,7 @@ const PieceFicheIntervention = require('../model/Intervention/FicheIntervention/
 const TypeEvenement = require('../model/Intervention/FicheIntervention/typeEvenement')
 const FicheIntervention = require('../model/Intervention/FicheIntervention/ficheIntervetion')
 const Devis = require('../model/Intervention/Devis/devis')
+const Facture = require('../model/Intervention/Facture/facture')
 const Intervention = require('../model/Intervention/intervention');
 const DemandeRendezVous = require('../model/RendezVous/demandeRendezVous');
 const RendezVous = require('../model/RendezVous/rendezVous');  
@@ -17,11 +18,35 @@ const AssignationIntervention = require('../model/Intervention/assignationInterv
 
 // Services
 const InterventionService = require('../services/interventionService')
+const FactureService = require('../services/factureService')
 
 // Etats
 const { EtatIntervention, EtatDevis } = require('../model/Etats')
 
 const { verifyToken } = require('../middlewares/jwt');
+
+// Obtenir les interventions du jour
+router.get('/', [verifyToken], async (req, res) => {
+    const intervention = await Intervention.find({
+        $or: [
+                { etat_intervention: EtatIntervention.EN_COURS}, 
+                { etat_intervention: EtatIntervention.EN_ATTENTE},
+                { etat_intervention: EtatIntervention.EN_ATTENTE_DE_PIECE}
+        ]
+    }).populate([
+        "vehicule",
+        {
+            path: "utilisateur",
+            select: ["-mot_de_passe", "-documents"]
+        },
+        "facture",
+        "devis"
+    ]).sort({ createdAt: -1 })
+
+    return res.status(200).json({
+        data: intervention
+    })
+})
 
 // Obtenir l'intervetion courante d'un vehicule
 router.get('/vehicule/:vehiculeId/actif', [verifyToken], async (req, res) => {
@@ -83,6 +108,36 @@ router.delete('/:interventionId/mecaniciens/:mecanicienId', [verifyToken], async
     })
 })
 
+// Generer devis intervetion
+router.post('/:inteventionId/devis', [verifyToken], async (req, res) => {
+    try {
+        await FactureService.genererDevis(req.params.inteventionId)        
+    } catch (error) {
+        return res.status(400).json({
+            error: error.message
+        })
+    }
+
+    return res.status(200).json({
+        message: "Devis generer avec success"
+    })
+})
+
+// Generer facture
+router.post('/:interventionId/facture', [verifyToken], async (req, res) => {
+    try {
+        await FactureService.genererFacture(req.params.interventionId, req.body.observation)
+    } catch (error) {
+        return res.status(400).json({
+            error: error.message
+        })
+    }
+
+    return res.status(200).json({
+        message: "Facture generer avec success"
+    })
+})
+
 // Obtenir les details d'une intervention
 router.get('/:interventionId', [verifyToken], async (req, res) => {
     const intervention = await Intervention.findOne({ _id: req.params.interventionId }).populate([
@@ -93,6 +148,7 @@ router.get('/:interventionId', [verifyToken], async (req, res) => {
         {
             path: 'devis'
         },
+        "facture",
         "vehicule",
         {
             path: "utilisateur",

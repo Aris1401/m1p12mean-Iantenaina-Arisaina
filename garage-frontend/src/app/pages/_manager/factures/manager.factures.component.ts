@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { ChipModule } from 'primeng/chip';
@@ -7,10 +7,12 @@ import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
 import { TableModule } from 'primeng/table';
+import { FactureService } from '../../../_services/facture/facture.service';
+import { RouterModule } from '@angular/router';
 
 @Component({
     selector: 'app-manager.factures',
-    imports: [CardModule, CommonModule, TableModule, ChipModule, InputTextModule, IconFieldModule, InputIconModule, ButtonModule],
+    imports: [CardModule, CommonModule, TableModule, RouterModule, ChipModule, InputTextModule, IconFieldModule, InputIconModule, ButtonModule],
     template: `
         <p-card header="Liste des factures">
             <p-table
@@ -56,18 +58,18 @@ import { TableModule } from 'primeng/table';
                             {{ facture.reference }}
                           </span>
                         </td>
-                        <td>{{ facture.id_intervention.utilisateur.nom + ' ' + facture.id_intervention.utilisateur.prenom }}</td>
+                        <td>{{ facture.intervention.utilisateur.nom + ' ' + facture.intervention.utilisateur.prenom }}</td>
                         <td>
                             <p-chip>
-                                {{ facture.createdAt }}
+                                {{ facture.createdAt | date: "yyyy-MM-dd HH:mm" }}
                             </p-chip>
                         </td>
                         <td>{{ facture.total }} Ar</td>
                         <td>{{ facture.total_ttc }} Ar</td>
                         <td>
                           <div class="flex justify-end gap-2">
-                            <button pButton icon="pi pi-eye" label="Voir la facture" pTooltipPosition="top"></button>
-                            <button pButton icon="pi pi-eye" label="Voir l'intervention" pTooltipPosition="top"></button>
+                            <button pButton icon="pi pi-eye" label="Voir la facture" pTooltipPosition="top" (click)="factureService.downloadFacture(facture._id)"></button>
+                            <a pButton icon="pi pi-eye" label="Voir l'intervention" pTooltipPosition="top" [routerLink]="['/manager/intervention', facture.intervention._id]" ></a>
                           </div>
                         </td>
                     </tr>
@@ -77,31 +79,17 @@ import { TableModule } from 'primeng/table';
     `,
     styles: ``
 })
-export class ManagerFacturesComponent {
+export class ManagerFacturesComponent implements OnInit {
     factures = [
-        {
-            reference: 'FAC001',
-            id_intervention: {
-                utilisateur: {
-                    nom: 'Doe',
-                    prenom: 'John'
-                }
-            },
-            createdAt: '2023-01-01',
-            total: 10000,
-            total_ttc: 12000
-        },
-        {
-            reference: 'FAC002',
-            id_intervention: {
-                utilisateur: {
-                    nom: 'Smith',
-                    prenom: 'Jane'
-                }
-            },
-            createdAt: '2023-02-01',
-            total: 20000,
-            total_ttc: 24000
-        }
-    ]; // TODO: Obtenir depuis backend
+    ];
+
+    constructor (
+        protected factureService : FactureService
+    ) {}
+
+    ngOnInit(): void {
+        this.factureService.allFactures().subscribe((response : any) => {
+            this.factures = response.data
+        })
+    }
 }

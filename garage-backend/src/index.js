@@ -1,6 +1,7 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
+const path = require('path')
 const { verifyToken, isUtilisateur } = require("./middlewares/jwt");
 require("dotenv").config();
 
@@ -11,7 +12,8 @@ const PORT = process.env.PORT || 5000;
 // Middleware
 app.use(cors({
   credentials: true,
-  origin: process.env.APP_URL
+  origin: process.env.APP_URL,
+  exposedHeaders: ['Content-Disposition']
 }));
 app.use(express.json());
 
@@ -26,6 +28,8 @@ mongoose
 
 // ------------------- Routes
 const baseUrl = "/api/v1";
+
+app.use(baseUrl + '/storage', express.static(path.join(__dirname, '../upload')))
 
 // Authentification
 app.use(baseUrl, require("./controllers/auth.controller"));
@@ -53,6 +57,9 @@ app.use(baseUrl + "/pieces", require('./controllers/piece.controller'))
 
 // Manager
 app.use(baseUrl + "/manager", require('./controllers/manager.controller'))
+
+// Facture
+app.use(baseUrl + '/factures', require('./controllers/facture.controller'))
 
 app.get(baseUrl + "/test", [verifyToken, isUtilisateur], (req, res) => {
   res.status(200).send({ message: "Test réussi !" });

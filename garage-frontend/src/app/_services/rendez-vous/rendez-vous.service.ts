@@ -36,6 +36,11 @@ export class RendezVousService {
     return this.http.get(environment.apiUrl + "rendez-vous/manager")
   }
 
+  // Obtenir tout les rendez-vous du jour courant
+  getRendezVousDuJour() {
+    return this.http.get(environment.apiUrl + "rendez-vous/today")
+  }
+
   // Obtenir les mecanicien assigner
   getMecanicienAssigner(idRendezVous : any) {
     return this.http.get(environment.apiUrl + 'rendez-vous/' + idRendezVous + "/assigner")

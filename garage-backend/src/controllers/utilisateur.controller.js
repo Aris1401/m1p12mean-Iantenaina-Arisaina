@@ -17,15 +17,17 @@ route.put('/document', [verifyToken, uploadFiles.single('document')], async (req
         })
     }
 
+    // console.log(req.file)
+
     // New document
     const document = {
         titre: req.body.titre,
-        chemin: req.file.path,
+        chemin: req.file.filename,
         date_ajout: Date.now()
     }
 
     utilisateur.documents.push(document)
-    utilisateur.save()
+    await utilisateur.save({ validateBeforeSave: false })
 
     return res.status(200).json({
         message: "Document enregistrer avec success",
@@ -33,10 +35,32 @@ route.put('/document', [verifyToken, uploadFiles.single('document')], async (req
     })
 })
 
-route.get('/document/dowload/:id', async (req, res) => {
+route.get('/document/dowload/:id', [verifyToken], async (req, res) => {
     const utilisateur = await Utilisateur.findOne({ "documents._id": req.params.id }, { "documents.$": 1 })
 
-    return res.download(utilisateur.documents[0].chemin)
+    return res.download("upload/" + utilisateur.documents[0].chemin)
 })
+
+route.delete("/document/:id", [verifyToken], async (req, res) => {
+    try {
+        const userId = req.utilisateurId;
+        const documentId = req.params.id;
+
+        const updatedUser = await Utilisateur.findOneAndUpdate(
+            { _id: userId },
+            { $pull: { documents: { _id: documentId } } },
+            { new: true }
+        );
+
+        if (!updatedUser) {
+            return res.status(400).json({ error: "Utilisateur non trouvé" });
+        }
+
+        return res.status(200).json({ message: "Document supprimé avec succès", data: updatedUser });
+    } catch (error) {
+        console.error(error);
+        return res.status(400).json({ error: "Erreur serveur", error });
+    }
+});
 
 module.exports = route

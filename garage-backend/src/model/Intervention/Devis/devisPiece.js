@@ -2,7 +2,7 @@ const mongoose = require('mongoose')
 
 const devisPieceSchema = new mongoose.Schema({
     devis: { type: mongoose.Types.ObjectId, ref: "Devis" },
-    piece: {}, // TODO: Ajouter reference piece,
+    piece: { type: mongoose.Types.ObjectId, ref: "Piece" },
     quantite: { type: Number, default: 1 },
     prix_unitaire: { type: Number, default: 0 },
     prix_ht: { type: Number, default: 0 }
