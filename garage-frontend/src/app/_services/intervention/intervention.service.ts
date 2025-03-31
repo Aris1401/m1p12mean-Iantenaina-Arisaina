@@ -15,6 +15,10 @@ export class InterventionService {
     return this.http.get(environment.apiUrl + "intervention/" + interventionId)
   }
 
+  getInterventionsDuJour() {
+    return this.http.get(environment.apiUrl + "intervention")
+  }
+
   validerDevisIntervetion(interventionId : any) {
     return this.http.get(environment.apiUrl + "intervention/" + interventionId + "/devis/valider")
   }
