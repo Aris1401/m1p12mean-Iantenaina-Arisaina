@@ -38,4 +38,8 @@ export class ManagerStatistiquesService {
   getNombreDemandeRendezVous() {
     return this.http.get(environment.apiUrl + 'manager/stats/demande-rendez-vous/total')
   }
+
+  getEvolutionFacture(annee : any, mois : any) {
+    return this.http.get(environment.apiUrl + "manager/stats/facture/evolution?annee=" + annee + "&mois=" + mois)
+  }
 }

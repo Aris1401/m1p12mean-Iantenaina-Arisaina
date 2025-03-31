@@ -68,6 +68,18 @@ router.get('/stats/facture/total', async (req, res) => {
   })
 })
 
+// Evolution de facture
+router.get('/stats/facture/evolution', async (req, res) => {
+  const annee = req.query.annee ?? new Date().getFullYear()
+  const mois = req.query.mois ?? new Date().getMonth()
+
+  const totalFacture = await StatistiquesManager.obtenirEvolutionFacture(annee, mois)
+
+  return res.status(200).json({
+    data: totalFacture
+  })
+})
+
 
 // Nombre de demande de rendez-vous
 router.get('/stats/demande-rendez-vous/total', [verifyToken], async (req, res) => {
@@ -75,6 +87,15 @@ router.get('/stats/demande-rendez-vous/total', [verifyToken], async (req, res) =
 
   return res.status(200).json({
     data: nombreDemandeRendezVous
+  })
+})
+
+// Nombre d'assignation de chaque mecanicien
+router.get('/stats/mecaniciens/assignations', async (req, res) => {
+  const nombreMecanicienAssigner = await StatistiquesManager.nombreAssignationMecanicien()
+
+  return res.status(200).json({
+    data: nombreMecanicienAssigner
   })
 })
 

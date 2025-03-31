@@ -5,11 +5,12 @@ import { ManagerStatistiquesService } from '../../../_services/manager/manager.s
 import { SelectModule } from 'primeng/select';
 import { DividerModule } from 'primeng/divider';
 import { ManagerTableauDeBordRemindersComponent } from './manager.tableau-de-bord.reminders.component';
+import { ManagerTableauDeBordEvolutionFactureComponent } from './manager.tableau-de-bord.evolution-facture.component';
 
 @Component({
     selector: 'app-manager.tableau-de-bord',
     standalone: true,
-    imports: [CardModule, ChartModule, SelectModule, DividerModule, ManagerTableauDeBordRemindersComponent],
+    imports: [CardModule, ChartModule, SelectModule, DividerModule, ManagerTableauDeBordRemindersComponent, ManagerTableauDeBordEvolutionFactureComponent],
     template: `
         <div class="mb-2 flex justify-end block">
             <p-select [options]="anneesOptions" (onChange)="onAnneeSelected($event.value)" />
@@ -17,11 +18,11 @@ import { ManagerTableauDeBordRemindersComponent } from './manager.tableau-de-bor
 
         <div class="flex flex-col gap-2">
             <div class="flex gap-5">
-              <!-- Nombre de demande rendez-vous -->
+                <!-- Nombre de demande rendez-vous -->
                 <div class="card mb-0">
                     <div class="flex justify-between mb-4">
                         <div>
-                            <span class="block text-muted-color font-medium mb-4">Demandes de <br/>rendez-vous du jour</span>
+                            <span class="block text-muted-color font-medium mb-4">Demandes de <br />rendez-vous du jour</span>
                             <div class="text-surface-900 dark:text-surface-0 font-medium text-xl">{{ nombreDemandeData?.nombre ?? 0 }}</div>
                         </div>
                         <div class="flex items-center ml-3 justify-center bg-cyan-100 dark:bg-cyan-400/10 rounded-border" style="width: 2.5rem; height: 2.5rem">
@@ -31,11 +32,11 @@ import { ManagerTableauDeBordRemindersComponent } from './manager.tableau-de-bor
                     <span class="text-primary font-medium">{{ nombreDemandeData?.annuler ?? 0 }} </span>
                     <span class="text-muted-color">Annuler</span>
                 </div>
-<!-- Nombre de rendez-vous -->
+                <!-- Nombre de rendez-vous -->
                 <div class="card mb-0">
                     <div class="flex justify-between mb-4">
                         <div>
-                            <span class="block text-muted-color font-medium mb-4">Nombre de rendez-vous<br/>du jour</span>
+                            <span class="block text-muted-color font-medium mb-4">Nombre de rendez-vous<br />du jour</span>
                             <div class="text-surface-900 dark:text-surface-0 font-medium text-xl">{{ nombreRendezVousData?.nombre ?? 0 }}</div>
                         </div>
                         <div class="flex items-center ml-3 justify-center bg-cyan-100 dark:bg-cyan-400/10 rounded-border" style="width: 2.5rem; height: 2.5rem">
@@ -51,7 +52,7 @@ import { ManagerTableauDeBordRemindersComponent } from './manager.tableau-de-bor
                     <div class="card mb-0">
                         <div class="flex justify-between mb-4">
                             <div>
-                                <span class="block text-muted-color font-medium mb-4">Chiffre d'affaire<br/>du jour (TTC)</span>
+                                <span class="block text-muted-color font-medium mb-4">Chiffre d'affaire<br />du jour (TTC)</span>
                                 <div class="text-surface-900 dark:text-surface-0 font-medium text-xl">{{ totalFactureJourData?.total_ttc ?? 0 }} Ar</div>
                             </div>
                             <div class="flex items-center ml-3 justify-center bg-orange-100 dark:bg-orange-400/10 rounded-border" style="width: 2.5rem; height: 2.5rem">
@@ -68,7 +69,7 @@ import { ManagerTableauDeBordRemindersComponent } from './manager.tableau-de-bor
                     <div class="card mb-0">
                         <div class="flex justify-between mb-4">
                             <div>
-                                <span class="block text-muted-color font-medium mb-4">Chiffre d'affaire<br/>de l'annee (TTC)</span>
+                                <span class="block text-muted-color font-medium mb-4">Chiffre d'affaire<br />de l'annee (TTC)</span>
                                 <div class="text-surface-900 dark:text-surface-0 font-medium text-xl">{{ totalFactureAnneeData?.total_ttc ?? 0 }} Ar</div>
                             </div>
                             <div class="flex items-center ml-3 justify-center bg-orange-100 dark:bg-orange-400/10 rounded-border" style="width: 2.5rem; height: 2.5rem">
@@ -82,13 +83,17 @@ import { ManagerTableauDeBordRemindersComponent } from './manager.tableau-de-bor
             </div>
 
             <!-- Nombre des rendez-vous -->
-            <p-card header="Nomdre de rendez-vous">
-                <div class="flex gap-2">
-                    @if (chartData) {
-                        <p-chart type="line" [data]="chartData" #rendezVousChart class="h-[10rem]"></p-chart>
-                    }
+            <div class="flex gap-2 items-stretch">
+                <div class="w-1/2 h-full">
+                    <p-card header="Nomdre de rendez-vous">
+                        <p-chart type="line" [data]="chartData" #rendezVousChart class="w-full"></p-chart>
+                    </p-card>
                 </div>
-            </p-card>
+
+                <div class="w-1/2 h-full flex-1">
+                    <app-manager-tableau-de-bord-evolution-facture [annee]="anneeSelected" />
+                </div>
+            </div>
         </div>
 
         <p-divider></p-divider>
@@ -105,16 +110,17 @@ export class ManagerTableauDeBordComponent implements OnInit {
     chartOptions: any[] = [];
 
     anneesOptions: any[] = [];
+    anneeSelected: any = new Date().getFullYear();
 
     // Total facture data
     totalFactureAnneeData: any;
-    totalFactureJourData : any
+    totalFactureJourData: any;
 
     // Nombre de demande de rendez-vous
     nombreDemandeData: any;
 
     // Nombre de rendez-vois
-    nombreRendezVousData : any
+    nombreRendezVousData: any;
 
     constructor(private managerStatistiquesService: ManagerStatistiquesService) {}
 
@@ -132,12 +138,14 @@ export class ManagerTableauDeBordComponent implements OnInit {
 
         this.initializeGraphs(new Date().getFullYear());
         this.fetchTotalFacture(new Date().getFullYear());
-        this.fetchNombreDemandeRendezVous()
+        this.fetchNombreDemandeRendezVous();
     }
 
     onAnneeSelected(annee: any) {
         this.initializeGraphs(annee);
-        this.fetchTotalFacture(new Date().getFullYear());
+        this.fetchTotalFacture(annee);
+
+        this.anneeSelected = annee;
     }
 
     initializeGraphs(year: any) {
@@ -161,16 +169,20 @@ export class ManagerTableauDeBordComponent implements OnInit {
 
                 const dataset = {
                     label: 'Nombre rendez-vous (Fini)',
-                    data: dataFini
+                    data: dataFini,
+                    tension: 0.3
                 };
 
                 const datasetEnAttente = {
                     label: 'Nombre rendez-vous (En attente)',
-                    data: dataEnAttente
+                    data: dataEnAttente,
+                    tension: 0.3
                 };
 
-                this.chartData.datasets = [...this.chartData.datasets, dataset];
-                this.chartData.datasets = [...this.chartData.datasets, datasetEnAttente];
+                this.chartData.datasets.push(dataset);
+                this.chartData.datasets.push(datasetEnAttente);
+
+                this.rendezVousChart.refresh();
             }
         });
     }
@@ -181,8 +193,8 @@ export class ManagerTableauDeBordComponent implements OnInit {
         });
 
         this.managerStatistiquesService.getTotalFactureJour().subscribe((response: any) => {
-          this.totalFactureJourData = response.data;
-      });
+            this.totalFactureJourData = response.data;
+        });
     }
 
     fetchNombreDemandeRendezVous() {
@@ -192,8 +204,8 @@ export class ManagerTableauDeBordComponent implements OnInit {
     }
 
     fetchNombreRendezVous() {
-      this.managerStatistiquesService.getNombreRendezVous().subscribe((response : any) => {
-        this.nombreRendezVousData = response.data
-      })
+        this.managerStatistiquesService.getNombreRendezVous().subscribe((response: any) => {
+            this.nombreRendezVousData = response.data;
+        });
     }
 }

@@ -201,9 +201,14 @@ class FactureService {
 
         const factureFilename = facture.reference + formatDateNoSpace(new Date(facture.createdAt))
 
+        const downloadDir = path.join(__dirname, 'download');
+        if (!fs.existsSync(downloadDir)) {
+            fs.mkdirSync(downloadDir, { recursive: true });
+        }
+
         return {
             filename: factureFilename, 
-            stream: doc.pipe(fs.createWriteStream('download/' + factureFilename + ".pdf"))
+            stream: doc.pipe(fs.createWriteStream(path.join(downloadDir, factureFilename + ".pdf")))
         }
     }
 
@@ -235,9 +240,15 @@ class FactureService {
 
         const devisFilename = devis.reference + formatDateNoSpace(new Date(devis.createdAt))
 
+        // Ensure the download directory exists
+        const downloadDir = path.join(__dirname, 'download');
+        if (!fs.existsSync(downloadDir)) {
+            fs.mkdirSync(downloadDir, { recursive: true });
+        }
+
         return {
             filename: devisFilename, 
-            stream: doc.pipe(fs.createWriteStream('download/' + devisFilename + ".pdf"))
+            stream: doc.pipe(fs.createWriteStream(path.join(downloadDir, devisFilename + ".pdf")))
         }
     }
 }
