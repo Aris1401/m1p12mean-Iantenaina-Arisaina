@@ -17,13 +17,15 @@ import { DividerModule } from 'primeng/divider';
 import { UtilisateurService } from '../../../_services/utilisateur/utilisateur.service';
 import { TableLazyLoadEvent, TableModule } from 'primeng/table';
 import { CommonModule } from '@angular/common';
-import { environment } from '../../../../_env/environment';
+import { environment } from '../../../../environments/environment';
 import { Router } from '@angular/router';
+import { IconFieldModule } from 'primeng/iconfield';
+import { InputIconModule } from 'primeng/inputicon';
 
 @Component({
     selector: 'app-utilisateur.profil',
     standalone: true,
-    imports: [CardModule, ImageModule, MenuModule, FormsModule, CommonModule, InputTextModule, ButtonModule, ToastModule, TableModule, DialogModule, FileUploadModule, DividerModule],
+    imports: [CardModule, ImageModule, MenuModule, FormsModule, CommonModule, InputTextModule, ButtonModule, ToastModule, TableModule, DialogModule, FileUploadModule, DividerModule, IconFieldModule, InputIconModule],
     template: `
         <p-toast></p-toast>
 
@@ -178,12 +180,25 @@ import { Router } from '@angular/router';
                         <p-button label="Ajouter document" icon="pi pi-plus" (onClick)="showUserDocumentModal()" />
                     </div>
 
-                    <p-table [value]="documentsUser" [lazy]="true" stripedRows [paginator]="true" [rows]="5" (onLazyLoad)="onLoadUserDocs($event)">
+                    <p-table [value]="documentsUser" #documentsTable stripedRows [paginator]="true" [rows]="5" [globalFilterFields]="['titre', 'date_ajout']">
+                        <ng-template #caption>
+                            <div class="flex justify-end">
+                                <p-iconfield iconPosition="left" class="ml-auto">
+                                    <p-inputicon>
+                                        <i class="pi pi-search"></i>
+                                    </p-inputicon>
+                                    <input pInputText type="text" name="search" (input)="documentsTable.filterGlobal($any($event.target).value, 'contains')" placeholder="Rechercher" />
+                                </p-iconfield>
+                            </div>
+                        </ng-template>
+
                         <ng-template #header>
                             <tr>
                                 <th class="font-extrabold">Titre</th>
-                                <th  class="font-extrabold">Date ajout</th>
-                                <th></th>
+                                <th pSortableColumn="date_ajout" class="font-extrabold">
+                                    Date ajout <p-sortIcon field="date_ajout" />
+                                </th>
+                                <th [style]="{ width: '20%' }"></th>
                             </tr>
                         </ng-template>
 
@@ -191,16 +206,24 @@ import { Router } from '@angular/router';
                             <tr>
                                 <td>{{ item.titre }}</td>
                                 <td>
-									<p class="font-bold">
-										@if (item.date_ajout) { {{ item.date_ajout | date: "yyyy/MM/dd HH:mm" }} } @else { {{ "N/A" }} }
-									</p>
-								</td>
+                                    <p class="font-bold">
+                                        @if (item.date_ajout) {
+                                            {{ item.date_ajout | date: 'yyyy/MM/dd HH:mm' }}
+                                        } @else {
+                                            {{ 'N/A' }}
+                                        }
+                                    </p>
+                                </td>
                                 <td>
-									<a class="p-button" [href]="getDowloadPath(item._id)">
-                                        <i class="pi pi-download"></i>
-										Telecharger
-									</a>
-								</td>
+                                    <div class="flex gap-2">
+                                        <a class="p-button" [href]="getDowloadPath(item._id)">
+                                            <i class="pi pi-download"></i>
+                                            Telecharger
+                                        </a>
+    
+                                        <p-button label="Supprimer" severity="warn" icon="pi pi-trash" (onClick)="onDeleteDocument(item._id)" /> 
+                                    </div>
+                                </td>
                             </tr>
                         </ng-template>
                     </p-table>
@@ -232,16 +255,16 @@ import { Router } from '@angular/router';
     styles: ``
 })
 export class UtilisateurProfilComponent implements OnInit {
-	environementApi : string = ""
+    environementApi: string = '';
 
     profileItems: MenuItem[] = [
         {
             label: 'Se deconnecter',
             icon: PrimeIcons.SIGN_OUT,
-			command: () => {
-				this.authStorage.clear()
-				this.router.navigate(['login'])
-			}
+            command: () => {
+                this.authStorage.clear();
+                this.router.navigate(['login']);
+            }
         }
     ];
 
@@ -273,11 +296,11 @@ export class UtilisateurProfilComponent implements OnInit {
         private authService: AuthentificationService,
         private messageService: MessageService,
         private userService: UtilisateurService,
-		private router : Router
+        private router: Router
     ) {}
 
     ngOnInit(): void {
-		this.environementApi = environment.apiUrl;
+        this.environementApi = environment.apiUrl;
 
         this.authStorage.getUser().then((user: any) => {
             this.userData = user;
@@ -308,13 +331,34 @@ export class UtilisateurProfilComponent implements OnInit {
         });
     }
 
-	showUserDocumentModal() {
-		this.uploadDocumentVisible = true
-	}
+    showUserDocumentModal() {
+        this.uploadDocumentVisible = true;
+    }
 
-	getDowloadPath(documentId : string) {
-		return this.environementApi + "user/document/dowload/" + documentId
-	}
+    getDowloadPath(documentId: string) {
+        return this.environementApi + 'user/document/dowload/' + documentId;
+    }
+
+    onDeleteDocument(idDocument : any) {
+        this.userService.deleteDocument(idDocument).subscribe({
+            next: (response : any) => {
+                this.messageService.add({
+                    summary: "Success",
+                    detail: response.message,
+                    severity: 'success'
+                })
+
+                this.documentsUser = response.data.documents
+            },
+            error: (err) => {
+                this.messageService.add({
+                    summary: "Erreur",
+                    detail: err.error.error,
+                    severity: 'error'
+                })
+            }
+        })
+    }
 
     onLoadUserDocs(event: TableLazyLoadEvent): void {
         // handle the event with rows
@@ -329,24 +373,24 @@ export class UtilisateurProfilComponent implements OnInit {
         formData.append('document', this.userDocumentUploadData.fichier);
 
         this.userService.addUtilisateurDocument(formData).subscribe({
-            next: (response : any) => {
+            next: (response: any) => {
                 console.log('Fichier uploader avec success');
 
-				this.userDocumentUploadData = {
-					fichier: "",
-					titre: ""
-				}
+                this.userDocumentUploadData = {
+                    fichier: '',
+                    titre: ''
+                };
 
-				this.uploadDocumentVisible = false
+                this.uploadDocumentVisible = false;
 
-				// Mis a jour de la liste
-				this.documentsUser = response.data
+                // Mis a jour de la liste
+                this.documentsUser = response.data;
             },
             error: (err) => {
                 this.messageService.add({
                     severity: 'error',
                     summary: err.error.error
-                })
+                });
             }
         });
     }

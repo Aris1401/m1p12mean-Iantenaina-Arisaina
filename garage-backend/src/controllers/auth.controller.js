@@ -38,6 +38,7 @@ route.post("/login", async (req, res) => {
   res.status(200).send({
     message: "Connexion réussie !",
     token: token,
+    nom: utilisateur.nom + " " + utilisateur.prenom,
     roles: utilisateur.roles.map((role) => {
       return role.role;
     }),

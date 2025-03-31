@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { environment } from '../../../_env/environment';
+import { environment } from '../../../environments/environment';
 import { Observable } from 'rxjs';
 
 @Injectable({
@@ -14,6 +14,10 @@ export class InterventionService {
 
   getDetailsIntervention(interventionId : any) {
     return this.http.get(environment.apiUrl + "intervention/" + interventionId)
+  }
+
+  getInterventionsDuJour() {
+    return this.http.get(environment.apiUrl + "intervention")
   }
 
   validerDevisIntervetion(interventionId : any) {
@@ -89,4 +93,14 @@ export class InterventionService {
     return this.http.get<any>(`${environment.apiUrl}intervention/stock/${pieceId}`);
   }
 
+  // Facturation
+  genererDevis(idIntervention : any) {
+    return this.http.post(environment.apiUrl + 'intervention/' + idIntervention + "/devis", {})
+  }
+
+  genererFacture(idIntervention : any, observation : string = "") {
+    return this.http.post(environment.apiUrl + 'intervention/' + idIntervention + "/facture", {
+      observation: observation
+    })
+  }
 }

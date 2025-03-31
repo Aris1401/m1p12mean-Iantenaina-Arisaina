@@ -46,7 +46,7 @@ import { AuthStorageService } from '../../_services/storage/auth-storage.service
                     <i [ngClass]="{ 'pi ': true, 'pi-moon': layoutService.isDarkTheme(), 'pi-sun': !layoutService.isDarkTheme() }"></i>
                 </button>
                 <div class="relative">
-                    <button
+                    <!-- <button
                         class="layout-topbar-action layout-topbar-action-highlight"
                         pStyleClass="@next"
                         enterFromClass="hidden"
@@ -56,7 +56,7 @@ import { AuthStorageService } from '../../_services/storage/auth-storage.service
                         [hideOnOutsideClick]="true"
                     >
                         <i class="pi pi-palette"></i>
-                    </button>
+                    </button> -->
                     <app-configurator />
                 </div>
             </div>
@@ -67,14 +67,14 @@ import { AuthStorageService } from '../../_services/storage/auth-storage.service
 
             <div class="layout-topbar-menu hidden lg:block">
                 <div class="layout-topbar-menu-content">
-                    <button type="button" class="layout-topbar-action">
+                    <!-- <button type="button" class="layout-topbar-action">
                         <i class="pi pi-calendar"></i>
                         <span>Calendar</span>
-                    </button>
-                    <button type="button" class="layout-topbar-action">
+                    </button> -->
+                    <!-- <button type="button" class="layout-topbar-action">
                         <i class="pi pi-inbox"></i>
                         <span>Messages</span>
-                    </button>
+                    </button> -->
                     <button type="button" class="layout-topbar-action" (click)="profile_menu.toggle($event)">
                         <i class="pi pi-user"></i>
                         <span>Profile</span>
@@ -99,11 +99,10 @@ import { AuthStorageService } from '../../_services/storage/auth-storage.service
                             </a>
                         </ng-template>
                         <ng-template #end>
-                            <button pRipple class="relative overflow-hidden w-full border-0 bg-transparent flex items-start p-2 pl-4 hover:bg-surface-100 dark:hover:bg-surface-800 rounded-none cursor-pointer transition-colors duration-200">
+                            <button pRipple class="relative overflow-hidden w-full border-0 bg-transparent flex items-center p-2 pl-4 hover:bg-surface-100 dark:hover:bg-surface-800 rounded-none cursor-pointer transition-colors duration-200">
                                 <p-avatar image="https://primefaces.org/cdn/primeng/images/demo/avatar/amyelsner.png" class="mr-2" shape="circle" />
                                 <span class="inline-flex flex-col">
-                                    <span class="font-bold">Amy Elsner</span>
-                                    <span class="text-sm">Admin</span>
+                                    <span class="font-bold">{{ displayName }}</span>
                                 </span>
                             </button>
                         </ng-template>
@@ -131,6 +130,8 @@ export class AppTopbar {
             }
         }
     ];
+
+    displayName = localStorage.getItem('displayName') ?? "N/A"
 
     constructor(
         public layoutService: LayoutService,

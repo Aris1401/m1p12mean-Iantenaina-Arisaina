@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { environment } from '../../../_env/environment';
+import { environment } from '../../../environments/environment';
 import { Observable } from 'rxjs';
 
 @Injectable({
@@ -35,6 +35,11 @@ export class RendezVousService {
   // Obtenir tout les rendez vous (coter manager)
   getRendezVousManager() {
     return this.http.get(environment.apiUrl + "rendez-vous/manager")
+  }
+
+  // Obtenir tout les rendez-vous du jour courant
+  getRendezVousDuJour() {
+    return this.http.get(environment.apiUrl + "rendez-vous/today")
   }
 
   // Obtenir les mecanicien assigner

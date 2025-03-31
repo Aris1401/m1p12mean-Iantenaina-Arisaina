@@ -15,6 +15,7 @@ import { BadgeModule } from 'primeng/badge';
 import { DialogModule } from 'primeng/dialog';
 import { UtilisateurDebutInterventionComponent } from './utilisateur.debut-intervention.component';
 import { InfosTravauxPiecesComponent } from '../../utils/intervention/infos-travaux-pieces.component';
+import { FactureService } from '../../../_services/facture/facture.service';
 
 @Component({
     selector: 'app-utilisateur.intervention',
@@ -22,7 +23,43 @@ import { InfosTravauxPiecesComponent } from '../../utils/intervention/infos-trav
     template: `
         <p-toast></p-toast>
 
-        <div>
+        <div class="flex flex-col gap-2">
+            @if (intervetionData?.facture) {
+                <p-card header="Devis">
+                    <p-table [value]="factureData" [stripedRows]="true">
+                        <ng-template #header>
+                            <tr>
+                                <th>Reference</th>
+                                <th>Date creation</th>
+                                <th>Etat</th>
+                                <th>Total</th>
+                                <th>Total (TTC)</th>
+                                <th style="width: 20%"></th>
+                            </tr>
+                        </ng-template>
+
+                        <ng-template #body let-facture>
+                            <tr>
+                                <td class="font-bold">{{ facture?.reference }}</td>
+                                <td>
+                                    <p-chip label="{{ facture?.createdAt | date: 'yyyy-MM-dd HH:mm' }}" />
+                                </td>
+                                <td>
+                                    <p-badge [severity]="etatsService.getEtatDevis(facture?.etat).etatColor" [value]="etatsService.getEtatDevis(facture?.etat).etatString" />
+                                </td>
+                                <td>{{ facture?.total }} Ar</td>
+                                <td>{{ facture?.total_ttc }} Ar</td>
+                                <td>
+                                    <div class="flex gap-2 justify-end">
+                                        <p-button icon="pi pi-download" label="Telecharger" (onClick)="factureService.downloadFacture(facture?._id)" />
+                                    </div>
+                                </td>
+                            </tr>
+                        </ng-template>
+                    </p-table>
+                </p-card>
+            }
+
             <p-card>
                 <ng-template #title>
                     <div class="flex gap-2 items-center pb-2">
@@ -78,7 +115,7 @@ import { InfosTravauxPiecesComponent } from '../../utils/intervention/infos-trav
                             <td>{{ devis?.total }} Ar</td>
                             <td>
                                 <div class="flex gap-2 justify-end">
-                                    <p-button icon="pi pi-download" label="Telecharger" />
+                                    <p-button icon="pi pi-download" label="Telecharger" (onClick)="factureService.downloadDevis(devis?._id)" />
                                     @if (devis?.etat == 0) {
                                         <p-button icon="pi pi-check" label="Valider" (onClick)="onValiderDevis(devis.intervention)" />
                                         <p-button severity="danger" icon="pi pi-check" label="Refuser" (onClick)="onRefuserDevis(devis.intervention)" />
@@ -91,10 +128,38 @@ import { InfosTravauxPiecesComponent } from '../../utils/intervention/infos-trav
             </p-card>
         </div>
 
+        <div class="mt-2">
+            <p-card>
+                <ng-template #title>
+                    <div class="flex justify-between">
+                        <h5>Liste des mecaniciens</h5>
+                    </div>
+                </ng-template>
+
+                <p-table [value]="assignationsData" [stripedRows]="true" [rows]="10" [paginator]="true">
+                    <ng-template #header>
+                        <tr>
+                            <th>Nom</th>
+                            <th>Prenom</th>
+                            <th>Date assignation</th>
+                        </tr>
+                    </ng-template>
+
+                    <ng-template let-assignation #body>
+                        <tr>
+                            <td>{{ assignation.mecanicien.nom }}</td>
+                            <td>{{ assignation.mecanicien.prenom }}</td>
+                            <td>{{ assignation.createdAt | date: 'yyyy-MM-dd HH:mm' }}</td>
+                        </tr>
+                    </ng-template>
+                </p-table>
+            </p-card>
+        </div>
+
         <!-- Selection date debut -->
-         <p-dialog [(visible)]="isSelectionDateVisible" [modal]="true" header="Selectionner une date de debut d'intervetion" style="width: 30rem">
+        <p-dialog [(visible)]="isSelectionDateVisible" [modal]="true" header="Selectionner une date de debut d'intervetion" style="width: 30rem">
             <app-utilisateur-debut-intervention style="width: 100%;" [intervetionId]="currentIntervetionId()" (dateValider)="onDateValider()" />
-         </p-dialog>
+        </p-dialog>
     `,
     styles: ``
 })
@@ -106,52 +171,68 @@ export class UtilisateurInterventionComponent implements OnInit {
 
     travauxData = [];
     piecesData = [];
-    devisData : any[] = [];
+    devisData: any[] = [];
+    factureData: any[] = [];
 
-    etatsService = inject(EtatsService)
+    assignationsData: any[] = [];
 
-    isSelectionDateVisible : boolean = false
+    etatsService = inject(EtatsService);
+    factureService = inject(FactureService);
+
+    isSelectionDateVisible: boolean = false;
 
     constructor(
         private route: ActivatedRoute,
-        private messageService : MessageService,
+        private messageService: MessageService,
         private interventionService: InterventionService,
-        private ficheIntervetionService : FicheInterventionService,
+        private ficheIntervetionService: FicheInterventionService
     ) {
         effect(() => {
             if (this.currentIntervetionId().trim().length > 0) {
                 // Obtenir les details de l'intervetion
-                this.fetchIntervetion()
+                this.fetchIntervetion();
             }
         });
     }
 
     fetchIntervetion() {
-        this.isSelectionDateVisible = false
+        this.isSelectionDateVisible = false;
 
         this.interventionService.getDetailsIntervention(this.currentIntervetionId()).subscribe({
             next: (response: any) => {
                 this.intervetionData = response.data;
-                this.devisData = [this.intervetionData.devis]
+                this.devisData = [this.intervetionData.devis];
+                this.factureData = [this.intervetionData.facture];
 
                 // Obtenir la fiche d'intervetion
                 this.ficheInterventionData = this.intervetionData.fiche_intervention;
 
-                this.ficheIntervetionService.getTravauxFicheIntervention(this.ficheInterventionData._id).subscribe({
-                    next: (response: any) => {
-                        this.travauxData = response.data;
-                    }
-                });
+                if (this.ficheInterventionData) {
+                    this.ficheIntervetionService.getTravauxFicheIntervention(this.ficheInterventionData._id).subscribe({
+                        next: (response: any) => {
+                            this.travauxData = response.data;
+                        }
+                    });
 
-                // Obtenir les pieces de fiche intervention
-                this.ficheIntervetionService.getPiecesFicheIntervention(this.ficheInterventionData._id).subscribe({
-                    next: (response : any) => {
-                        this.piecesData = response.data
-                    }
-                })
+                    // Obtenir les pieces de fiche intervention
+                    this.ficheIntervetionService.getPiecesFicheIntervention(this.ficheInterventionData._id).subscribe({
+                        next: (response: any) => {
+                            this.piecesData = response.data;
+                        }
+                    });
+                }
 
                 // Check si il faut selectionner une date de debut
-                this.checkDebutSelecionVisibility()
+                this.checkDebutSelecionVisibility();
+                this.fetchMecaniciensAssigner(this.intervetionData._id);
+            }
+        });
+    }
+
+    fetchMecaniciensAssigner(idIntervention: any) {
+        this.interventionService.getMecaniciensAssigner(idIntervention).subscribe({
+            next: (response: any) => {
+                this.assignationsData = response.data;
             }
         });
     }
@@ -163,56 +244,56 @@ export class UtilisateurInterventionComponent implements OnInit {
     }
 
     checkDebutSelecionVisibility() {
-        if (!this.intervetionData && !(this.devisData && this.devisData[0])) return;
+        if (!this.intervetionData || !(this.devisData || this.devisData[0])) return;
 
         if (this.intervetionData.etat_intervention == -10 && this.devisData[0].etat == 10 && !this.intervetionData.date_debut) {
-            this.isSelectionDateVisible = true
+            this.isSelectionDateVisible = true;
         }
     }
 
-    onValiderDevis(intervetionId : any) {
+    onValiderDevis(intervetionId: any) {
         this.interventionService.validerDevisIntervetion(intervetionId).subscribe({
-            next: (response : any) => {
-                this.fetchIntervetion()
+            next: (response: any) => {
+                this.fetchIntervetion();
 
                 this.messageService.add({
-                    summary: "Devis valider",
+                    summary: 'Devis valider',
                     detail: response.message,
                     severity: 'success'
-                })
-            }, 
+                });
+            },
             error: (err) => {
                 this.messageService.add({
-                    summary: "Erreur",
+                    summary: 'Erreur',
                     detail: err.error.error,
                     severity: 'error'
-                })
+                });
             }
-        })
+        });
     }
 
-    onRefuserDevis(interventionId : any) {
+    onRefuserDevis(interventionId: any) {
         this.interventionService.refuserDevisIntervetion(interventionId).subscribe({
-            next: (response : any) => {
-                this.fetchIntervetion()
+            next: (response: any) => {
+                this.fetchIntervetion();
 
                 this.messageService.add({
-                    summary: "Devis refuser",
+                    summary: 'Devis refuser',
                     detail: response.message,
                     severity: 'success'
-                })
-            }, 
+                });
+            },
             error: (err) => {
                 this.messageService.add({
-                    summary: "Erreur",
+                    summary: 'Erreur',
                     detail: err.error.error,
                     severity: 'error'
-                })
+                });
             }
-        })
+        });
     }
 
     onDateValider() {
-        this.fetchIntervetion()
+        this.fetchIntervetion();
     }
 }

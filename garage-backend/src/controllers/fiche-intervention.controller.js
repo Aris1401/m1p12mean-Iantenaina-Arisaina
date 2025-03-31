@@ -6,6 +6,9 @@ const FicheIntervention = require('../model/Intervention/FicheIntervention/fiche
 const PieceFicheIntervention = require('../model/Intervention/FicheIntervention/pieceFicheIntervention')
 const TravauxFicheIntervention = require('../model/Intervention/FicheIntervention/travauxFicheIntervention')
 
+const TypeEvenement = require('../model/Intervention/FicheIntervention/typeEvenement')
+const TypeIntervention = require('../model/Intervention/FicheIntervention/typeIntervention')
+
 // Middelwares
 const { verifyToken } = require('../middlewares/jwt')
 const StockPiece = require('../model/Piece/stockPiece')
@@ -13,7 +16,7 @@ const StockPiece = require('../model/Piece/stockPiece')
 
 // Obtenir fiche intervention
 router.get('/:ficheId', [verifyToken], async (req, res) => {
-    const ficheIntervention = await FicheIntervention.findOne({ _id: req.params.ficheId })
+    const ficheIntervention = await FicheIntervention.findOne({ _id: req.params.ficheId }).populate("type_evenement")
 
     return res.status(200).json({
         data: ficheIntervention

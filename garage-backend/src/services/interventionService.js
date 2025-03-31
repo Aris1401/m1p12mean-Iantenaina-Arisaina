@@ -3,6 +3,7 @@ const TypeRendezVous = require('../model/RendezVous/typeRendezVous')
 const DemandeRendezVous = require('../model/RendezVous/demandeRendezVous')
 const RendezVous = require('../model/RendezVous/rendezVous')
 const Intervetion = require('../model/Intervention/intervention')
+const FicheIntervention = require('../model/Intervention/FicheIntervention/ficheIntervetion')
 
 // Etats
 const { EtatIntervention, EtatRendezVous, EtatDemandeRendezVous } = require('../model/Etats')
@@ -15,13 +16,17 @@ class InterventionService {
             throw new Error("Une erreur s\'est produite")
         }
 
+        // Creation de fiche intervetion
+        const ficheIntervention = new FicheIntervention()
+        await ficheIntervention.save({ validateBeforeSave: false})
+
         const intervention = new Intervetion({
             etat_intervention: EtatIntervention.EN_ATTENTE,
             vehicule: rendezVous.demande_rendez_vous?.vehicule,
             utilisateur: rendezVous.demande_rendez_vous?.utilisateur,
             devis: null,
             facture: null,
-            fiche_intervention: null,
+            fiche_intervention: ficheIntervention._id,
             date_debut: null
         })
 

@@ -62,4 +62,20 @@ export class EtatsService {
     }
 
     getEtatTravaux(etatTravaux: any) {}
+
+    getEtatRendezVous(etat: number): EtatAffichage {
+        switch (etat) {
+            case 0:  // EN_ATTENTE
+                return { etatColor: 'info', etatString: 'En attente' };
+            case -10: // ANNULER
+                return { etatColor: 'danger', etatString: 'Annulé' };
+            case 10: // EN_COURS
+                return { etatColor: 'secondary', etatString: 'En cours' };
+            case 20: // FINI
+                return { etatColor: 'success', etatString: 'Fini' };
+            default:
+                return { etatColor: 'info', etatString: 'Inconnu' };
+        }
+    }
+    
 }
