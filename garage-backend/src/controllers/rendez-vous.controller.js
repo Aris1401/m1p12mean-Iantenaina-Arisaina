@@ -180,7 +180,7 @@ router.post('/demandes', [verifyToken], async (req, res) => {
         etat_demande: EtatDemandeRendezVous.EN_COURS,
     })
 
-    // Valider l'heure de demande de rendez-vous
+
     const isValid = await RendezVousService.verifierHeureDemandeRendezVous(demande)
 
     if (!isValid) {
@@ -205,14 +205,40 @@ router.post('/demandes', [verifyToken], async (req, res) => {
 })
 
 
-// Liste de tous les rendez-vous
-router.get('/rdv', async (req, res) => {
-    const rdv = await rendezVous.find();
 
-    return res.status(200).json({
-        data: rdv
-    });
+router.get('/liste', async (req, res) => {
+    try {
+
+        const rdv = await RendezVous.find({ etat_rendez_vous: 0 })
+            .populate({
+                path: 'demande_rendez_vous',
+                populate: [
+                    { path: 'utilisateur', select: 'nom prenom email' }, 
+                    { path: 'vehicule', select: 'marque modele immatriculation' },
+                    { path: 'type_rendez_vous', select: 'titre' } 
+                ]
+            })
+            .exec();
+
+        if (rdv.length === 0) {
+            return res.status(404).json({
+                message: 'Aucun rendez-vous en attente trouvé'
+            });
+        }
+
+        return res.status(200).json({
+            data: rdv
+        });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({
+            message: 'Erreur interne du serveur',
+            error
+        });
+    }
 });
+
+
 
 // Récupérer un rendez-vous par ID
 const mongoose = require('mongoose');
@@ -269,11 +295,28 @@ router.get('/utilisateur', [verifyToken, isUtilisateur], async (req, res) => {
 
 
 // Obtnir les indisponibiles
-router.get('/indisponibilite', async (req, res) => {
-    return res.status(200).json({
-        data: await RendezVousService.obtenirHeuresIndisponibles()
-    })
-})
+router.get('/liste-intervention', async (req, res) => {
+    try {
+        const interventions = await Intervention.find();
+        console.log("Bonjour"); 
+
+        if (interventions.length === 0) {
+            console.log("Aucune intervention trouvée.");
+        }
+
+        return res.status(200).json({
+            data: interventions[0] ?? null
+        });
+    } catch (error) {
+        console.error('Erreur lors de la récupération des interventions:', error);
+        return res.status(500).json({
+            error: 'Erreur serveur'
+        });
+    }
+});
+
+
+
 
 // Obtenir les rendez-vous du jour
 router.get('/today', [verifyToken], async (req, res) => {

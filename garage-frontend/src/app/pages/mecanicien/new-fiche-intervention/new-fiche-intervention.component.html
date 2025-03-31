@@ -1,0 +1,145 @@
+<div class="container mx-auto my-10 px-4">
+  <div class="card">
+    <h3>Création de la Fiche Intervention</h3>
+    <div class="bg-white p-6 rounded-md shadow-md mb-6">
+      <h3 class="text-xl font-semibold mb-4">Intervention</h3>
+      <div *ngIf="typeInterventions.length > 0">
+        <div class="flex gap-4">
+          <label *ngFor="let type of typeInterventions" class="flex items-center">
+            <input type="radio" name="typeIntervention" [(ngModel)]="selectedTypeIntervention" [value]="type._id" class="mr-2">
+            {{ type.designation }}
+          </label>
+        </div>
+      </div>
+    </div>
+    <div class="bg-white p-6 rounded-md shadow-md mb-6">
+      <div class="flex gap-4">
+        <div class="w-1/3 pr-4">
+          <h3 class="text-xl font-semibold">Informations</h3>
+          <p><strong>Date de début:</strong> {{ intervention.date_debut | date: 'dd/MM/yyyy' }}</p>
+          <p><strong>Utilisateur:</strong> {{ intervention.utilisateur?.nom }} {{ intervention.utilisateur?.prenom }}</p>
+          <p><strong>Véhicule:</strong> {{ intervention.vehicule?.marque }} - {{ intervention.vehicule?.modele }}</p>
+        </div>
+
+        <div class="border-l-2 border-gray-300"></div>
+
+        <div class="w-2/3 pl-4">
+          <h3 class="text-xl font-semibold">Description</h3>
+          <textarea id="travaux" [(ngModel)]="travauxDescription" class="w-full p-2 border rounded" rows="4" placeholder="Décrivez les travaux à effectuer..."></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="bg-white p-6 rounded-md shadow-md mb-6">
+      <h3 class="text-xl font-semibold mb-4">Événement</h3>
+      <div *ngIf="typeEvenements.length > 0">
+        <label class="block">Choisissez un type d'événement:</label>
+        <select id="typeEvenement" [(ngModel)]="selectedTypeEvenement" class="w-full p-2 border rounded">
+          <option *ngFor="let event of typeEvenements" [value]="event._id">{{ event.designation }}</option>
+          <option value="autre">Autre</option>
+        </select>
+      </div>
+
+      <div *ngIf="selectedTypeEvenement === 'autre'">
+        <label for="otherEvenement" class="block">Veuillez spécifier l'événement :</label>
+        <input id="otherEvenement" [(ngModel)]="otherEvenement" type="text" class="w-full p-2 border rounded" placeholder="Décrivez l'événement">
+      </div>
+    </div>
+
+    <div class="bg-white p-6 rounded-md shadow-md mb-6">
+      <h3 class="text-xl font-semibold">Pièces</h3>
+
+      <div *ngFor="let piece of selectedPieces; let i = index" class="flex gap-4 mb-4">
+        <div class="w-1/3">
+          <select [(ngModel)]="piece.selectedPiece" (change)="updateStockStatus(piece.selectedPiece, piece.quantity)" class="w-full p-2 border rounded">
+            <option *ngFor="let p of pieces" [value]="p._id">{{ p.designation }}</option>
+          </select>
+        </div>
+
+        <div class="w-1/3">
+          <input type="number" [(ngModel)]="piece.quantity" (input)="updateStockStatus(piece.selectedPiece, piece.quantity)" class="w-full p-2 border rounded" placeholder="Quantité" min="1">
+        </div>
+
+        <div class="w-1/3 flex items-center">
+          <p  [(ngModel)]="status" [ngClass]="{
+            'text-green-600': piece.statut === 'En stock',  
+            'text-red-600': piece.statut === 'En rupture'
+          }">
+            {{ piece.statut }}
+          </p>
+        </div>
+
+        <div class="w-1/3">
+          <p>{{ piece.prixUnitaire | currency }}</p> 
+        </div>
+
+        <div class="w-1/3">
+          <p>{{ (piece.prixUnitaire * piece.quantity) | currency }}</p> 
+        </div>
+
+        <div class="w-1/3 flex items-center">
+          <button (click)="removePiece(i)" class="bg-red-600 text-white px-4 py-2 rounded-md">Supprimer</button>
+        </div>
+      </div>
+
+      <button (click)="addPiece()" class="mx-auto bg-blue-600 text-white px-6 py-3 rounded-md w-full max-w-full">Ajouter une Pièce</button>
+    </div>
+
+    <div class="bg-white p-6 rounded-md shadow-md mb-6">
+      <h3 class="text-xl font-semibold">Travaux</h3>
+
+      <div *ngFor="let travail of selectedTravaux; let i = index" class="flex gap-4 mb-4">
+        <div class="w-2/5">
+          <input 
+            type="text"
+            [(ngModel)]="travail.designation" 
+            (input)="onTravailInputChange(i)"
+            placeholder="Rechercher un travail..."
+            [attr.aria-haspopup]="'listbox'"
+            [attr.aria-expanded]="filteredTravaux[i]?.length > 0 ? true : false"
+            class="w-full p-2 border rounded"
+          />
+
+          <div *ngIf="filteredTravaux[i]?.length > 0" class="suggestions">
+            <ul role="listbox">
+              <li *ngFor="let option of filteredTravaux[i]" (click)="onTravailSelected(option, i)">
+                {{ option.designation }}
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="w-2/5">
+          <input [(ngModel)]="travail.quantite" class="w-full p-2 border rounded" placeholder="Quantité Heure" />
+        </div>
+        <div class="w-2/5">
+          <input [(ngModel)]="travail.prixUnitaire" class="w-full p-2 border rounded" placeholder="Prix Unitaire" />
+        </div>
+        <div class="w-2/5">
+          <input [(ngModel)]="travail.prixHT" class="w-full p-2 border rounded" placeholder="Prix hors taxe" />
+        </div>
+      <div class="w-2/5">
+        <div class="w-full">
+          <select id="etatIntervention" [(ngModel)]="etatIntervention" class="w-full p-2 border rounded">
+            <option [value]="-10">EN_ATTENTE</option>
+            <option [value]="0">EN_COURS</option>
+            <option [value]="10">EN_ATTENTE_DE_PIECE</option>
+            <option [value]="100">FINI</option>
+          </select>
+        </div>
+      </div>
+        <div class="w-1/5 flex items-center">
+          <button (click)="removeTravail(i)" class="bg-red-600 text-white px-4 py-2 rounded-md">Supprimer</button>
+        </div>
+      </div>
+
+      <button (click)="addTravail()" class="mx-auto bg-blue-600 text-white px-6 py-3 rounded-md w-full max-w-full">Ajouter un Travail</button>
+    </div>
+  <div class="text-right mt-4">
+    <button (click)="saveFicheIntervention()" class="bg-blue-600 text-white px-8 py-4 rounded-md w-auto">
+      Sauvegarder la fiche
+    </button>
+  </div>
+
+
+  </div>
+</div>
