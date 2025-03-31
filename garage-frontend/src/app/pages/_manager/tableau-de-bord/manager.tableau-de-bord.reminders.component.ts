@@ -14,6 +14,7 @@ import { RouterModule } from '@angular/router';
 import { InputTextModule } from 'primeng/inputtext';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
+import { InterventionService } from '../../../_services/intervention/intervention.service';
 
 @Component({
     selector: 'app-manager-tableau-de-bord-reminders',
@@ -23,10 +24,25 @@ import { InputIconModule } from 'primeng/inputicon';
         <p-dialog></p-dialog>
 
         <div class="flex flex-col gap-2">
-            <div class="flex gap-2">
+            <div class="flex flex-col gap-2">
                 <div class="w-full">
                     <p-card header="Rendez-Vous du jour">
-                        <p-table [value]="rendezVousJourData" #rendezVousTable [paginator]="true" [rows]="5" [globalFilterFields]="['demande_rendez_vous.titre', 'demande_rendez_vous.description', 'demande_rendez_vous.utilisateur.nom', 'demande_rendez_vous.utilisateur.prenom', 'demande_rendez_vous.vehicule.immatriculation', 'demande_rendez_vous.vehicule.modele', 'demande_rendez_vous.vehicule.marque', 'demande_rendez_vous.vehicule.annee']">
+                        <p-table
+                            [value]="rendezVousJourData"
+                            #rendezVousTable
+                            [paginator]="true"
+                            [rows]="5"
+                            [globalFilterFields]="[
+                                'demande_rendez_vous.titre',
+                                'demande_rendez_vous.description',
+                                'demande_rendez_vous.utilisateur.nom',
+                                'demande_rendez_vous.utilisateur.prenom',
+                                'demande_rendez_vous.vehicule.immatriculation',
+                                'demande_rendez_vous.vehicule.modele',
+                                'demande_rendez_vous.vehicule.marque',
+                                'demande_rendez_vous.vehicule.annee'
+                            ]"
+                        >
                             <ng-template #emptymessage>
                                 <div class="p-3">
                                     <p>Aucun rendez-vous pour aujourd'hui. Veuillez vous referer au <a class="underline" [routerLink]="['/manager/rendez-vous']">calendrier</a></p>
@@ -142,6 +158,101 @@ import { InputIconModule } from 'primeng/inputicon';
                         </p-table>
                     </p-card>
                 </div>
+
+                <div class="w-full">
+                    <p-card header="Liste des interventions">
+                        <p-table [value]="interventionData" [paginator]="true" [rows]="5">
+                            <ng-template #emptymessage>
+                                <div class="p-3">
+                                    <p>Aucune intervention trouvee</p>
+                                </div>
+                            </ng-template>
+
+                            <ng-template pTemplate="header">
+                                <tr>
+                                    <th>Vehicule</th>
+                                    <th>Client</th>
+                                    <th [style]="{ width: '20%' }" pSortableColumn="createdAt">Date Creation <p-sortIcon field="createdAt" /></th>
+                                    <th [style]="{ width: '20%' }" pSortableColumn="date_debut">Date Debut <p-sortIcon field="date_debut" /></th>
+                                    <th [style]="{ width: '3%' }">Devis</th>
+                                    <th [style]="{ width: '3%' }">Facture</th>
+                                    <th [style]="{ width: '20%' }">Etat</th>
+                                    <th [style]="{ width: '20%' }"></th>
+                                </tr>
+
+                                <tr>
+                                    <th>
+                                        <p-columnFilter type="text" field="vehicule.immatriculation" placeholder="Rechercher vehicule"></p-columnFilter>
+                                    </th>
+
+                                    <th>
+                                        <p-columnFilter type="text" field="intervention.utilisateur.nom,intervention.utilisateur.prenom"></p-columnFilter>
+                                    </th>
+                                    <th></th>
+                                    <th></th>
+                                    <th>
+                                        <p-columnFilter [style]="{ width: '5%' }" type="text" field="devis.reference" placeholder="Rechercher reference"></p-columnFilter>
+                                    </th>
+                                    <th>
+                                        <p-columnFilter [style]="{ width: '5%' }" type="text" field="facture.reference" placeholder="Rechercher reference"></p-columnFilter>
+                                    </th>
+                                    <th></th>
+                                    <th></th>
+                                </tr>
+                            </ng-template>
+
+                            <ng-template let-intervention #body>
+                                <tr>
+                                    <td>
+                                        <div class="flex flex-col gap-2">
+                                            <div class="flex gap-4 align-middle items-center">
+                                                <i class="pi pi-car"></i>
+
+                                                <div class="flex flex-col gap-2">
+                                                    <p class="m-0 font-extrabold">{{ intervention.vehicule.immatriculation }}</p>
+
+                                                    <div class="flex gap-2">
+                                                        <p class="m-0">{{ intervention.vehicule.modele }}</p>
+                                                        <p class="m-0">{{ intervention.vehicule.marque }}</p>
+                                                        <p class="m-0">{{ intervention.vehicule.annee }}</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="flex flex-col gap-2">
+                                            <div class="flex gap-4 align-middle items-center">
+                                                <i class="pi pi-user"></i>
+
+                                                <div class="flex flex-col gap-2">
+                                                    <div class="flex flex-col gap-2">
+                                                        <p class="m-0 font-extrabold">{{ intervention.utilisateur.nom }}</p>
+                                                        <p class="m-0 font-extrabold">{{ intervention.utilisateur.prenom }}</p>
+                                                    </div>
+
+                                                    <div class="flex gap-2">
+                                                        <p class="m-0">{{ intervention.utilisateur.telephone }}</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>{{ intervention.createdAt | date: 'yyyy-MM-dd HH:mm' }}</td>
+                                    <td>{{ (intervention.date_debut | date: 'yyyy-MM-dd HH:mm') ?? 'N/A' }}</td>
+                                    <td>{{ intervention.devis?.reference ?? 'N/A' }}</td>
+                                    <td>{{ intervention.facture?.reference ?? 'N/A' }}</td>
+                                    <td>
+                                        <p-badge [severity]="etatsService.getEtatIntervention(intervention.etat_intervention).etatColor" [value]="etatsService.getEtatIntervention(intervention.etat_intervention).etatString" />
+                                    </td>
+                                    <td>
+                                        <p-button label="Plus de details" [routerLink]="['/manager/intervention', intervention._id]" />
+                                    </td>
+                                </tr>
+                            </ng-template>
+                        </p-table>
+                    </p-card>
+                </div>
             </div>
         </div>
 
@@ -157,18 +268,29 @@ export class ManagerTableauDeBordRemindersComponent {
     rendezVousClicked: any = null;
     isAssignerMecanicienVisible: boolean = false;
 
+    // Liste des interventions
+    interventionData: any[] = [];
+
     etatsService: EtatsService = inject(EtatsService);
 
     constructor(
         private rendezVousService: RendezVousService,
+        private interventionService: InterventionService,
         private messageService: MessageService
     ) {
         this.fetchRendezVousJour();
+        this.fetchInterventionJour();
     }
 
     fetchRendezVousJour() {
         this.rendezVousService.getRendezVousDuJour().subscribe((response: any) => {
             this.rendezVousJourData = response.data;
+        });
+    }
+
+    fetchInterventionJour() {
+        this.interventionService.getInterventionsDuJour().subscribe((response: any) => {
+            this.interventionData = response.data;
         });
     }
 
@@ -185,6 +307,7 @@ export class ManagerTableauDeBordRemindersComponent {
                 this.isAssignerMecanicienVisible = false;
 
                 this.fetchRendezVousJour();
+                this.fetchInterventionJour();
 
                 this.messageService.add({
                     summary: 'Assignation reussi',

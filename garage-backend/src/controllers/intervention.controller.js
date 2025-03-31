@@ -27,6 +27,29 @@ const DevisPiece = require('../model/Intervention/Devis/devisPiece');
 const FicheIntervention = require('../model/Intervention/FicheIntervention/ficheIntervetion')
 
 
+// Obtenir les interventions du jour
+router.get('/', [verifyToken], async (req, res) => {
+    const intervention = await Intervention.find({
+        $or: [
+                { etat_intervention: EtatIntervention.EN_COURS}, 
+                { etat_intervention: EtatIntervention.EN_ATTENTE},
+                { etat_intervention: EtatIntervention.EN_ATTENTE_DE_PIECE}
+        ]
+    }).populate([
+        "vehicule",
+        {
+            path: "utilisateur",
+            select: ["-mot_de_passe", "-documents"]
+        },
+        "facture",
+        "devis"
+    ]).sort({ createdAt: -1 })
+
+    return res.status(200).json({
+        data: intervention
+    })
+})
+
 // Obtenir l'intervetion courante d'un vehicule
 router.get('/vehicule/:vehiculeId/actif', [verifyToken], async (req, res) => {
     const interventions = await Intervention.find({ vehicule: req.params.vehiculeId, etat_intervention: EtatIntervention.EN_COURS }).sort({ createdAt: -1 }).limit(1)
@@ -219,26 +242,6 @@ router.get('/:intervetionId/devis/refuser', [verifyToken], async (req, res) => {
 
     return res.status(200).json({
         message: "Devis valider"
-    })
-})
-
-// Obtenir les interventions du jour
-router.get('/today', [verifyToken], async (req, res) => {
-    const today = new Date();
-    const startOfDay = new Date(today.setHours(0, 0, 0, 0));
-    const endOfDay = new Date(today.setHours(23, 59, 59, 999));
-
-    const intervention = await Intervention.find({
-        createdAt: { $gte: startOfDay, $lte: endOfDay },
-        $or: [
-                { etat_intervention: EtatIntervention.EN_COURS}, 
-                { etat_intervention: EtatIntervention.EN_ATTENTE},
-                { etat_intervention: EtatIntervention.EN_ATTENTE_DE_PIECE}
-        ]
-    })
-
-    return res.status(200).json({
-        data: intervention
     })
 })
 
