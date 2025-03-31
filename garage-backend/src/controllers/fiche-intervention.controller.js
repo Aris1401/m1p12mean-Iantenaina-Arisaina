@@ -5,6 +5,7 @@ const router = express.Router()
 const FicheIntervention = require('../model/Intervention/FicheIntervention/ficheIntervetion')
 const PieceFicheIntervention = require('../model/Intervention/FicheIntervention/pieceFicheIntervention')
 const TravauxFicheIntervention = require('../model/Intervention/FicheIntervention/travauxFicheIntervention')
+const Intervention = require('../model/Intervention/intervention')
 
 const TypeEvenement = require('../model/Intervention/FicheIntervention/typeEvenement')
 const TypeIntervention = require('../model/Intervention/FicheIntervention/typeIntervention')
@@ -181,10 +182,17 @@ router.put('/update-save/:id', verifyToken, async (req, res) => {
         return res.status(400).json({ success: false, message: 'Les travaux sont obligatoires' });
     }
 
-    const ficheIntervention = await FicheIntervention.findOne({ 'intervention': req.params.id });
+    let ficheIntervention = await FicheIntervention.findOne({ 'intervention': req.params.id });
 
     if (!ficheIntervention) {
-        return res.status(404).json({ success: false, message: 'Fiche d\'intervention non trouvée' });
+        // return res.status(404).json({ success: false, message: 'Fiche d\'intervention non trouvée' });
+        ficheIntervention = new FicheIntervention()
+        await ficheIntervention.save({ validateBeforeSave: false })
+
+        const intervention = await Intervention.findOne({ _id: req.params.id })
+        intervention.fiche_intervention = ficheIntervention._id
+
+        await intervention.save({ validateBeforeSave: false })
     }
 
     ficheIntervention.description = description || ficheIntervention.description;

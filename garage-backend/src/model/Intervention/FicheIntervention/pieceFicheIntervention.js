@@ -9,4 +9,4 @@ const pieceFicheInterventionSchema = new mongoose.Schema({
     etat_intervention: { type: Number, default: 0 },
 }, { timestamps: true })
 
-module.exports = mongoose.model("PieceFicheIntervention", pieceFicheInterventionSchema,'pieceficheintervention');
+module.exports = mongoose.model("PieceFicheIntervention", pieceFicheInterventionSchema);
