@@ -28,6 +28,13 @@ export class AppMenu {
                 ]
             },
             {
+                label: "Mecanicien",
+                items: [
+                    { label: 'Liste Render-Vous ', icon: 'pi pi-fw pi-calendar', routerLink: ['/liste'] },
+                    { label: 'Liste Intervention ', icon: 'pi pi-fw pi-calendar', routerLink: ['/intervention'] },
+                ]
+            },
+            {
                 label: "Manager",
                 items: [
                     { label: 'Tableau de bord', icon: 'pi pi-chart-bar', routerLink: ['/manager/tableau-de-bord'] },

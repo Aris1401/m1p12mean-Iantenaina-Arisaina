@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from '../../../_env/environment';
+import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -73,4 +74,9 @@ export class RendezVousService {
   annulerDemandeRendezVous(idDemande : string) {
     return this.http.delete(environment.apiUrl + "rendez-vous/demandes/" + idDemande + "/annuler")
   } 
+
+  // Méthode pour récupérer tous les rendez-vous
+  getAllRDV(): Observable<any> {
+    return this.http.get(`${environment.apiUrl}rendez-vous/liste`);
+  }
 }

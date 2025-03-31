@@ -19,8 +19,8 @@ export const appRoutes: Routes = [
             { path: 'documentation', component: Documentation },
             { path: '', loadChildren: () => import('./app/pages/pages.routes') },
             { path: '', loadChildren: () => import('./app/pages/_utilisateur/user.routes') },
-            { path: 'manager', loadChildren: () => import('./app/pages/_manager/manager.routes') },
-            {path: '', loadChildren: () => import('./app/pages/intervention/intervention.routes') },
+            { path: '', loadChildren: () => import('./app/pages/mecanicien/mecanicien.routes') },
+            { path: 'manager', loadChildren: () => import('./app/pages/_manager/manager.routes') }
         ]
     },
     { path: 'landing', component: Landing },
