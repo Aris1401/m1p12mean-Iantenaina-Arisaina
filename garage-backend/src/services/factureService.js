@@ -187,6 +187,7 @@ class FactureService {
 
         // Creation de pdf
         const fs = require('fs')
+        const path = require('path')
         const PDFDocument = require('pdfkit')
 
         let doc = new PDFDocument({ margin: 50 })
@@ -201,7 +202,7 @@ class FactureService {
 
         const factureFilename = facture.reference + formatDateNoSpace(new Date(facture.createdAt))
 
-        const downloadDir = path.join(__dirname, 'download');
+        const downloadDir = 'download';
         if (!fs.existsSync(downloadDir)) {
             fs.mkdirSync(downloadDir, { recursive: true });
         }
@@ -227,6 +228,7 @@ class FactureService {
 
         // Creation de pdf
         const fs = require('fs')
+        const path = require('path')
         const PDFDocument = require('pdfkit')
 
         let doc = new PDFDocument({ margin: 50 })
@@ -241,7 +243,7 @@ class FactureService {
         const devisFilename = devis.reference + formatDateNoSpace(new Date(devis.createdAt))
 
         // Ensure the download directory exists
-        const downloadDir = path.join(__dirname, 'download');
+        const downloadDir = 'download';
         if (!fs.existsSync(downloadDir)) {
             fs.mkdirSync(downloadDir, { recursive: true });
         }

@@ -296,6 +296,12 @@ router.get('/utilisateur', [verifyToken, isUtilisateur], async (req, res) => {
     })
 })
 
+// Obtnir les indisponibiles
+router.get('/indisponibilite', async (req, res) => {
+    return res.status(200).json({
+        data: await RendezVousService.obtenirHeuresIndisponibles()
+    })
+})
 
 // Obtnir les indisponibiles
 router.get('/liste-intervention', async (req, res) => {

@@ -8,4 +8,4 @@ const devisPieceSchema = new mongoose.Schema({
     prix_ht: { type: Number, default: 0 }
 }, { timestamps: true })
 
-module.exports = mongoose.model("DevisPiece", devisPieceSchema,'devispiece')
+module.exports = mongoose.model("DevisPiece", devisPieceSchema)

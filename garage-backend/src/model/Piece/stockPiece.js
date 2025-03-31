@@ -8,7 +8,7 @@ const stockPieceSchema = new mongoose.Schema({
     prix_unitaire: { type: Number, default: 0, min: [0, 'Le prix ne peut pas etre negatif'] }
 }, { timestamps: true })
 
-module.exports = mongoose.model("StockPiece", stockPieceSchema,'stockpiece')
+module.exports = mongoose.model("StockPiece", stockPieceSchema)
 
 
 
