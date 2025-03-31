@@ -8,6 +8,7 @@ const TravauxFicheIntervention = require('../model/Intervention/FicheInterventio
 
 // Middelwares
 const { verifyToken } = require('../middlewares/jwt')
+const StockPiece = require('../model/Piece/stockPiece')
 
 
 // Obtenir fiche intervention
@@ -41,9 +42,9 @@ router.get('/:ficheId/pieces', [verifyToken], async (req, res) => {
 router.get('/', async (req, res) => {
     try {
         const fiches = await FicheIntervention.find()
-            .populate('intervention')  // Populate l'objet intervention référencé
-            .populate('type_intervention')  // Populate le type_intervention si nécessaire
-            .populate('type_evenement');  // Populate le type_evenement si nécessaire
+            .populate('intervention') 
+            .populate('type_intervention') 
+            .populate('type_evenement');  
 
         return res.status(200).json({
             data: fiches
@@ -83,14 +84,13 @@ router.get('/:id', async (req, res) => {
 
 // 3. Créer une nouvelle fiche d'intervention
 router.post('/', [verifyToken], async (req, res) => {
-    try {
         const fiche = new FicheIntervention({
             description: req.body.description,
             type_intervention: req.body.type_intervention,
             type_evenement: req.body.type_evenement,
             autre_evenement: req.body.autre_evenement,
-            documents: req.body.documents,  // Si des documents sont envoyés
-            intervention: req.body.intervention,  // Lien vers l'intervention existante
+            documents: req.body.documents,
+            intervention: req.body.intervention,
         })
 
         const errors = fiche.validateSync()
@@ -108,17 +108,11 @@ router.post('/', [verifyToken], async (req, res) => {
             message: 'Fiche d\'intervention enregistrée avec succès',
             data: fiche
         })
-    } catch (error) {
-        return res.status(500).json({
-            error: 'Erreur lors de l\'ajout de la fiche d\'intervention',
-            message: error.message
-        })
-    }
+
 })
 
 // 4. Mettre à jour une fiche d'intervention
 router.put('/:id', [verifyToken], async (req, res) => {
-    try {
         const fiche = await FicheIntervention.findByIdAndUpdate(
             req.params.id,
             {
@@ -127,12 +121,13 @@ router.put('/:id', [verifyToken], async (req, res) => {
                 type_evenement: req.body.type_evenement,
                 autre_evenement: req.body.autre_evenement,
                 documents: req.body.documents,
-                intervention: req.body.intervention,  // Mise à jour de l'intervention associée
+                intervention: req.body.intervention,
             },
-            { new: true }  // Pour retourner le document mis à jour
+            { new: true }
         )
 
-        if (!fiche) {
+        if (!fiche) 
+        {
             return res.status(404).json({
                 error: 'Fiche d\'intervention non trouvée'
             })
@@ -142,12 +137,6 @@ router.put('/:id', [verifyToken], async (req, res) => {
             message: 'Fiche d\'intervention mise à jour avec succès',
             data: fiche
         })
-    } catch (error) {
-        return res.status(500).json({
-            error: 'Erreur lors de la mise à jour de la fiche d\'intervention',
-            message: error.message
-        })
-    }
 })
 
 // 5. Supprimer une fiche d'intervention
@@ -170,6 +159,99 @@ router.delete('/:id', [verifyToken], async (req, res) => {
             message: error.message
         })
     }
-})
+});
+
+//modification fiche-intervention
+
+router.put('/update-save/:id', verifyToken, async (req, res) => {
+    const { description, type_intervention, type_evenement, autre_evenement, documents, pieces, travaux, etat_intervention } = req.body;
+
+    if (!description || !type_intervention || !type_evenement) {
+        return res.status(400).json({ success: false, message: 'Les champs obligatoires sont manquants' });
+    }
+
+    if (type_evenement === 'autre' && !autre_evenement) {
+        return res.status(400).json({ success: false, message: 'Le champ autre_evenement est obligatoire lorsque le type_evenement est "autre"' });
+    }
+
+    if (!travaux || travaux.length === 0) {
+        return res.status(400).json({ success: false, message: 'Les travaux sont obligatoires' });
+    }
+
+    const ficheIntervention = await FicheIntervention.findOne({ 'intervention': req.params.id });
+
+    if (!ficheIntervention) {
+        return res.status(404).json({ success: false, message: 'Fiche d\'intervention non trouvée' });
+    }
+
+    ficheIntervention.description = description || ficheIntervention.description;
+    ficheIntervention.type_intervention = type_intervention || ficheIntervention.type_intervention;
+
+    if (type_evenement === 'autre') {
+        ficheIntervention.type_evenement = null;
+        ficheIntervention.autre_evenement = autre_evenement || ficheIntervention.autre_evenement;
+    } else {
+        ficheIntervention.type_evenement = type_evenement || ficheIntervention.type_evenement;
+        ficheIntervention.autre_evenement = null;
+    }
+
+    ficheIntervention.documents = documents || ficheIntervention.documents;
+    const updatedFiche = await ficheIntervention.save();
+
+    const piecePromises = pieces && pieces.length > 0 ? pieces.map(piece => {
+        let etatPiece = 0;
+
+        switch (piece.statut) {
+            case 'En rupture':
+                etatPiece = 0;
+                break;
+            case 'En stock':
+                etatPiece = 20;
+                const stockPieceData = {
+                    fiche_intervention: updatedFiche._id, 
+                    piece: piece.selectedPiece,
+                    date_mouvement: new Date(),
+                    entree: 0,  
+                    sortie: piece.quantity, 
+                    prix_unitaire: 0
+                };
+
+                const stockPiece = new StockPiece(stockPieceData);
+                stockPiece.save()
+                    .then(() => console.log("Stock mis à jour avec succès"))
+                    .catch(error => console.error("Erreur lors de l'insertion dans StockPiece:", error));
+                break;
+            default:
+                break;
+        }
+
+        return new PieceFicheIntervention({
+            fiche_intervention: updatedFiche._id,
+            piece: piece.selectedPiece,
+            quantite: piece.quantity,
+            prix_unitaire: piece.prixUnitaire,
+            prix_ht: piece.prixUnitaire * piece.quantity,
+            etat_intervention: etatPiece,
+        }).save();
+    }) : [];
+
+    const travauxPromises = travaux.map(travail => {
+        return new TravauxFicheIntervention({
+            fiche_intervention: updatedFiche._id,
+            designation: travail.designation,
+            quantite: travail.quantite,
+            prix_unitaire: travail.prixUnitaire,
+            prix_ht: travail.prixHT,
+            etat_intervention: travail.etat_intervention || etat_intervention || 0,
+        }).save();
+    });
+
+    await Promise.all([...piecePromises, ...travauxPromises]);
+
+    res.status(200).json({ success: true, message: 'Fiche d\'intervention mise à jour et enregistrée avec succès', data: updatedFiche });
+});
+
+
+
 
 module.exports = router

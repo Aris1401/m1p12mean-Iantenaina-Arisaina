@@ -93,5 +93,23 @@ router.get('/stock', async (req, res) => {
     })
 })
 
+// app.get('/pieces', async (req, res) => {
+//     try {
+//       const pieces = await Piece.find();
+//       res.status(200).json(pieces);
+//     } catch (error) {
+//       res.status(500).send('Erreur serveur lors de la récupération des pièces');
+//     }
+//   });
+  
+//   app.get('/travaux', async (req, res) => {
+//     try {
+//       const travaux = ['Travail 1', 'Travail 2', 'Travail 3']; 
+//       res.status(200).json(travaux);
+//     } catch (error) {
+//       res.status(500).send('Erreur serveur lors de la récupération des travaux');
+//     }
+//   });
+  
 
 module.exports = router

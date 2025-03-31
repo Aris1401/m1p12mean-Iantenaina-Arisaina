@@ -30,7 +30,8 @@ export class AppMenu {
             {
                 label: "Mecanicien",
                 items: [
-                    { label: 'Creer Intervention ', icon: 'pi pi-fw pi-calendar', routerLink: ['/liste'] },
+                    { label: 'Liste Render-Vous ', icon: 'pi pi-fw pi-calendar', routerLink: ['/liste'] },
+                    { label: 'Liste Intervention ', icon: 'pi pi-fw pi-calendar', routerLink: ['/intervention'] },
                 ]
             },
             {
