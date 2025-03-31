@@ -222,6 +222,26 @@ router.get('/:intervetionId/devis/refuser', [verifyToken], async (req, res) => {
     })
 })
 
+// Obtenir les interventions du jour
+router.get('/today', [verifyToken], async (req, res) => {
+    const today = new Date();
+    const startOfDay = new Date(today.setHours(0, 0, 0, 0));
+    const endOfDay = new Date(today.setHours(23, 59, 59, 999));
+
+    const intervention = await Intervention.find({
+        createdAt: { $gte: startOfDay, $lte: endOfDay },
+        $or: [
+                { etat_intervention: EtatIntervention.EN_COURS}, 
+                { etat_intervention: EtatIntervention.EN_ATTENTE},
+                { etat_intervention: EtatIntervention.EN_ATTENTE_DE_PIECE}
+        ]
+    })
+
+    return res.status(200).json({
+        data: intervention
+    })
+})
+
 router.post('/new', async (req, res) => {
     const { idRdv } = req.body;
 

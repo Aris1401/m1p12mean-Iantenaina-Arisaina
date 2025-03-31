@@ -92,7 +92,13 @@ export class Login {
                 this.authStorage.saveToken(response.token, response.roles, response.nom);
 
                 // Redirection vers le dashboard
-                this.router.navigate(['/dashboard']);
+                if (response.roles[0] == "ROLE_USER") {
+                    this.router.navigate(['/rendez-vous']);
+                } else if (response.roles[0] == "ROLE_MANAGER") {
+                    this.router.navigate(['/manager/tableau-de-bord']);
+                } else {
+                    this.router.navigate(['/dashboard']);
+                }
             },
             error: (error) => {
                 console.log(error);
