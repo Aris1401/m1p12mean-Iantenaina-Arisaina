@@ -253,7 +253,7 @@ export class UtilisateurInterventionComponent implements OnInit {
     }
 
     checkDebutSelecionVisibility() {
-        if (!this.intervetionData || !(this.devisData || this.devisData[0])) return;
+        if (!this.intervetionData || !this.devisData || !this.devisData[0]) return;
 
         if (this.intervetionData.etat_intervention == -10 && this.devisData[0].etat == 10 && !this.intervetionData.date_debut) {
             this.isSelectionDateVisible = true;
