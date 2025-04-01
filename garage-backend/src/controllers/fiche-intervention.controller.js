@@ -193,6 +193,10 @@ router.put('/update-save/:id', verifyToken, async (req, res) => {
         intervention.fiche_intervention = ficheIntervention._id
 
         await intervention.save({ validateBeforeSave: false })
+
+        // Mettre a jour fiche intervention
+        ficheIntervention.intervention = intervention._id
+        await ficheIntervention.save()
     }
 
     ficheIntervention.description = description || ficheIntervention.description;
