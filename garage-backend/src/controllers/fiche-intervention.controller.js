@@ -17,7 +17,7 @@ const StockPiece = require('../model/Piece/stockPiece')
 
 // Obtenir fiche intervention
 router.get('/:ficheId', [verifyToken], async (req, res) => {
-    const ficheIntervention = await FicheIntervention.findOne({ _id: req.params.ficheId }).populate("type_evenement")
+    const ficheIntervention = await FicheIntervention.findOne({ _id: req.params.ficheId }).populate("type_evenement").populate('type_intervention')
 
     return res.status(200).json({
         data: ficheIntervention

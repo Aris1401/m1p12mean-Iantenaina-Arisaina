@@ -16,10 +16,11 @@ import { DialogModule } from 'primeng/dialog';
 import { UtilisateurDebutInterventionComponent } from './utilisateur.debut-intervention.component';
 import { InfosTravauxPiecesComponent } from '../../utils/intervention/infos-travaux-pieces.component';
 import { FactureService } from '../../../_services/facture/facture.service';
+import { DetailsFicheInterventionComponent } from '../../utils/fiche-intervention/details-fiche-intervention.component';
 
 @Component({
     selector: 'app-utilisateur.intervention',
-    imports: [UtilisateurDebutInterventionComponent, InfosTravauxPiecesComponent, ChipModule, CardModule, ToastModule, BadgeModule, TableModule, DividerModule, ButtonModule, CommonModule, DialogModule],
+    imports: [UtilisateurDebutInterventionComponent, InfosTravauxPiecesComponent, ChipModule, CardModule, ToastModule, BadgeModule, TableModule, DividerModule, ButtonModule, CommonModule, DialogModule, DetailsFicheInterventionComponent],
     template: `
         <p-toast></p-toast>
 
@@ -81,7 +82,7 @@ import { FactureService } from '../../../_services/facture/facture.service';
                 </div>
 
                 <div class="mt-3">
-                    <p-button label="Details fiche intervention" />
+                    <p-button label="Details fiche intervention" (onClick)="onAfficherDetailsFicheIntervention()" />
                 </div>
             </p-card>
         </div>
@@ -160,6 +161,11 @@ import { FactureService } from '../../../_services/facture/facture.service';
         <p-dialog [(visible)]="isSelectionDateVisible" [modal]="true" header="Selectionner une date de debut d'intervetion" style="width: 30rem">
             <app-utilisateur-debut-intervention style="width: 100%;" [intervetionId]="currentIntervetionId()" (dateValider)="onDateValider()" />
         </p-dialog>
+
+        <!-- Details fiche intervention -->
+         <p-dialog [(visible)]="isFicheInterventionVisible" [modal]="true" header="Details fiche intervention" [style]="{width: '40rem'}">
+            <app-details-fiche-intervention [ficheInterventionId]="ficheInterventionData?._id" />
+         </p-dialog>
     `,
     styles: ``
 })
@@ -180,6 +186,9 @@ export class UtilisateurInterventionComponent implements OnInit {
     factureService = inject(FactureService);
 
     isSelectionDateVisible: boolean = false;
+
+    // Fiche intervention
+    isFicheInterventionVisible : boolean = false
 
     constructor(
         private route: ActivatedRoute,
@@ -295,5 +304,9 @@ export class UtilisateurInterventionComponent implements OnInit {
 
     onDateValider() {
         this.fetchIntervetion();
+    }
+
+    onAfficherDetailsFicheIntervention() {
+        this.isFicheInterventionVisible = true
     }
 }
