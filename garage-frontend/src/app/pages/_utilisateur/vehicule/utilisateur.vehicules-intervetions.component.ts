@@ -40,14 +40,14 @@ import { BadgeModule } from 'primeng/badge';
 
         <div class="mt-2">
             <p-card header="Liste des interventions">
-                <p-table [value]="interventions" [paginator]="true" [rows]="10" [rowsPerPageOptions]="[5, 10, 20]">
+                <p-table [value]="interventions" #interventionTable [paginator]="true" [rows]="10" [rowsPerPageOptions]="[5, 10, 20]" [globalFilterFields]="['createdAt', 'date_debut', 'devis.reference', 'facture.reference']">
                     <ng-template #caption>
                         <div class="flex justify-end">
                             <p-iconField>
                                 <p-inputIcon>
                                     <i class="pi pi-search"></i>
                                 </p-inputIcon>
-                                <input pInputText type="text" placeholder="Rechercher" />
+                                <input pInputText type="text" placeholder="Rechercher" (input)="interventionTable.filterGlobal($any($event.target).value, 'contains')" />
                             </p-iconField>
                         </div>
                     </ng-template>
