@@ -25,9 +25,9 @@ import { BadgeModule } from 'primeng/badge';
                         <p class="m-0">Facture: {{ interventionCourante.facture?.reference ?? "N/A" }}</p>
                       </div>
 
-                      <div>
-                        <p class="m-0">Date creation: {{ interventionCourante.createdAt | date: 'yyyy-MM-dd HH:mm' }}</p>
-                        <p class="m-0">Date debut: {{ (interventionCourante.date_debut | date: "yyyy-MM-dd HH:mm") ?? "N/A" }}</p>
+                      <div class="flex gap-2">
+                        <p-badge value="Date creation: {{ interventionCourante.createdAt | date: 'yyyy-MM-dd HH:mm' }}" />
+                        <p-badge value="Date debut: {{ (interventionCourante.date_debut | date: 'yyyy-MM-dd HH:mm') ?? 'N/A' }}" />
                       </div>
                     </div>
                     <p-badge [value]="etatsService.getEtatIntervention(interventionCourante.etat_intervention).etatString" [severity]="etatsService.getEtatIntervention(interventionCourante.etat_intervention).etatColor" />

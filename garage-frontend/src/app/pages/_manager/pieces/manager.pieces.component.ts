@@ -203,7 +203,7 @@ import { RouterModule } from '@angular/router';
             <app-manager-liste-pieces />
         </div>
 
-        <p-dialog header="Mouvement de piece" [(visible)]="isMouvementsPieceVisible" [style]="{ width: '50vw' }">
+        <p-dialog header="Mouvement de piece" [(visible)]="isMouvementsPieceVisible" [style]="{ width: '50vw' }" [modal]="true">
             <app-manager-mouvements-piece [idPiece]="idPieceMouvement" />
         </p-dialog>
     `,
