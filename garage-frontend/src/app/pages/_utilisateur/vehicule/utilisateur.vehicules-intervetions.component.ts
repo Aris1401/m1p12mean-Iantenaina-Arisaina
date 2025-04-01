@@ -25,9 +25,9 @@ import { BadgeModule } from 'primeng/badge';
                         <p class="m-0">Facture: {{ interventionCourante.facture?.reference ?? "N/A" }}</p>
                       </div>
 
-                      <div>
-                        <p class="m-0">Date creation: {{ interventionCourante.createdAt | date: 'yyyy-MM-dd HH:mm' }}</p>
-                        <p class="m-0">Date debut: {{ (interventionCourante.date_debut | date: "yyyy-MM-dd HH:mm") ?? "N/A" }}</p>
+                      <div class="flex gap-2">
+                        <p-badge value="Date creation: {{ interventionCourante.createdAt | date: 'yyyy-MM-dd HH:mm' }}" />
+                        <p-badge value="Date debut: {{ (interventionCourante.date_debut | date: 'yyyy-MM-dd HH:mm') ?? 'N/A' }}" />
                       </div>
                     </div>
                     <p-badge [value]="etatsService.getEtatIntervention(interventionCourante.etat_intervention).etatString" [severity]="etatsService.getEtatIntervention(interventionCourante.etat_intervention).etatColor" />
@@ -40,14 +40,14 @@ import { BadgeModule } from 'primeng/badge';
 
         <div class="mt-2">
             <p-card header="Liste des interventions">
-                <p-table [value]="interventions" [paginator]="true" [rows]="10" [rowsPerPageOptions]="[5, 10, 20]">
+                <p-table [value]="interventions" #interventionTable [paginator]="true" [rows]="10" [rowsPerPageOptions]="[5, 10, 20]" [globalFilterFields]="['createdAt', 'date_debut', 'devis.reference', 'facture.reference']">
                     <ng-template #caption>
                         <div class="flex justify-end">
                             <p-iconField>
                                 <p-inputIcon>
                                     <i class="pi pi-search"></i>
                                 </p-inputIcon>
-                                <input pInputText type="text" placeholder="Rechercher" />
+                                <input pInputText type="text" placeholder="Rechercher" (input)="interventionTable.filterGlobal($any($event.target).value, 'contains')" />
                             </p-iconField>
                         </div>
                     </ng-template>

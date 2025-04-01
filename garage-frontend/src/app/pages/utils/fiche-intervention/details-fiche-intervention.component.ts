@@ -12,6 +12,12 @@ import { environment } from '../../../../environments/environment';
   template: `
   <div class="flex flex-col gap-2">
     <div>
+      <h5>Type Intervention</h5>
+
+      <p-chip [label]="ficheIntervention?.type_intervention?.designation" />
+    </div>  
+
+    <div>
       <h5>Type evenement</h5>
 
       <p-chip [label]="ficheIntervention?.autre_evenement ?? ficheIntervention?.type_evenement?.designation" />

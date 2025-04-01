@@ -11,10 +11,13 @@ import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { ManagerListePiecesComponent } from './manager.liste-pieces.component';
 import { ManagerMouvementsPieceComponent } from './manager.mouvements-piece.component';
+import { DividerModule } from 'primeng/divider';
+import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
 
 @Component({
     selector: 'app-manager.pieces',
-    imports: [TableModule, ButtonModule, DialogModule, CardModule, InputTextModule, SelectModule, FormsModule, ToastModule, ManagerListePiecesComponent, ManagerMouvementsPieceComponent],
+    imports: [CommonModule, RouterModule, TableModule, ButtonModule, DialogModule, CardModule, InputTextModule, SelectModule, FormsModule, ToastModule, DividerModule, ManagerListePiecesComponent, ManagerMouvementsPieceComponent],
     template: `
         <p-card header="Etat du stock">
             <p-table [value]="stockPieces" #stockTable [paginator]="true" [rows]="10" [globalFilterFields]="['reference', 'designation']">
@@ -41,8 +44,8 @@ import { ManagerMouvementsPieceComponent } from './manager.mouvements-piece.comp
                 </ng-template>
                 <ng-template let-piece #body>
                     <tr>
-                        <td (click)="showMouvementsPiece(piece._id)" class="underline cursor-pointer" >{{ piece.reference }}</td>
-                        <td (click)="showMouvementsPiece(piece._id)" class="underline cursor-pointer" >{{ piece.designation }}</td>
+                        <td (click)="showMouvementsPiece(piece._id)" class="underline cursor-pointer">{{ piece.reference }}</td>
+                        <td (click)="showMouvementsPiece(piece._id)" class="underline cursor-pointer">{{ piece.designation }}</td>
                         <td>{{ piece.prix_cump }} Ar</td>
                         <td>{{ piece.total_entree }}</td>
                         <td>{{ piece.total_sortie }}</td>
@@ -53,110 +56,156 @@ import { ManagerMouvementsPieceComponent } from './manager.mouvements-piece.comp
             </p-table>
         </p-card>
 
-        <p-dialog header="Ajouter en stock" [(visible)]="isAddStockVisible" [modal]="true" [responsive]="true" [style]="{ width: '30rem' }">
-            <form class="flex flex-col justify-between items-center gap-2" (submit)="onSubmitAddStock()">
-                <div class="w-full">
-                    <label for="piece" class="block">Piece</label>
-                    <p-select
-                        [options]="allPieces"
-                        optionLabel="designation"
-                        optionValue="_id"
-                        placeholder="Selectionner une piece"
-                        [filter]="true"
-                        filterBy="designation,reference"
-                        class="w-full"
-                        (onChange)="onPieceSelected($event.value)"
-                        [showClear]="true"
-                    >
-                        <ng-template let-piece #item>
-                            <div class="flex flex-col justify-between">
-                                <span>{{ piece.designation }}</span>
-                                <span>{{ piece.reference }}</span>
+        <p-dialog header="Ajouter en stock" [(visible)]="isAddStockVisible" [modal]="true" [responsive]="true" [style]="{ width: '60rem' }">
+            <div class="flex gap-2">
+                <form class="flex flex-col justify-between items-center gap-2 w-1/2" (submit)="onSubmitAddStock()">
+                    <div class="w-full">
+                        <label for="piece" class="block">Piece</label>
+                        <p-select
+                            [options]="allPieces"
+                            optionLabel="designation"
+                            optionValue="_id"
+                            placeholder="Selectionner une piece"
+                            [filter]="true"
+                            filterBy="designation,reference"
+                            class="w-full"
+                            (onChange)="onPieceSelected($event.value)"
+                            [(ngModel)]="stockPieceData.piece"
+                            name="idPiece"
+                            [showClear]="true"
+                        >
+                            <ng-template let-piece #item>
+                                <div class="flex flex-col justify-between">
+                                    <span>{{ piece.designation }}</span>
+                                    <span>{{ piece.reference }}</span>
+                                </div>
+                            </ng-template>
+                        </p-select>
+                    </div>
+
+                    <div class="w-full">
+                        <label for="reference" class="block">Reference</label>
+                        <input
+                            type="text"
+                            name="reference"
+                            id="reference"
+                            pInputText
+                            class="w-full"
+                            [(ngModel)]="stockPieceData.reference"
+                            [disabled]="isPieceSelected"
+                            [class.p-dirty]="addStockErrors && addStockErrors.piece && addStockErrors.piece.reference"
+                            [class.p-invalid]="addStockErrors && addStockErrors.piece && addStockErrors.piece.reference"
+                        />
+                    </div>
+
+                    <div class="w-full">
+                        <label for="designation" class="block">Designation</label>
+                        <input
+                            type="text"
+                            name="designation"
+                            id="designation"
+                            pInputText
+                            class="w-full"
+                            [(ngModel)]="stockPieceData.designation"
+                            [disabled]="isPieceSelected"
+                            [class.p-dirty]="addStockErrors && addStockErrors.piece && addStockErrors.piece.designation"
+                            [class.p-invalid]="addStockErrors && addStockErrors.piece && addStockErrors.piece.designation"
+                        />
+                    </div>
+
+                    <div class="w-full">
+                        <label for="dateMouvement" class="block">Date de mouvement</label>
+                        <input type="date" name="dateMouvement" id="dateMouvement" pInputText class="w-full" [(ngModel)]="stockPieceData.dateMouvement" />
+                    </div>
+
+                    <div class="w-full">
+                        <label for="prix" class="block">Prix</label>
+                        <input
+                            type="text"
+                            name="prix"
+                            id="prix"
+                            pInputText
+                            class="w-full"
+                            [(ngModel)]="stockPieceData.prix"
+                            [class.p-dirty]="addStockErrors && addStockErrors.stock && addStockErrors.stock.prix_unitaire"
+                            [class.p-invalid]="addStockErrors && addStockErrors.stock && addStockErrors.stock.prix_unitaire"
+                        />
+                        @if (addStockErrors && addStockErrors.stock && addStockErrors.stock.prix_unitaire) {
+                            <small class="text-red-500">{{ addStockErrors.stock.prix_unitaire.message }}</small>
+                        }
+                    </div>
+
+                    <div class="w-full">
+                        <label for="quantite" class="block">Quantite</label>
+                        <input
+                            type="text"
+                            name="quantite"
+                            id="quantite"
+                            pInputText
+                            class="w-full"
+                            [(ngModel)]="stockPieceData.quantite"
+                            [class.p-dirty]="addStockErrors && addStockErrors.stock && addStockErrors.stock.entree"
+                            [class.p-invalid]="addStockErrors && addStockErrors.stock && addStockErrors.stock.entree"
+                        />
+                        @if (addStockErrors && addStockErrors.stock && addStockErrors.stock.entree) {
+                            <small class="text-red-500">{{ addStockErrors.stock.entree.message }}</small>
+                        }
+                    </div>
+
+                    <button pButton type="submit" label="Ajouter" icon="pi pi-check" class="w-full"></button>
+                </form>
+
+                <p-divider layout="vertical" />
+
+                <div class="w-1/2">
+                   <h5>Interventions en rupture de piece</h5>
+
+                  <p-table [value]="interventionEnRuptureData" [paginator]="true" [rows]="4">
+                        <ng-template #emptymessage>
+                            <div class="p-3">
+                                <p>Aucun intervention en manque de piece</p>
                             </div>
                         </ng-template>
-                    </p-select>
-                </div>
 
-                <div class="w-full">
-                    <label for="reference" class="block">Reference</label>
-                    <input
-                        type="text"
-                        name="reference"
-                        id="reference"
-                        pInputText
-                        class="w-full"
-                        [(ngModel)]="stockPieceData.reference"
-                        [disabled]="isPieceSelected"
-                        [class.p-dirty]="addStockErrors && addStockErrors.piece && addStockErrors.piece.reference"
-                        [class.p-invalid]="addStockErrors && addStockErrors.piece && addStockErrors.piece.reference"
-                    />
-                </div>
+                        <ng-template #header>
+                            <tr>
+                                <th>Piece</th>
+                                <th>Quantite</th>
+                                <th>Date intervention</th>
+                                <th></th>
+                            </tr>
+                        </ng-template>
 
-                <div class="w-full">
-                    <label for="designation" class="block">Designation</label>
-                    <input
-                        type="text"
-                        name="designation"
-                        id="designation"
-                        pInputText
-                        class="w-full"
-                        [(ngModel)]="stockPieceData.designation"
-                        [disabled]="isPieceSelected"
-                        [class.p-dirty]="addStockErrors && addStockErrors.piece && addStockErrors.piece.designation"
-                        [class.p-invalid]="addStockErrors && addStockErrors.piece && addStockErrors.piece.designation"
-                    />
+                        <ng-template #body let-interventionEnRupture>
+                            <tr>
+                                <td>
+                                    <p class="underline cursor-pointer" (click)="onPieceSelected(interventionEnRupture.piece._id)">
+                                        {{ interventionEnRupture.piece.designation }}
+                                    </p>
+                                </td>
+                                <td>{{ interventionEnRupture.quantite }}</td>
+                                <td>{{ interventionEnRupture.createdAt | date: "yyyy-MM-dd HH:mm" }}</td>
+                                <td>
+                                    @if (interventionEnRupture.fiche_intervention.intervention) {
+                                        <p-button label="Afficher intervention" [routerLink]="['/intervention', interventionEnRupture.fiche_intervention.intervention]" />
+                                    } @else {
+                                        <p>Intervention introuvable</p>
+                                    }
+                                </td>
+                            </tr>
+                        </ng-template>
+                  </p-table>
                 </div>
-
-                <div class="w-full">
-                    <label for="dateMouvement" class="block">Date de mouvement</label>
-                    <input type="date" name="dateMouvement" id="dateMouvement" pInputText class="w-full" [(ngModel)]="stockPieceData.dateMouvement" />
-                </div>
-
-                <div class="w-full">
-                    <label for="prix" class="block">Prix</label>
-                    <input
-                        type="text"
-                        name="prix"
-                        id="prix"
-                        pInputText
-                        class="w-full"
-                        [(ngModel)]="stockPieceData.prix"
-                        [class.p-dirty]="addStockErrors && addStockErrors.stock && addStockErrors.stock.prix_unitaire"
-                        [class.p-invalid]="addStockErrors && addStockErrors.stock && addStockErrors.stock.prix_unitaire"
-                    />
-                    @if (addStockErrors && addStockErrors.stock && addStockErrors.stock.prix_unitaire) {
-                      <small class="text-red-500">{{ addStockErrors.stock.prix_unitaire.message }}</small>
-                    }
-                </div>
-
-                <div class="w-full">
-                    <label for="quantite" class="block">Quantite</label>
-                    <input
-                        type="text"
-                        name="quantite"
-                        id="quantite"
-                        pInputText
-                        class="w-full"
-                        [(ngModel)]="stockPieceData.quantite"
-                        [class.p-dirty]="addStockErrors && addStockErrors.stock && addStockErrors.stock.entree"
-                        [class.p-invalid]="addStockErrors && addStockErrors.stock && addStockErrors.stock.entree"
-                    />
-                    @if (addStockErrors && addStockErrors.stock && addStockErrors.stock.entree) {
-                      <small class="text-red-500">{{ addStockErrors.stock.entree.message }}</small>
-                    }
-                </div>
-
-                <button pButton type="submit" label="Ajouter" icon="pi pi-check" class="w-full"></button>
-            </form>
+            </div>
         </p-dialog>
-        
+
         <div class="mt-3">
             <app-manager-liste-pieces />
         </div>
 
-        <p-dialog header="Mouvement de piece" [(visible)]="isMouvementsPieceVisible" [style]="{ width: '50vw' }">
+        <p-dialog header="Mouvement de piece" [(visible)]="isMouvementsPieceVisible" [style]="{ width: '50vw' }" [modal]="true">
             <app-manager-mouvements-piece [idPiece]="idPieceMouvement" />
-        <p-dialog>
+        </p-dialog>
     `,
     styles: ``
 })
@@ -181,7 +230,10 @@ export class ManagerPiecesComponent implements OnInit {
 
     // Mouvement piece
     isMouvementsPieceVisible: boolean = false;
-    idPieceMouvement : string = ""
+    idPieceMouvement: string = '';
+
+    // Manques de pieces
+    interventionEnRuptureData : any[] = []
 
     constructor(
         private piecesService: PiecesService,
@@ -200,6 +252,14 @@ export class ManagerPiecesComponent implements OnInit {
                 this.allPieces = response.data;
             }
         });
+
+        this.fetchInterventionenRupture()
+    }
+
+    fetchInterventionenRupture() {
+        this.piecesService.getInterventionEnRupture().subscribe((response : any) => {
+            this.interventionEnRuptureData = response.data
+        })
     }
 
     showAddStockPiece() {
@@ -207,6 +267,16 @@ export class ManagerPiecesComponent implements OnInit {
     }
 
     onPieceSelected(idPiece: any) {
+        if (!idPiece) {
+            this.isPieceSelected = false
+
+            this.stockPieceData.piece = "";
+            this.stockPieceData.reference = "";
+            this.stockPieceData.designation = "";
+
+            return;
+        }
+
         this.isPieceSelected = true;
 
         this.stockPieceData.piece = idPiece;
@@ -233,7 +303,14 @@ export class ManagerPiecesComponent implements OnInit {
 
                 this.messageService.add({
                     severity: 'success',
-                    summary: response.message
+                    summary: response.message[0]
+                });
+
+                response.message.slice(1).forEach((message: any) => {
+                    this.messageService.add({
+                        severity: 'info',
+                        summary: message
+                    });
                 });
             },
             error: (error: any) => {
@@ -247,8 +324,8 @@ export class ManagerPiecesComponent implements OnInit {
         });
     }
 
-    showMouvementsPiece(idPiece : string) {
-        this.isMouvementsPieceVisible = true
-        this.idPieceMouvement = idPiece
+    showMouvementsPiece(idPiece: string) {
+        this.isMouvementsPieceVisible = true;
+        this.idPieceMouvement = idPiece;
     }
 }

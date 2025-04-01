@@ -5,6 +5,8 @@ const router = express.Router()
 const Piece = require('../model/Piece/piece')
 const StockPiece = require('../model/Piece/stockPiece')
 
+const PieceFicheIntervention = require('../model/Intervention/FicheIntervention/pieceFicheIntervention')
+
 const PieceService = require('../services/pieceService')
 
 const { verifyToken, isManager } = require('../middlewares/jwt')
@@ -56,13 +58,19 @@ router.post('/', [verifyToken], async (req, res) => {
         piece._id = req.body.piece
     }
 
+    let messages = [
+        'Piece ajouter en stock avec succes'
+    ]
+
     try {
-        await PieceService.ajouterEnStock(
+        let ajoutMessages = await PieceService.ajouterEnStock(
             piece,
             req.body.quantite,
             req.body.prix,
             req.body.dateMouvement
         )
+
+        messages = [...messages, ...ajoutMessages]
     } catch (error) {
         return res.status(400).json({
             error: error.message,
@@ -71,14 +79,14 @@ router.post('/', [verifyToken], async (req, res) => {
     }
 
     return res.status(200).json({
-        message: "Piece ajouter en stock avec succes"
+        message: messages
     })
 })
 
 // Obtenir l'etat de stock
 // Mouvement de stock
 router.get('/mouvement/:id', async (req, res) => {
-    const mouvementPiece = await StockPiece.find({ piece: req.params.id }).populate('piece')
+    const mouvementPiece = await StockPiece.find({ piece: req.params.id }).populate('piece').sort({ date_mouvement: -1 })
 
     return res.status(200).json({
         data: mouvementPiece
@@ -92,6 +100,20 @@ router.get('/stock', async (req, res) => {
         data: etatDeStock
     })
 })
+
+// Obteinr les interventions necessaitant des pieces
+router.get('/interventions', async (req, res) => {
+    const piecesFicheIntervention = await PieceFicheIntervention.find({ etat_intervention: 0 }).populate(
+        [
+            "fiche_intervention",
+            "piece"
+        ]).sort({ createdAt: 1 })
+
+    return res.status(200).json({
+        data: piecesFicheIntervention
+    })
+})
+
 
 // app.get('/pieces', async (req, res) => {
 //     try {
