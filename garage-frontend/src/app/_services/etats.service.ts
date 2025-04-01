@@ -61,7 +61,45 @@ export class EtatsService {
         }
     }
 
-    getEtatTravaux(etatTravaux: any) {}
+    getEtatTravaux(etatTravaux: any) : EtatAffichage {
+        switch (etatTravaux) {
+            case -10:
+                return {
+                    etatColor: 'info',
+                    etatString: 'En attente'
+                };
+            case 0:
+                return {
+                    etatColor: 'secondary',
+                    etatString: 'En cours'
+                };
+            case 10:
+                return {
+                    etatColor: 'warn',
+                    etatString: 'En attente de piece'
+                };
+            default:
+                return {
+                    etatColor: 'success',
+                    etatString: 'Fini'
+                };
+        }
+    }
+
+    getEtatPiece(etatPiece : any) : EtatAffichage {
+        switch (etatPiece) {
+            case 0:
+                return {
+                    etatColor: "warn",
+                    etatString: "En rupture"
+                }
+            default:
+                return {
+                    etatColor: "success",
+                    etatString: "En stock"
+                }
+        }
+    }
 
     getEtatRendezVous(etat: number): EtatAffichage {
         switch (etat) {
@@ -78,4 +116,5 @@ export class EtatsService {
         }
     }
     
+
 }
