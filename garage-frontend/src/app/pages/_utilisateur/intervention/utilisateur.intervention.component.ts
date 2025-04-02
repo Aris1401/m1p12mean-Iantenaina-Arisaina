@@ -88,12 +88,12 @@ import { DetailsFicheInterventionComponent } from '../../utils/fiche-interventio
         </div>
 
         <div class="mt-2">
-            <app-infos-travaux-pieces [travauxData]="travauxData" [piecesData]="piecesData" />
+            <app-infos-travaux-pieces [travauxLoading]="isTravauxLoading" [pieceLoading]="isPiecesLoading" [travauxData]="travauxData" [piecesData]="piecesData" />
         </div>
 
         <div class="mt-2">
             <p-card header="Devis">
-                <p-table [value]="devisData" [stripedRows]="true">
+                <p-table [value]="devisData" [stripedRows]="true" [loading]="isDevisLoading">
                     <ng-template #header>
                         <tr>
                             <th>Reference</th>
@@ -137,7 +137,7 @@ import { DetailsFicheInterventionComponent } from '../../utils/fiche-interventio
                     </div>
                 </ng-template>
 
-                <p-table [value]="assignationsData" [stripedRows]="true" [rows]="10" [paginator]="true">
+                <p-table [value]="assignationsData" [loading]="isAssignationLoading" [stripedRows]="true" [rows]="10" [paginator]="true">
                     <ng-template #header>
                         <tr>
                             <th>Nom</th>
@@ -190,6 +190,15 @@ export class UtilisateurInterventionComponent implements OnInit {
     // Fiche intervention
     isFicheInterventionVisible : boolean = false
 
+    // Loaders
+    isPiecesLoading : boolean = false
+    isTravauxLoading : boolean = false
+
+    isFactureLoading : boolean = false
+    isDevisLoading : boolean = false
+    
+    isAssignationLoading : boolean = false
+
     constructor(
         private route: ActivatedRoute,
         private messageService: MessageService,
@@ -207,11 +216,19 @@ export class UtilisateurInterventionComponent implements OnInit {
     fetchIntervetion() {
         this.isSelectionDateVisible = false;
 
+        this.isPiecesLoading = true
+        this.isTravauxLoading = true
+        this.isFactureLoading = true
+        this.isDevisLoading = true
+
         this.interventionService.getDetailsIntervention(this.currentIntervetionId()).subscribe({
             next: (response: any) => {
                 this.intervetionData = response.data;
                 this.devisData = [this.intervetionData.devis];
                 this.factureData = [this.intervetionData.facture];
+
+                this.isFactureLoading = false
+                this.isDevisLoading = false
 
                 // Obtenir la fiche d'intervetion
                 this.ficheInterventionData = this.intervetionData.fiche_intervention;
@@ -220,6 +237,8 @@ export class UtilisateurInterventionComponent implements OnInit {
                     this.ficheIntervetionService.getTravauxFicheIntervention(this.ficheInterventionData._id).subscribe({
                         next: (response: any) => {
                             this.travauxData = response.data;
+                            
+                            this.isTravauxLoading = false
                         }
                     });
 
@@ -227,6 +246,8 @@ export class UtilisateurInterventionComponent implements OnInit {
                     this.ficheIntervetionService.getPiecesFicheIntervention(this.ficheInterventionData._id).subscribe({
                         next: (response: any) => {
                             this.piecesData = response.data;
+
+                            this.isPiecesLoading = false
                         }
                     });
                 }
@@ -239,9 +260,13 @@ export class UtilisateurInterventionComponent implements OnInit {
     }
 
     fetchMecaniciensAssigner(idIntervention: any) {
+        this.isAssignationLoading = true
+
         this.interventionService.getMecaniciensAssigner(idIntervention).subscribe({
             next: (response: any) => {
                 this.assignationsData = response.data;
+
+                this.isAssignationLoading = false
             }
         });
     }

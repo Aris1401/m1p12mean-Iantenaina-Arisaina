@@ -20,7 +20,7 @@ import { MessageService } from 'primeng/api';
             </div>
 
             <div class="mt-2 w-full">
-                <p-button label="Selectionner" styleClass="w-full" type="submit" />
+                <p-button label="Selectionner" styleClass="w-full" type="submit" [loading]="isLoading" />
             </div>
         </form>
     `,
@@ -33,12 +33,16 @@ export class UtilisateurDebutInterventionComponent {
 
     selectedDate = new Date();
 
+    isLoading : boolean = false
+
     constructor (
       private intervetionService : InterventionService,
       private messageService : MessageService
     ) {}
 
     onSubmit() {
+      this.isLoading = true
+
       this.intervetionService.updateDateDebutIntervetion(this.intervetionId(), this.selectedDate).subscribe({
         next: (response : any) => {
           this.messageService.add({
@@ -46,6 +50,8 @@ export class UtilisateurDebutInterventionComponent {
             detail: response.message,
             severity: 'success'
           })
+
+          this.isLoading = false
 
           this.dateValider.emit()
         }, 
@@ -55,6 +61,8 @@ export class UtilisateurDebutInterventionComponent {
             detail: err.error.error,
             severity: 'error'
           })
+
+          this.isLoading = false
         }
       })
 

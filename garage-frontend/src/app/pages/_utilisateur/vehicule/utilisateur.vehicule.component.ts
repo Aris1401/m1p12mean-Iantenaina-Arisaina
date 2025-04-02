@@ -29,14 +29,14 @@ import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
             <div class="flex flex-col gap-1">
                 <div class="flex justify-between">
                     <h3>Mes voitures</h3>
-    
+
                     <p-button label="Ajouter une voiture" icon="pi pi-plus" (onClick)="showAddVehiculeModal()" />
                 </div>
 
                 <div class="justify-end">
                     <p-input-group>
-                        <input pInputText type='text' name="seach" id="seach" placeholder="Rechercher" [(ngModel)]="vehiculeSearch" />
-                        
+                        <input pInputText type="text" name="seach" id="seach" placeholder="Rechercher" [(ngModel)]="vehiculeSearch" />
+
                         <p-inputgroup-addon>
                             <p-button icon="pi pi-search" (onClick)="vehiculesData.filter(vehiculeSearch)" />
                         </p-inputgroup-addon>
@@ -47,6 +47,15 @@ import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
             <p-divider />
 
             <p-data-view [value]="userVehiculesData" emptyMessage="Aucune voiture trouvee" layout="grid" #vehiculesData filterBy="modele,marque,annee,immatriculation">
+                @if (isVehiculesLoading) {
+                    <ng-template #header>
+                        <div class="p-2 flex gap-2 items-center justify-center">
+                            <i class="pi pi-spin pi-spinner" style="font-size: 2rem"></i>
+                            <p>Chargement des vehicules</p>
+                        </div>
+                    </ng-template>
+                }
+
                 <ng-template #grid let-items>
                     <div class="grid grid-cols-12 gap-2">
                         @for (vehicule of items; track vehicule._id) {
@@ -254,7 +263,7 @@ import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
                     </p-fileupload>
                 </div>
 
-                <p-button type="submit" label="Ajouter vehicule" styleClass="w-full" />
+                <p-button type="submit" label="Ajouter vehicule" styleClass="w-full" [loading]="isAddVehiculeLoading" />
             </form>
         </p-dialog>
     `,
@@ -289,7 +298,10 @@ export class UtilisateurVehiculeComponent implements OnInit {
     uploadVehiculeErrors: any = {};
 
     // Recherhce
-    vehiculeSearch : string = ""
+    vehiculeSearch: string = '';
+
+    isVehiculesLoading: boolean = true;
+    isAddVehiculeLoading: boolean = false;
 
     constructor(
         private vehiculeService: VehiculeService,
@@ -312,13 +324,15 @@ export class UtilisateurVehiculeComponent implements OnInit {
     }
 
     ngOnInit(): void {
-        this.fetchVehicules()
+        this.fetchVehicules();
     }
 
     fetchVehicules() {
         this.vehiculeService.getVehicules().subscribe({
             next: (response: any) => {
                 this.userVehiculesData = response.data;
+
+                this.isVehiculesLoading = false;
             }
         });
     }
@@ -373,7 +387,9 @@ export class UtilisateurVehiculeComponent implements OnInit {
             formData.append('images[]', image, image.name);
         });
 
-        console.log(formData);
+        // console.log(formData);
+
+        this.isAddVehiculeLoading = true;
 
         this.vehiculeService.addVehicule(formData).subscribe({
             next: (response: any) => {
@@ -389,7 +405,7 @@ export class UtilisateurVehiculeComponent implements OnInit {
                 this.uploadVehiculeData.kilometrage = '0';
                 this.uploadVehiculeData.images = [];
 
-                this.uploadVehiculeErrors = {}
+                this.uploadVehiculeErrors = {};
 
                 // Affiche message resuissite
                 this.messageService.add({
@@ -397,11 +413,15 @@ export class UtilisateurVehiculeComponent implements OnInit {
                     summary: response.message
                 });
 
-                this.fetchVehicules()
+                this.fetchVehicules();
+
+                this.isAddVehiculeLoading = false;
             },
             error: (err) => {
                 this.uploadVehiculeErrors = err.error.error;
-                console.log(this.uploadVehiculeErrors);
+                // console.log(this.uploadVehiculeErrors);
+
+                this.isAddVehiculeLoading = false;
             }
         });
     }

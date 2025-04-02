@@ -10,7 +10,7 @@ import { BadgeModule } from 'primeng/badge';
     imports: [CardModule, TableModule, DividerModule, BadgeModule],
     template: `
         <p-card>
-            <p-table [value]="travauxData()" [stripedRows]="true">
+            <p-table [value]="travauxData()" [stripedRows]="true" [loading]="travauxLoading()">
                 <ng-template #caption>
                     <h3>Resumer des travaux</h3>
                 </ng-template>
@@ -39,7 +39,7 @@ import { BadgeModule } from 'primeng/badge';
 
             <p-divider />
 
-            <p-table [value]="piecesData()" [stripedRows]="true">
+            <p-table [value]="piecesData()" [stripedRows]="true" [loading]="pieceLoading()">
                 <ng-template #caption>
                     <h3>Resumer des pieces</h3>
                 </ng-template>
@@ -74,6 +74,9 @@ import { BadgeModule } from 'primeng/badge';
 export class InfosTravauxPiecesComponent {
   piecesData = input([])
   travauxData = input([])
+
+  pieceLoading = input(false)
+  travauxLoading = input(false)
 
   etatsService : EtatsService = inject(EtatsService)
 }

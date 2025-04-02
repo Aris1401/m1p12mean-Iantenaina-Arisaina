@@ -157,7 +157,7 @@ export class ManagerTableauDeBordComponent implements OnInit {
             }
         });
 
-        this.managerStatistiquesService.getRendezVous().subscribe({
+        this.managerStatistiquesService.getRendezVous(year).subscribe({
             next: (response: any) => {
                 const dataFini = response.data.fini.map((item: any) => {
                     return item.count;

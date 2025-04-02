@@ -20,7 +20,7 @@ import { RouterModule } from '@angular/router';
     imports: [CommonModule, RouterModule, TableModule, ButtonModule, DialogModule, CardModule, InputTextModule, SelectModule, FormsModule, ToastModule, DividerModule, ManagerListePiecesComponent, ManagerMouvementsPieceComponent],
     template: `
         <p-card header="Etat du stock">
-            <p-table [value]="stockPieces" #stockTable [paginator]="true" [rows]="10" [globalFilterFields]="['reference', 'designation']">
+            <p-table [value]="stockPieces" #stockTable [paginator]="true" [rows]="10" [loading]="isStockLoading" [globalFilterFields]="['reference', 'designation']">
                 <ng-template #caption>
                     <div class="flex justify-between items-center">
                         <p-button label="Ajouter en stock" icon="pi pi-plus" (onClick)="showAddStockPiece()"></p-button>
@@ -152,15 +152,15 @@ import { RouterModule } from '@angular/router';
                         }
                     </div>
 
-                    <button pButton type="submit" label="Ajouter" icon="pi pi-check" class="w-full"></button>
+                    <button pButton type="submit" label="Ajouter" icon="pi pi-check" class="w-full" [loading]="isAddStockLoading"></button>
                 </form>
 
                 <p-divider layout="vertical" />
 
                 <div class="w-1/2">
-                   <h5>Interventions en rupture de piece</h5>
+                    <h5>Interventions en rupture de piece</h5>
 
-                  <p-table [value]="interventionEnRuptureData" [paginator]="true" [rows]="4">
+                    <p-table [value]="interventionEnRuptureData" [paginator]="true" [rows]="4">
                         <ng-template #emptymessage>
                             <div class="p-3">
                                 <p>Aucun intervention en manque de piece</p>
@@ -184,7 +184,7 @@ import { RouterModule } from '@angular/router';
                                     </p>
                                 </td>
                                 <td>{{ interventionEnRupture.quantite }}</td>
-                                <td>{{ interventionEnRupture.createdAt | date: "yyyy-MM-dd HH:mm" }}</td>
+                                <td>{{ interventionEnRupture.createdAt | date: 'yyyy-MM-dd HH:mm' }}</td>
                                 <td>
                                     @if (interventionEnRupture.fiche_intervention.intervention) {
                                         <p-button label="Afficher intervention" [routerLink]="['/intervention', interventionEnRupture.fiche_intervention.intervention]" />
@@ -194,7 +194,7 @@ import { RouterModule } from '@angular/router';
                                 </td>
                             </tr>
                         </ng-template>
-                  </p-table>
+                    </p-table>
                 </div>
             </div>
         </p-dialog>
@@ -203,7 +203,7 @@ import { RouterModule } from '@angular/router';
             <app-manager-liste-pieces />
         </div>
 
-        <p-dialog header="Mouvement de piece" [(visible)]="isMouvementsPieceVisible" [style]="{ width: '50vw' }" [modal]="true">
+        <p-dialog header="Mouvement de piece" [maximizable]="true" appendTo="body" [(visible)]="isMouvementsPieceVisible" [style]="{ width: '50vw' }" [modal]="true">
             <app-manager-mouvements-piece [idPiece]="idPieceMouvement" />
         </p-dialog>
     `,
@@ -233,7 +233,11 @@ export class ManagerPiecesComponent implements OnInit {
     idPieceMouvement: string = '';
 
     // Manques de pieces
-    interventionEnRuptureData : any[] = []
+    interventionEnRuptureData: any[] = [];
+
+    // Loader
+    isStockLoading: boolean = false;
+    isAddStockLoading: boolean = false;
 
     constructor(
         private piecesService: PiecesService,
@@ -241,9 +245,13 @@ export class ManagerPiecesComponent implements OnInit {
     ) {}
 
     ngOnInit(): void {
+        this.isStockLoading = true;
+
         this.piecesService.getEtatStock().subscribe({
             next: (response: any) => {
                 this.stockPieces = response.data;
+
+                this.isStockLoading = false;
             }
         });
 
@@ -253,13 +261,13 @@ export class ManagerPiecesComponent implements OnInit {
             }
         });
 
-        this.fetchInterventionenRupture()
+        this.fetchInterventionenRupture();
     }
 
     fetchInterventionenRupture() {
-        this.piecesService.getInterventionEnRupture().subscribe((response : any) => {
-            this.interventionEnRuptureData = response.data
-        })
+        this.piecesService.getInterventionEnRupture().subscribe((response: any) => {
+            this.interventionEnRuptureData = response.data;
+        });
     }
 
     showAddStockPiece() {
@@ -268,11 +276,11 @@ export class ManagerPiecesComponent implements OnInit {
 
     onPieceSelected(idPiece: any) {
         if (!idPiece) {
-            this.isPieceSelected = false
+            this.isPieceSelected = false;
 
-            this.stockPieceData.piece = "";
-            this.stockPieceData.reference = "";
-            this.stockPieceData.designation = "";
+            this.stockPieceData.piece = '';
+            this.stockPieceData.reference = '';
+            this.stockPieceData.designation = '';
 
             return;
         }
@@ -285,6 +293,8 @@ export class ManagerPiecesComponent implements OnInit {
     }
 
     onSubmitAddStock() {
+        this.isAddStockLoading = true;
+
         this.piecesService.ajouterStock(this.stockPieceData).subscribe({
             next: (response: any) => {
                 this.isAddStockVisible = false;
@@ -312,6 +322,8 @@ export class ManagerPiecesComponent implements OnInit {
                         summary: message
                     });
                 });
+
+                this.isAddStockLoading = false;
             },
             error: (error: any) => {
                 this.messageService.add({
@@ -320,6 +332,8 @@ export class ManagerPiecesComponent implements OnInit {
                 });
 
                 this.addStockErrors = error.error.data;
+
+                this.isAddStockLoading = false;
             }
         });
     }

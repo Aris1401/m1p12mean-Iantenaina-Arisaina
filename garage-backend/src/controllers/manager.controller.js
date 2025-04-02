@@ -28,8 +28,13 @@ router.get('/stats/annees', [verifyToken, isManager], async (req, res) => {
 
 // Nombre des rendez-vous du jour
 router.get("/stats/rendez-vous", [verifyToken, isManager], async (req, res) => {
-  const rendezVousFini = await StatistiquesManager.getRendezVousCountByYearAndMonth(new Date().getFullYear(), EtatRendezVous.FINI);
-  const rendezVousEnAttente = await StatistiquesManager.getRendezVousCountByYearAndMonth(new Date().getFullYear(), EtatRendezVous.EN_ATTENTE);
+  let year = req.query.annee ?? new Date().getFullYear()
+  year = parseInt(year)
+
+  console.log(year)
+
+  const rendezVousFini = await StatistiquesManager.getRendezVousCountByYearAndMonth(year, EtatRendezVous.FINI);
+  const rendezVousEnAttente = await StatistiquesManager.getRendezVousCountByYearAndMonth(year, EtatRendezVous.EN_ATTENTE);
 
 
   return res.status(200).send({
