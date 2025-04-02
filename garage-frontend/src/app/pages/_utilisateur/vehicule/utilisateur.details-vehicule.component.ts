@@ -17,11 +17,31 @@ import { ChipModule } from 'primeng/chip';
 import { environment } from '../../../../environments/environment';
 import { UtilisateurVehiculesIntervetionsComponent } from './utilisateur.vehicules-intervetions.component';
 import { InfosVehiculeComponent } from '../../utils/vehicule/infos-vehicule.component';
+import { ToastModule } from 'primeng/toast';
+import { MessageService } from 'primeng/api';
 
 @Component({
     selector: 'app-utilisateur.details-vehicule',
-    imports: [InfosVehiculeComponent, CarouselModule, CardModule, ChipModule, DividerModule, ButtonModule, DataViewModule, DialogModule, InputTextModule, TextareaModule, FileUpload, FormsModule, CommonModule, UtilisateurVehiculesIntervetionsComponent],
+    imports: [
+        InfosVehiculeComponent,
+        ToastModule,
+        CarouselModule,
+        CardModule,
+        ChipModule,
+        DividerModule,
+        ButtonModule,
+        DataViewModule,
+        DialogModule,
+        InputTextModule,
+        TextareaModule,
+        FileUpload,
+        FormsModule,
+        CommonModule,
+        UtilisateurVehiculesIntervetionsComponent
+    ],
     template: `
+        <p-toast></p-toast>
+
         <div class="flex gap-2">
             <div class="w-2/3">
                 <!-- Details vehicule -->
@@ -39,6 +59,15 @@ import { InfosVehiculeComponent } from '../../utils/vehicule/infos-vehicule.comp
 
                     <div class="mt-3">
                         <p-data-view emptyMessage="Aucun document enregistrer" [value]="documentsVehicule" paginator [rows]="5">
+                            @if (isDocumentsLoading) {
+                                <ng-template #header>
+                                    <div class="flex p-2 items-center gap-2">
+                                        <i class="pi pi-spin pi-spinner" style="font-size: 2rem"></i>
+                                        <p>Chargement des documents du vehicule</p>
+                                    </div>
+                                </ng-template>
+                            }
+
                             <ng-template #list let-items>
                                 <div class="flex flex-col gap-2">
                                     @for (document of items; track document._id) {
@@ -84,7 +113,7 @@ import { InfosVehiculeComponent } from '../../utils/vehicule/infos-vehicule.comp
                         <p-divider />
 
                         <div class="w-full">
-                            <p-button type="submit" label="Enregistrer document" styleClass="w-full" />
+                            <p-button type="submit" label="Enregistrer document" styleClass="w-full" [loading]="isAddDocumentLoading" />
                         </div>
                     </form>
                 </p-dialog>
@@ -113,10 +142,14 @@ export class UtilisateurDetailsVehiculeComponent implements OnInit {
         document: ''
     };
 
+    isDocumentsLoading: boolean = true;
+    isAddDocumentLoading : boolean = false
+
     constructor(
         private router: Router,
         private route: ActivatedRoute,
-        private vehiculeService: VehiculeService
+        private vehiculeService: VehiculeService,
+        private messageService : MessageService
     ) {}
 
     ngOnInit(): void {
@@ -134,9 +167,13 @@ export class UtilisateurDetailsVehiculeComponent implements OnInit {
     }
 
     updateDocuments() {
+        this.isDocumentsLoading = true;
+
         this.vehiculeService.getDocumentVehicule(this.currentVehicule._id).subscribe({
             next: (response: any) => {
                 this.documentsVehicule = response.data;
+
+                this.isDocumentsLoading = false;
             }
         });
     }
@@ -150,6 +187,8 @@ export class UtilisateurDetailsVehiculeComponent implements OnInit {
     }
 
     onSubmitUploadDocument() {
+        this.isAddDocumentLoading = true
+
         // this.isDocumentsModalVisible = false
         const formData = new FormData();
         formData.append('titre', this.documentUploadData.titre);
@@ -157,7 +196,7 @@ export class UtilisateurDetailsVehiculeComponent implements OnInit {
         formData.append('document', this.documentUploadData.document);
 
         this.vehiculeService.addDocumentVehicule(this.currentVehicule._id, formData).subscribe({
-            next: (response) => {
+            next: (response : any) => {
                 this.isDocumentsModalVisible = false;
 
                 this.documentUploadData = {
@@ -166,13 +205,29 @@ export class UtilisateurDetailsVehiculeComponent implements OnInit {
                     document: ''
                 };
 
+                this.messageService.add({
+                    summary: "Ajout document",
+                    detail: response.message,
+                    severity: 'success'
+                })
+
+                this.isAddDocumentLoading = false
+
                 this.updateDocuments();
             },
-            error: (err) => {}
+            error: (err) => {
+                this.messageService.add({
+                    summary: "Erreur",
+                    detail: err.error.error,
+                    severity: "error"
+                })
+
+                this.isAddDocumentLoading = false
+            }
         });
     }
 
-    getDocumentDowloadLink(documentId : string) {
-        return environment.apiUrl + "vehicules/" + this.currentVehicule._id + "/documents/" + documentId
+    getDocumentDowloadLink(documentId: string) {
+        return environment.apiUrl + 'vehicules/' + this.currentVehicule._id + '/documents/' + documentId;
     }
 }

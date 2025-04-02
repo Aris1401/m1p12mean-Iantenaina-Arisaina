@@ -51,7 +51,7 @@ import { DetailsFicheInterventionComponent } from '../../utils/fiche-interventio
                             <h5 class="m-0">Facture</h5>
                         </div>
                     </ng-template>
-    
+
                     <ng-template #content>
                         <p-table [value]="factureData" [stripedRows]="true">
                             <ng-template #header>
@@ -64,7 +64,7 @@ import { DetailsFicheInterventionComponent } from '../../utils/fiche-interventio
                                     <th style="width: 20%"></th>
                                 </tr>
                             </ng-template>
-    
+
                             <ng-template #body let-facture>
                                 <tr>
                                     <td class="font-bold">{{ facture?.reference }}</td>
@@ -102,7 +102,7 @@ import { DetailsFicheInterventionComponent } from '../../utils/fiche-interventio
 
             <app-infos-generales-intervention [interventionData]="interventionData" [ficheInterventionData]="ficheInterventionData" (onClickFicheIntervention)="onShowDetailsFicheIntervention($event)" />
 
-            <app-infos-travaux-pieces [travauxData]="travauxData" [piecesData]="piecesData" />
+            <app-infos-travaux-pieces [pieceLoading]="isPiecesLoading" [travauxLoading]="isTravauxLoading" [travauxData]="travauxData" [piecesData]="piecesData" />
 
             <p-card>
                 <ng-template #title>
@@ -110,13 +110,13 @@ import { DetailsFicheInterventionComponent } from '../../utils/fiche-interventio
                         <h5 class="m-0">Liste des devis</h5>
 
                         @if (interventionData?.etat_intervention != 100) {
-                            <p-button label="Generer devis" (onClick)="onGenererDevis()" />
+                            <p-button label="Generer devis" (onClick)="onGenererDevis()" [loading]="isGenererDevisLoading" />
                         }
                     </div>
                 </ng-template>
 
                 <ng-template #content>
-                    <p-table [value]="devisData" [stripedRows]="true">
+                    <p-table [value]="devisData" [stripedRows]="true" [loading]="isDevisLoading">
                         <ng-template #header>
                             <tr>
                                 <th>Reference</th>
@@ -160,7 +160,7 @@ import { DetailsFicheInterventionComponent } from '../../utils/fiche-interventio
                     </div>
                 </ng-template>
 
-                <p-table [value]="assignationsData" [stripedRows]="true" [rows]="10" [paginator]="true">
+                <p-table [value]="assignationsData" [stripedRows]="true" [rows]="10" [paginator]="true" [loading]="isMecaniciensAssignerLoading">
                     <ng-template #header>
                         <tr>
                             <th>Nom</th>
@@ -196,14 +196,14 @@ import { DetailsFicheInterventionComponent } from '../../utils/fiche-interventio
                     <textarea id="observation" name="observation" [(ngModel)]="observation" pTextarea rows="8" class="w-full"></textarea>
                 </div>
 
-                <p-button label="Generer facture" styleClass="w-full" type="submit" />
+                <p-button label="Generer facture" styleClass="w-full" type="submit" [loading]="isGenererFactureLoading" />
             </form>
         </p-dialog>
 
         <!-- Details fihe intervention -->
-         <p-dialog [(visible)]="isDetailsFicheIntervetionVisible" header="Details fiche intervetion" [style]="{  width: '50rem' }" [modal]="true">
+        <p-dialog [(visible)]="isDetailsFicheIntervetionVisible" header="Details fiche intervetion" [style]="{ width: '50rem' }" [modal]="true">
             <app-details-fiche-intervention [ficheInterventionId]="ficheInterventionData?._id" />
-         </p-dialog>
+        </p-dialog>
     `,
     styles: ``
 })
@@ -227,10 +227,21 @@ export class ManagerDetailsInterventionComponent {
     observation = '';
 
     // Details fiche intervention
-    isDetailsFicheIntervetionVisible : boolean = false
+    isDetailsFicheIntervetionVisible: boolean = false;
 
     etatsService: EtatsService = inject(EtatsService);
-    factureService : FactureService = inject(FactureService)
+    factureService: FactureService = inject(FactureService);
+
+    // Loader
+    isPiecesLoading: boolean = false;
+    isTravauxLoading: boolean = false;
+
+    isDevisLoading: boolean = false;
+
+    isMecaniciensAssignerLoading: boolean = false;
+
+    isGenererDevisLoading: boolean = false;
+    isGenererFactureLoading: boolean = false;
 
     constructor(
         private route: ActivatedRoute,
@@ -249,23 +260,32 @@ export class ManagerDetailsInterventionComponent {
     }
 
     fetchIntervetion(_intervetionId: any) {
+        this.isDevisLoading = true;
+
         this.intervetionService.getDetailsIntervention(_intervetionId).subscribe({
             next: (response: any) => {
                 this.interventionData = response.data;
 
+                this.isDevisLoading = false;
+
                 // Obtenir les travaux et pieces
                 if (this.interventionData.fiche_intervention) {
-                    this.ficheInterventionData = this.interventionData.fiche_intervention
+                    this.ficheInterventionData = this.interventionData.fiche_intervention;
+
+                    this.isPiecesLoading = true;
+                    this.isTravauxLoading = true;
 
                     this.ficheIntervetionService.getTravauxFicheIntervention(this.interventionData.fiche_intervention._id).subscribe({
                         next: (response: any) => {
                             this.travauxData = response.data;
+                            this.isTravauxLoading = false;
                         }
                     });
 
                     this.ficheIntervetionService.getPiecesFicheIntervention(this.interventionData.fiche_intervention._id).subscribe({
                         next: (response: any) => {
                             this.piecesData = response.data;
+                            this.isPiecesLoading = false;
                         }
                     });
                 }
@@ -276,16 +296,20 @@ export class ManagerDetailsInterventionComponent {
                 }
 
                 if (this.interventionData.facture) {
-                    this.factureData = [this.interventionData.facture]
+                    this.factureData = [this.interventionData.facture];
                 }
             }
         });
     }
 
     fetchMecaniciensAssigner(idIntervention: any) {
+        this.isMecaniciensAssignerLoading = true;
+
         this.intervetionService.getMecaniciensAssigner(idIntervention).subscribe({
             next: (response: any) => {
                 this.assignationsData = response.data;
+
+                this.isMecaniciensAssignerLoading = false;
             }
         });
     }
@@ -293,8 +317,12 @@ export class ManagerDetailsInterventionComponent {
     onGenererDevis() {
         if (!this.interventionData) return;
 
+        this.isGenererDevisLoading = true;
+
         this.intervetionService.genererDevis(this.interventionData._id).subscribe({
             next: (response: any) => {
+                this.isGenererDevisLoading = false;
+
                 this.fetchIntervetion(this.interventionData._id);
 
                 this.messageService.add({
@@ -304,6 +332,8 @@ export class ManagerDetailsInterventionComponent {
                 });
             },
             error: (err) => {
+                this.isGenererDevisLoading = false;
+
                 this.messageService.add({
                     summary: 'Erreur',
                     detail: err.error.error,
@@ -316,8 +346,12 @@ export class ManagerDetailsInterventionComponent {
     onGenererFacture() {
         if (!this.interventionData) return;
 
+        this.isGenererFactureLoading = true;
+
         this.intervetionService.genererFacture(this.interventionData._id, this.observation).subscribe({
             next: (response: any) => {
+                this.isGenererFactureLoading = false;
+
                 this.fetchIntervetion(this.interventionData._id);
 
                 this.isGenererFactureVisible = false;
@@ -329,6 +363,8 @@ export class ManagerDetailsInterventionComponent {
                 });
             },
             error: (err) => {
+                this.isGenererFactureLoading = false;
+
                 this.messageService.add({
                     summary: 'Erreur',
                     detail: err.error.error,
@@ -339,6 +375,11 @@ export class ManagerDetailsInterventionComponent {
     }
 
     onDesaffecterMecanicien(idIntervetion: any, idMecanicien: any) {
+        this.messageService.add({
+            summary: "Desaffectation",
+            detail: "En cours de desaffectation"
+        })
+
         this.intervetionService.desaffecterMecanicien(idIntervetion, idMecanicien).subscribe({
             next: (response: any) => {
                 this.messageService.add({
@@ -360,6 +401,11 @@ export class ManagerDetailsInterventionComponent {
     }
 
     onAssignerMecanicien(idMecanicien: any) {
+        this.messageService.add({
+            summary: "Affectation",
+            detail: "En cours d'assignation"
+        })
+
         this.intervetionService.assignerMecanicien(this.interventionData._id, idMecanicien).subscribe({
             next: (response: any) => {
                 this.messageService.add({
@@ -382,7 +428,7 @@ export class ManagerDetailsInterventionComponent {
         });
     }
 
-    onShowDetailsFicheIntervention(ficheIntervention : any) {
-        this.isDetailsFicheIntervetionVisible = true
+    onShowDetailsFicheIntervention(ficheIntervention: any) {
+        this.isDetailsFicheIntervetionVisible = true;
     }
 }

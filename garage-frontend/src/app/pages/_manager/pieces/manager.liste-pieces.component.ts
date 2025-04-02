@@ -16,7 +16,7 @@ import { ToastModule } from 'primeng/toast';
         <p-toast></p-toast>
 
         <p-card header="Liste des pieces">
-            <p-table [value]="pieces" #piecesTable [paginator]="true" [rows]="10" [globalFilterFields]="['reference', 'designation']">
+            <p-table [value]="pieces" #piecesTable [paginator]="true" [rows]="10" [loading]="isLoading" [globalFilterFields]="['reference', 'designation']">
                 <ng-template #caption>
                     <div class="flex justify-between items-center">
                         <div class="flex">
@@ -45,7 +45,7 @@ import { ToastModule } from 'primeng/toast';
             </p-table>
         </p-card>
 
-        <p-dialog header="Modifier piece" [modal]="true" [responsive]="true" [style]="{ width: '30rem' }" [(visible)]="isModifyPieceVisible" >
+        <p-dialog header="Modifier piece" [modal]="true" [responsive]="true" [style]="{ width: '30rem' }" [(visible)]="isModifyPieceVisible">
             <form class="flex flex-col justify-between items-center gap-2" (submit)="onSubmitModifyPiece()">
                 <div class="w-full">
                     <label for="reference" class="block">Reference</label>
@@ -57,7 +57,7 @@ import { ToastModule } from 'primeng/toast';
                     <input type="text" name="designation" id="designation" pInputText class="w-full" [(ngModel)]="pieceData.designation" [class.p-invalid]="modificationErrors.designation" [class.p-dirty]="modificationErrors.designation" />
                 </div>
 
-                <p-button type="submit" label="Modifier" class="w-full"></p-button>
+                <p-button type="submit" label="Modifier" class="w-full" [loading]="isModifierLoading"></p-button>
             </form>
         </p-dialog>
     `,
@@ -66,15 +66,18 @@ import { ToastModule } from 'primeng/toast';
 export class ManagerListePiecesComponent implements OnInit {
     pieces: any[] = [];
 
-    pieceData : any = {
+    pieceData: any = {
         reference: '',
         designation: '',
-        id: ""
+        id: ''
     };
 
     isModifyPieceVisible: boolean = false;
 
-    modificationErrors : any = {}
+    modificationErrors: any = {};
+
+    isLoading: boolean = false;
+    isModifierLoading: boolean = false;
 
     constructor(
         private peiceService: PiecesService,
@@ -82,32 +85,42 @@ export class ManagerListePiecesComponent implements OnInit {
     ) {}
 
     ngOnInit(): void {
+        this.isLoading = true;
+
         this.peiceService.getPieces().subscribe({
             next: (response: any) => {
                 this.pieces = response.data;
+
+                this.isLoading = false;
             }
         });
     }
 
-    onModifierPiece(piece : any) {
-      this.pieceData.reference = piece.reference;
-      this.pieceData.designation = piece.designation;
-      this.pieceData.id = piece._id;
+    onModifierPiece(piece: any) {
+        this.pieceData.reference = piece.reference;
+        this.pieceData.designation = piece.designation;
+        this.pieceData.id = piece._id;
 
-      this.isModifyPieceVisible = true
+        this.isModifyPieceVisible = true;
     }
 
     onSubmitModifyPiece() {
-      this.peiceService.modifierPiece(this.pieceData).subscribe({
-        next: (response: any) => {
-          this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Piece modifie avec succes' });
-          this.isModifyPieceVisible = false;
-          this.modificationErrors = {}
-        }, error: (err) => {
-          this.messageService.add({ severity: 'error', summary: 'Error', detail: err.error.error });
+        this.isModifierLoading = true;
 
-          this.modificationErrors = err.error.data;
-        }
-      });
+        this.peiceService.modifierPiece(this.pieceData).subscribe({
+            next: (response: any) => {
+                this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Piece modifie avec succes' });
+                this.isModifyPieceVisible = false;
+                this.isModifierLoading = false
+                this.modificationErrors = {};
+            },
+            error: (err) => {
+                this.messageService.add({ severity: 'error', summary: 'Error', detail: err.error.error });
+
+                this.isModifierLoading = false
+
+                this.modificationErrors = err.error.data;
+            }
+        });
     }
 }

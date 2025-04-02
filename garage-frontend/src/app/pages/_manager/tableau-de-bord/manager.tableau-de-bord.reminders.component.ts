@@ -32,6 +32,7 @@ import { InterventionService } from '../../../_services/intervention/interventio
                             #rendezVousTable
                             [paginator]="true"
                             [rows]="5"
+                            [loading]="isRendezVousLoading"
                             [globalFilterFields]="[
                                 'demande_rendez_vous.titre',
                                 'demande_rendez_vous.description',
@@ -161,7 +162,7 @@ import { InterventionService } from '../../../_services/intervention/interventio
 
                 <div class="w-full">
                     <p-card header="Liste des interventions">
-                        <p-table [value]="interventionData" [paginator]="true" [rows]="5">
+                        <p-table [value]="interventionData" [paginator]="true" [rows]="5" [loading]="isInterventionsLoading">
                             <ng-template #emptymessage>
                                 <div class="p-3">
                                     <p>Aucune intervention trouvee</p>
@@ -273,6 +274,10 @@ export class ManagerTableauDeBordRemindersComponent {
 
     etatsService: EtatsService = inject(EtatsService);
 
+    // Loaders
+    isInterventionsLoading : boolean = false
+    isRendezVousLoading : boolean = false
+
     constructor(
         private rendezVousService: RendezVousService,
         private interventionService: InterventionService,
@@ -283,14 +288,22 @@ export class ManagerTableauDeBordRemindersComponent {
     }
 
     fetchRendezVousJour() {
+        this.isRendezVousLoading = true
+
         this.rendezVousService.getRendezVousDuJour().subscribe((response: any) => {
             this.rendezVousJourData = response.data;
+
+            this.isRendezVousLoading = false
         });
     }
 
     fetchInterventionJour() {
+        this.isInterventionsLoading = true
+
         this.interventionService.getInterventionsDuJour().subscribe((response: any) => {
             this.interventionData = response.data;
+
+            this.isInterventionsLoading = false
         });
     }
 
