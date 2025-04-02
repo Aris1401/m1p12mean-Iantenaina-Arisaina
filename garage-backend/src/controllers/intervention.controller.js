@@ -344,7 +344,7 @@ router.get('/', async (req, res) => {
             return res.status(404).json({ message: 'Intervention non trouvée' });
         }
         const ficheIntervention = await FicheIntervention.findOne({ intervention: id })
-        .populate('type_intervention') 
+        .populate('type_intervention')
         .populate('type_evenement'); 
       
             console.log('ID de l\'intervention :', id);
