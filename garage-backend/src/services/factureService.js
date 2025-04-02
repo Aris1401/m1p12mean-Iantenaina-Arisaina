@@ -259,8 +259,7 @@ class FactureService {
 
         const filePath = path.join(downloadDir, devisFilename + ".pdf");
         const stream = doc.pipe(fs.createWriteStream(filePath));
-    
-        // Return a promise that resolves when the file is fully written
+
         return new Promise((resolve, reject) => {
             stream.on('finish', () => {
                 resolve({
