@@ -24,7 +24,8 @@ const TypeIntervention = require('../model/Intervention/FicheIntervention/typeIn
 const TypeEvenement = require('../model/Intervention/FicheIntervention/typeEvenement');
 const StockPiece = require('../model/Piece/stockPiece');
 const DevisPiece = require('../model/Intervention/Devis/devisPiece');
-const FicheIntervention = require('../model/Intervention/FicheIntervention/ficheIntervetion')
+const FicheIntervention = require('../model/Intervention/FicheIntervention/ficheIntervetion');
+const PieceFicheIntervention = require('../model/Intervention/FicheIntervention/pieceFicheIntervention');
 
 
 // Obtenir les interventions du jour
@@ -333,6 +334,8 @@ router.get('/', async (req, res) => {
         const typeInterventions = await TypeIntervention.find(); 
         const typeEvenements = await TypeEvenement.find(); 
         const travauxFicheIntervention = await TravauxFicheIntervention.find();
+        
+
 
         const intervention = await Intervention.findById(id)
             .populate('utilisateur').populate('vehicule').populate('fiche_intervention').populate('devis').populate('facture');             
@@ -340,6 +343,22 @@ router.get('/', async (req, res) => {
         {
             return res.status(404).json({ message: 'Intervention non trouvée' });
         }
+        const ficheIntervention = await FicheIntervention.findOne({ intervention: id })
+        .populate('type_intervention') 
+        .populate('type_evenement'); 
+      
+            console.log('ID de l\'intervention :', id);
+
+        
+            const travauxFicheInterventionByFiche = await TravauxFicheIntervention.find({ fiche_intervention: ficheIntervention._id }) || [];
+
+            const pieceFicheInterventionByFiche = await PieceFicheIntervention.find({ fiche_intervention: ficheIntervention._id })
+            .populate('piece')
+            || [];
+            console.log(pieceFicheInterventionByFiche);
+          
+          
+        console.log(travauxFicheInterventionByFiche);
 
         res.json({
             data: {
@@ -349,6 +368,9 @@ router.get('/', async (req, res) => {
                 typeInterventions,  
                 typeEvenements,     
                 travauxFicheIntervention,
+                ficheIntervention,
+                travauxFicheInterventionByFiche,
+                pieceFicheInterventionByFiche
             }
         });
 });
