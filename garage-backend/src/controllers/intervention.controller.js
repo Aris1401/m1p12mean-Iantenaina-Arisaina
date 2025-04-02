@@ -380,9 +380,9 @@ router.get('/stock/:idPiece', async (req, res) => {
         console.log(stockDispo +piece.designation + totalEntree , totalSortie);
 
         const devisPiece = await DevisPiece.findOne({ piece: piece._id });
-        if (!devisPiece) {
-            return res.status(404).json({ message: 'DevisPiece non trouvée' });
-        }
+        // if (!devisPiece) {
+        //     return res.status(404).json({ message: 'DevisPiece non trouvée' });
+        // }
 
         res.status(200).json({
             piece: piece,
