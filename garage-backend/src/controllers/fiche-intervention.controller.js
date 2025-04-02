@@ -167,7 +167,7 @@ router.delete('/:id', [verifyToken], async (req, res) => {
 
 //modification fiche-intervention
 
-router.put('/update-save/:id', verifyToken, async (req, res) => {
+router.put('/update-save/:id', [verifyToken], async (req, res) => {
     const { description, type_intervention, type_evenement, autre_evenement, documents, pieces, travaux, etat_intervention } = req.body;
 
     if (!description || !type_intervention || !type_evenement) {
