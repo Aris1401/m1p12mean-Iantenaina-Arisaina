@@ -7,12 +7,13 @@ import { CommonModule } from '@angular/common';
 import { IconField } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
+import { BadgeModule } from 'primeng/badge';
 
 @Component({
     selector: 'app-manager-mouvements-piece',
-    imports: [TableModule, DialogModule, ChipModule, CommonModule, IconField, InputIconModule, InputTextModule],
+    imports: [TableModule, DialogModule, ChipModule, CommonModule, IconField, InputIconModule, InputTextModule, BadgeModule],
     template: `
-        <p-table [value]="mouvementsPiece" #mouvementTable [paginator]="true" [rows]="10" [globalFilterFields]="['date_mouvement']">
+        <p-table [value]="mouvementsPiece" [loading]="isLoading" #mouvementTable [paginator]="true" [rows]="10" [globalFilterFields]="['date_mouvement']">
             <ng-template #caption>
                 <div class="flex justify-end">
                     <p-iconField>
@@ -30,6 +31,7 @@ import { InputTextModule } from 'primeng/inputtext';
                     <th>Entree</th>
                     <th>Sortie</th>
                     <th>Prix Unitaire</th>
+                    <th></th>
                 </tr>
             </ng-template>
             <ng-template pTemplate="body" let-piece>
@@ -40,6 +42,15 @@ import { InputTextModule } from 'primeng/inputtext';
                     <td>{{ piece.entree }}</td>
                     <td>{{ piece.sortie }}</td>
                     <td>{{ piece.prix_unitaire }} Ar</td>
+                    <td>
+                        @if (piece.entree > 0) {
+                            <p-badge severity="success" value="Entree" />
+                        } 
+
+                        @if (piece.sortie) {
+                            <p-badge severity="warn" value="Sortie" />
+                        }
+                    </td>
                 </tr>
             </ng-template>
         </p-table>
@@ -51,11 +62,17 @@ export class ManagerMouvementsPieceComponent {
 
     mouvementsPiece: any[] = [];
 
+    isLoading : boolean = false
+
     constructor(private pieceService: PiecesService) {
         effect(() => {
             if (this.idPiece().length != 0) {
+                this.isLoading = true
+
                 this.pieceService.getMouvementStock(this.idPiece()).subscribe((response: any) => {
                     this.mouvementsPiece = response.data;
+
+                    this.isLoading = false
                 });
             }
         });

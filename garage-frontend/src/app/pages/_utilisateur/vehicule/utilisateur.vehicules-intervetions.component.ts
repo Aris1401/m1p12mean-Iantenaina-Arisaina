@@ -16,6 +16,13 @@ import { BadgeModule } from 'primeng/badge';
     selector: 'app-utilisateur-vehicules-intervetions',
     imports: [CardModule, TableModule, BadgeModule, ButtonModule, CommonModule, IconFieldModule, InputIconModule, InputTextModule, RouterModule, ChipModule],
     template: `
+        @if (isCourantLoading) {
+            <div class="p-2 flex items-center gap-2">
+                <i class="pi pi-spin pi-spinner" style="font-size: 2rem"></i>
+                <p>Recherche d'interventio courante</p>
+            </div>
+        }
+
         @if (interventionCourante) {
             <p-card header="Intervention courante">
                 <div class="flex justify-between items-center">
@@ -40,7 +47,7 @@ import { BadgeModule } from 'primeng/badge';
 
         <div class="mt-2">
             <p-card header="Liste des interventions">
-                <p-table [value]="interventions" #interventionTable [paginator]="true" [rows]="10" [rowsPerPageOptions]="[5, 10, 20]" [globalFilterFields]="['createdAt', 'date_debut', 'devis.reference', 'facture.reference']">
+                <p-table [value]="interventions" [loading]="isLoading" #interventionTable [paginator]="true" [rows]="10" [rowsPerPageOptions]="[5, 10, 20]" [globalFilterFields]="['createdAt', 'date_debut', 'devis.reference', 'facture.reference']">
                     <ng-template #caption>
                         <div class="flex justify-end">
                             <p-iconField>
@@ -92,18 +99,25 @@ export class UtilisateurVehiculesIntervetionsComponent implements OnInit {
 
     etatsService = inject(EtatsService)
 
+    isLoading : boolean = true
+    isCourantLoading : boolean = true
+
     constructor(private interventionService: InterventionService) {}
 
     ngOnInit(): void {
         this.interventionService.getIntervetionVehicule(this.vehiculeId()).subscribe({
             next: (response: any) => {
                 this.interventions = response.data;
+
+                this.isLoading = false
             }
         });
 
         this.interventionService.getIntervetionVehiculeCourante(this.vehiculeId()).subscribe({
           next: (response : any) => {
             this.interventionCourante = response.data
+
+            this.isCourantLoading = false
           }
         })
     }

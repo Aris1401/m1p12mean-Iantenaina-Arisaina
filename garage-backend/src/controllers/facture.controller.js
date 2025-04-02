@@ -10,20 +10,20 @@ const { verifyToken } = require('../middlewares/jwt')
 
 // Telecharger pdf facture
 router.get('/:factureId/download', async (req, res) => {
-    const { filename, stream } = await FactureService.genererPDFFacture(req.params.factureId)
+    const { filename, path } = await FactureService.genererPDFFacture(req.params.factureId)
 
     res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
 
-    return res.download(stream.path)
+    return res.download(path)
 })
 
 // Telecharger pdf facture
 router.get('/devis/:devisId/download', async (req, res) => {
-    const { filename, stream } = await FactureService.generatePDFDevis(req.params.devisId)
+    const { filename, path } = await FactureService.generatePDFDevis(req.params.devisId)
 
     res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
 
-    return res.download(stream.path)
+    return res.download(path)
 })
 
 // Liste des factures
