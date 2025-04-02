@@ -16,10 +16,11 @@ import { DialogModule } from 'primeng/dialog';
 import { UtilisateurDebutInterventionComponent } from './utilisateur.debut-intervention.component';
 import { InfosTravauxPiecesComponent } from '../../utils/intervention/infos-travaux-pieces.component';
 import { FactureService } from '../../../_services/facture/facture.service';
+import { DetailsFicheInterventionComponent } from '../../utils/fiche-intervention/details-fiche-intervention.component';
 
 @Component({
     selector: 'app-utilisateur.intervention',
-    imports: [UtilisateurDebutInterventionComponent, InfosTravauxPiecesComponent, ChipModule, CardModule, ToastModule, BadgeModule, TableModule, DividerModule, ButtonModule, CommonModule, DialogModule],
+    imports: [UtilisateurDebutInterventionComponent, InfosTravauxPiecesComponent, ChipModule, CardModule, ToastModule, BadgeModule, TableModule, DividerModule, ButtonModule, CommonModule, DialogModule, DetailsFicheInterventionComponent],
     template: `
         <p-toast></p-toast>
 
@@ -81,18 +82,18 @@ import { FactureService } from '../../../_services/facture/facture.service';
                 </div>
 
                 <div class="mt-3">
-                    <p-button label="Details fiche intervention" />
+                    <p-button label="Details fiche intervention" (onClick)="onAfficherDetailsFicheIntervention()" />
                 </div>
             </p-card>
         </div>
 
         <div class="mt-2">
-            <app-infos-travaux-pieces [travauxData]="travauxData" [piecesData]="piecesData" />
+            <app-infos-travaux-pieces [travauxLoading]="isTravauxLoading" [pieceLoading]="isPiecesLoading" [travauxData]="travauxData" [piecesData]="piecesData" />
         </div>
 
         <div class="mt-2">
             <p-card header="Devis">
-                <p-table [value]="devisData" [stripedRows]="true">
+                <p-table [value]="devisData" [stripedRows]="true" [loading]="isDevisLoading">
                     <ng-template #header>
                         <tr>
                             <th>Reference</th>
@@ -136,7 +137,7 @@ import { FactureService } from '../../../_services/facture/facture.service';
                     </div>
                 </ng-template>
 
-                <p-table [value]="assignationsData" [stripedRows]="true" [rows]="10" [paginator]="true">
+                <p-table [value]="assignationsData" [loading]="isAssignationLoading" [stripedRows]="true" [rows]="10" [paginator]="true">
                     <ng-template #header>
                         <tr>
                             <th>Nom</th>
@@ -160,6 +161,11 @@ import { FactureService } from '../../../_services/facture/facture.service';
         <p-dialog [(visible)]="isSelectionDateVisible" [modal]="true" header="Selectionner une date de debut d'intervetion" style="width: 30rem">
             <app-utilisateur-debut-intervention style="width: 100%;" [intervetionId]="currentIntervetionId()" (dateValider)="onDateValider()" />
         </p-dialog>
+
+        <!-- Details fiche intervention -->
+         <p-dialog [(visible)]="isFicheInterventionVisible" [modal]="true" header="Details fiche intervention" [style]="{width: '40rem'}">
+            <app-details-fiche-intervention [ficheInterventionId]="ficheInterventionData?._id" />
+         </p-dialog>
     `,
     styles: ``
 })
@@ -181,6 +187,18 @@ export class UtilisateurInterventionComponent implements OnInit {
 
     isSelectionDateVisible: boolean = false;
 
+    // Fiche intervention
+    isFicheInterventionVisible : boolean = false
+
+    // Loaders
+    isPiecesLoading : boolean = false
+    isTravauxLoading : boolean = false
+
+    isFactureLoading : boolean = false
+    isDevisLoading : boolean = false
+    
+    isAssignationLoading : boolean = false
+
     constructor(
         private route: ActivatedRoute,
         private messageService: MessageService,
@@ -198,11 +216,19 @@ export class UtilisateurInterventionComponent implements OnInit {
     fetchIntervetion() {
         this.isSelectionDateVisible = false;
 
+        this.isPiecesLoading = true
+        this.isTravauxLoading = true
+        this.isFactureLoading = true
+        this.isDevisLoading = true
+
         this.interventionService.getDetailsIntervention(this.currentIntervetionId()).subscribe({
             next: (response: any) => {
                 this.intervetionData = response.data;
                 this.devisData = [this.intervetionData.devis];
                 this.factureData = [this.intervetionData.facture];
+
+                this.isFactureLoading = false
+                this.isDevisLoading = false
 
                 // Obtenir la fiche d'intervetion
                 this.ficheInterventionData = this.intervetionData.fiche_intervention;
@@ -211,6 +237,8 @@ export class UtilisateurInterventionComponent implements OnInit {
                     this.ficheIntervetionService.getTravauxFicheIntervention(this.ficheInterventionData._id).subscribe({
                         next: (response: any) => {
                             this.travauxData = response.data;
+                            
+                            this.isTravauxLoading = false
                         }
                     });
 
@@ -218,6 +246,8 @@ export class UtilisateurInterventionComponent implements OnInit {
                     this.ficheIntervetionService.getPiecesFicheIntervention(this.ficheInterventionData._id).subscribe({
                         next: (response: any) => {
                             this.piecesData = response.data;
+
+                            this.isPiecesLoading = false
                         }
                     });
                 }
@@ -230,9 +260,13 @@ export class UtilisateurInterventionComponent implements OnInit {
     }
 
     fetchMecaniciensAssigner(idIntervention: any) {
+        this.isAssignationLoading = true
+
         this.interventionService.getMecaniciensAssigner(idIntervention).subscribe({
             next: (response: any) => {
                 this.assignationsData = response.data;
+
+                this.isAssignationLoading = false
             }
         });
     }
@@ -244,7 +278,7 @@ export class UtilisateurInterventionComponent implements OnInit {
     }
 
     checkDebutSelecionVisibility() {
-        if (!this.intervetionData || !(this.devisData || this.devisData[0])) return;
+        if (!this.intervetionData || !this.devisData || !this.devisData[0]) return;
 
         if (this.intervetionData.etat_intervention == -10 && this.devisData[0].etat == 10 && !this.intervetionData.date_debut) {
             this.isSelectionDateVisible = true;
@@ -295,5 +329,9 @@ export class UtilisateurInterventionComponent implements OnInit {
 
     onDateValider() {
         this.fetchIntervetion();
+    }
+
+    onAfficherDetailsFicheIntervention() {
+        this.isFicheInterventionVisible = true
     }
 }

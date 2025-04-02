@@ -117,7 +117,7 @@ import { MessageModule } from 'primeng/message';
                                     <p-message severity="success" icon="pi pi-check-circle" styleClass="mb-2 mt-4" closable (onClose)="onSuccessMessageClosed()">Compte creer avec succes.</p-message>
                                 }
 
-                                <p-button label="S'inscrire" styleClass="w-full mt-4" type="submit"></p-button>
+                                <p-button label="S'inscrire" styleClass="w-full mt-4" type="submit" [loading]="isLoading"></p-button>
 
                                 <p class="text-center mt-2">Vous avez deja un compte? <a routerLink="/login" class="underline">Se connecter</a></p>
                             </form>
@@ -144,16 +144,22 @@ export class SignUp {
     signupInvalid: boolean = false;
     signupSuccessfull: boolean = false;
 
+    isLoading : boolean = false
+
     constructor(
         private authService: AuthentificationService,
         private router: Router
     ) {}
 
     onSignup() {
+        this.isLoading = true
+
         this.authService.register(this.userData).subscribe({
             next: (response) => {
                 this.signupSuccessfull = true;
                 this.signupInvalid = false;
+
+                this.isLoading = false
 
                 this.userData = {
                     nom: '',
@@ -169,7 +175,8 @@ export class SignUp {
                 this.signupInvalid = true;
 
                 this.signupErrors = err.error.error;
-                console.log(this.signupErrors)
+
+                this.isLoading = false
             }
         });
     }

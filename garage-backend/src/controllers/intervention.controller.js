@@ -53,7 +53,7 @@ router.get('/', [verifyToken], async (req, res) => {
 
 // Obtenir l'intervetion courante d'un vehicule
 router.get('/vehicule/:vehiculeId/actif', [verifyToken], async (req, res) => {
-    const interventions = await Intervention.find({ vehicule: req.params.vehiculeId, etat_intervention: EtatIntervention.EN_COURS }).sort({ createdAt: -1 }).limit(1)
+    const interventions = await Intervention.find({ vehicule: req.params.vehiculeId, etat_intervention: EtatIntervention.EN_COURS }).populate("facture").populate("devis").sort({ createdAt: -1 }).limit(1)
 
     return res.status(200).json({
         data: interventions[0] ?? null
@@ -62,7 +62,7 @@ router.get('/vehicule/:vehiculeId/actif', [verifyToken], async (req, res) => {
 
 // Obtenir la liste des intervetions d'un vehicule
 router.get('/vehicule/:vehiculeId', [verifyToken], async (req, res) => {
-    const interventions = await Intervention.find({ vehicule: req.params.vehiculeId }).sort({ createdAt: -1 })
+    const interventions = await Intervention.find({ vehicule: req.params.vehiculeId }).populate("facture").populate("devis").sort({ createdAt: -1 })
 
     return res.status(200).json({
         data: interventions
@@ -402,9 +402,9 @@ router.get('/stock/:idPiece', async (req, res) => {
         console.log(stockDispo +piece.designation + totalEntree , totalSortie);
 
         const devisPiece = await DevisPiece.findOne({ piece: piece._id });
-        if (!devisPiece) {
-            return res.status(404).json({ message: 'DevisPiece non trouvée' });
-        }
+        // if (!devisPiece) {
+        //     return res.status(404).json({ message: 'DevisPiece non trouvée' });
+        // }
 
         res.status(200).json({
             piece: piece,

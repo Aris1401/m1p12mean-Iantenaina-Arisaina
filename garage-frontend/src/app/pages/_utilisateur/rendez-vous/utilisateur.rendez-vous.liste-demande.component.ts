@@ -30,6 +30,7 @@ import { MessageService } from 'primeng/api';
             [paginator]="true"
             [rows]="5"
             #demandesrendezvous
+            [loading]="isDemandesLoading"
             [globalFilterFields]="['date_souhaiter', 'titre', 'type_rendez_vous.designation', 'description', 'vehicule.immatriculation', 'vehicule.marque', 'vehicule.modele', 'vehicule.annee']"
         >
             <ng-template #caption>
@@ -144,7 +145,7 @@ import { MessageService } from 'primeng/api';
 
                     <td>
                         @if (demande.etat_demande == 0) {
-                            <p-button icon="pi pi-times" label="Annuler" (onClick)="onAnnuler(demande)" />
+                            <p-button icon="pi pi-times" label="Annuler" (onClick)="onAnnuler(demande)" [loading]="isAnnulerLoading[demande._id]" />
                         }
                     </td>
                 </tr>
@@ -172,6 +173,9 @@ export class UtilisateurRendezVousListeDemandeComponent implements OnInit {
         }
     ]
 
+    isDemandesLoading : boolean = true
+    isAnnulerLoading: { [id: string]: boolean } = {}
+
     constructor(
         private rendezVousService: RendezVousService,
         private vehiculeService: VehiculeService,
@@ -182,6 +186,8 @@ export class UtilisateurRendezVousListeDemandeComponent implements OnInit {
         this.rendezVousService.getDemandesRendezVous().subscribe({
             next: (response: any) => {
                 this.demandesRendezVous = response.data;
+
+                this.isDemandesLoading = false
             }
         });
 
@@ -193,6 +199,8 @@ export class UtilisateurRendezVousListeDemandeComponent implements OnInit {
     }
 
     onAnnuler(demande : any) {
+        this.isAnnulerLoading[demande._id] = true;
+
         this.rendezVousService.annulerDemandeRendezVous(demande._id).subscribe({
             next: (response : any) => {
                 this.messageService.add({
@@ -201,12 +209,16 @@ export class UtilisateurRendezVousListeDemandeComponent implements OnInit {
                 })
 
                 this.demandesRendezVous = this.demandesRendezVous.filter(_demande => _demande != demande)
+
+                this.isAnnulerLoading[demande._id] = false;
             },
             error: (err) => {
                 this.messageService.add({
                     summary: err.error.error,
                     severity: 'error'
                 })
+
+                this.isAnnulerLoading[demande._id] = false;
             }
         })
     }

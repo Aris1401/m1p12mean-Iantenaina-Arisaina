@@ -207,10 +207,19 @@ class FactureService {
             fs.mkdirSync(downloadDir, { recursive: true });
         }
 
-        return {
-            filename: factureFilename, 
-            stream: doc.pipe(fs.createWriteStream(path.join(downloadDir, factureFilename + ".pdf")))
-        }
+        const filePath = path.join(downloadDir, factureFilename + ".pdf");
+        const stream = doc.pipe(fs.createWriteStream(filePath));
+
+        // Return a promise that resolves when the file is fully written
+        return new Promise((resolve, reject) => {
+            stream.on('finish', () => {
+                resolve({
+                    filename: factureFilename,
+                    path: filePath
+                });
+            });
+            stream.on('error', reject);
+        });
     }
 
     static async generatePDFDevis(idDevis) {
@@ -248,10 +257,18 @@ class FactureService {
             fs.mkdirSync(downloadDir, { recursive: true });
         }
 
-        return {
-            filename: devisFilename, 
-            stream: doc.pipe(fs.createWriteStream(path.join(downloadDir, devisFilename + ".pdf")))
-        }
+        const filePath = path.join(downloadDir, devisFilename + ".pdf");
+        const stream = doc.pipe(fs.createWriteStream(filePath));
+
+        return new Promise((resolve, reject) => {
+            stream.on('finish', () => {
+                resolve({
+                    filename: devisFilename,
+                    path: filePath
+                });
+            });
+            stream.on('error', reject);
+        });
     }
 }
 

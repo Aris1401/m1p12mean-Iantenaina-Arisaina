@@ -23,6 +23,7 @@ import { RouterModule } from '@angular/router';
                 #listeFactures
                 [globalFilterFields]="['reference', 'id_intervention.utilisateur.nom', 'id_intervention.utilisateur.prenom', 'createdAt', 'total', 'total_ttc']"
                 sortMode="multiple"
+                [loading]="isLoading"
             >
                 <ng-template pTemplate="caption">
                     <div class="flex justify-end">
@@ -83,13 +84,19 @@ export class ManagerFacturesComponent implements OnInit {
     factures = [
     ];
 
+    isLoading : boolean = false
+
     constructor (
         protected factureService : FactureService
     ) {}
 
     ngOnInit(): void {
+        this.isLoading = true
+
         this.factureService.allFactures().subscribe((response : any) => {
             this.factures = response.data
+
+            this.isLoading = false
         })
     }
 }

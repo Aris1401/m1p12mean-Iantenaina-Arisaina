@@ -17,7 +17,7 @@ const StockPiece = require('../model/Piece/stockPiece')
 
 // Obtenir fiche intervention
 router.get('/:ficheId', [verifyToken], async (req, res) => {
-    const ficheIntervention = await FicheIntervention.findOne({ _id: req.params.ficheId }).populate("type_evenement")
+    const ficheIntervention = await FicheIntervention.findOne({ _id: req.params.ficheId }).populate("type_evenement").populate('type_intervention')
 
     return res.status(200).json({
         data: ficheIntervention
@@ -166,7 +166,7 @@ router.delete('/:id', [verifyToken], async (req, res) => {
 });
 
 //modification fiche-intervention
-router.put('/update-save/:id', verifyToken, async (req, res) => {
+router.put('/update-save/:id', [verifyToken], async (req, res) => {
     const { description, type_intervention, type_evenement, autre_evenement, documents, pieces, travaux, etat_intervention } = req.body;
 
     if (!description || !type_intervention || !type_evenement) {
@@ -183,9 +183,14 @@ router.put('/update-save/:id', verifyToken, async (req, res) => {
         ficheIntervention = new FicheIntervention();
         await ficheIntervention.save({ validateBeforeSave: false });
 
-        const intervention = await Intervention.findOne({ _id: req.params.id });
-        intervention.fiche_intervention = ficheIntervention._id;
-        await intervention.save({ validateBeforeSave: false });
+        const intervention = await Intervention.findOne({ _id: req.params.id })
+        intervention.fiche_intervention = ficheIntervention._id
+
+        await intervention.save({ validateBeforeSave: false })
+
+        // Mettre a jour fiche intervention
+        ficheIntervention.intervention = intervention._id
+        await ficheIntervention.save()
     }
 
     ficheIntervention.description = description || ficheIntervention.description;

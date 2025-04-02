@@ -30,4 +30,8 @@ export class PiecesService {
   getMouvementStock(idPiece : any) {
     return this.http.get(environment.apiUrl + "pieces/mouvement/" + idPiece)
   }
+
+  getInterventionEnRupture() {
+    return this.http.get(environment.apiUrl + "pieces/interventions")
+  }
 }

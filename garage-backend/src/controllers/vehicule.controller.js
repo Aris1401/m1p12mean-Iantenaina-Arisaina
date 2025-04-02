@@ -144,6 +144,12 @@ router.get('/:id/documents/:idDoc', async (req, res) => {
 })
 
 router.post('/:id/documents', [verifyToken, uploadFiles.single('document')], async (req, res) => {
+    if (!req.file) {
+        return res.status(400).json({
+            error: "Veuillez remplir les champs"
+        })
+    }
+
     const document = new DocumentVehicule({
         titre: req.body.titre,
         description: req.body.description,
