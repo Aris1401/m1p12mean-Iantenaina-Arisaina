@@ -25,16 +25,20 @@ export class NewFicheInterventionComponent implements OnInit {
   selectedTravaux: any[] = [];
   travauxfiche: any[] = [];
   filteredTravaux: any[] = [];
+  ficheIntervention: any = {}; 
+  pieceFicheInterventionByFiche: any[] = [];
+  travauxFicheInterventionByFiche: any[] = []; 
   quantite: number = 1;
   prixUnitaire: number = 0;
   prixHT: number = 0;
   etatIntervention: number = 0;
   status: string = '';
+  idtypeIntervention='';
 
   constructor(
     private route: ActivatedRoute,
-    private interventionService: InterventionService, // Injection du service
-    private ficheInterventionService: FicheInterventionService // Injection du service
+    private interventionService: InterventionService,
+    private ficheInterventionService: FicheInterventionService 
   ) {}
 
   ngOnInit(): void {
@@ -54,6 +58,41 @@ export class NewFicheInterventionComponent implements OnInit {
         this.typeInterventions = response.data.typeInterventions;
         this.typeEvenements = response.data.typeEvenements;
         this.travauxfiche = response.data.travauxFicheIntervention;
+        this.ficheIntervention = response.data.ficheIntervention;
+           if(this.ficheIntervention.description)
+           {
+            this.travauxDescription=this.ficheIntervention.description;
+           }
+           if(this.ficheIntervention.intervention)
+           {
+            this.selectedTypeIntervention = this.ficheIntervention.type_intervention._id || null;     
+           }
+           if (this.ficheIntervention.type_evenement && this.ficheIntervention.type_evenement._id) {
+            this.selectedTypeEvenement = this.ficheIntervention.type_evenement._id;
+          } else if (this.ficheIntervention.autre_evenement) {
+            this.selectedTypeEvenement = 'autre';
+            this.otherEvenement = this.ficheIntervention.autre_evenement || '';
+          }
+
+
+        if (response.data.travauxFicheInterventionByFiche && !Array.isArray(response.data.travauxFicheInterventionByFiche)) 
+        {
+          this.travauxFicheInterventionByFiche = [response.data.travauxFicheInterventionByFiche];
+        } 
+        else 
+        {
+          this.travauxFicheInterventionByFiche = response.data.travauxFicheInterventionByFiche || [];
+        }
+
+        if (response.data.pieceFicheInterventionByFiche && !Array.isArray(response.data.pieceFicheInterventionByFiche)) 
+        {
+          this.pieceFicheInterventionByFiche = [response.data.pieceFicheInterventionByFiche];
+        } 
+        else 
+        {
+          this.pieceFicheInterventionByFiche = response.data.pieceFicheInterventionByFiche || [];
+        }
+
       },
       error => {
         console.error('Erreur lors de la récupération des données:', error);
@@ -138,36 +177,43 @@ export class NewFicheInterventionComponent implements OnInit {
 
   saveFicheIntervention(): void {
     if (!this.travauxDescription || !this.selectedTypeIntervention || !this.selectedTypeEvenement) {
-      alert('Tous les champs obligatoires doivent être remplis.');
-      return;
+        alert('Tous les champs obligatoires doivent être remplis.');
+        return;
     }
 
+    // Vous devez vous assurer que l'état des travaux est bien envoyé avec le tableau de travaux
+    const travauxAvecEtat = this.travauxFicheInterventionByFiche.map(travauxItem => ({
+        ...travauxItem, // Copie de l'objet existant
+        etat_intervention: travauxItem.etat_intervention || 0  // Ajout de l'état modifié
+    }));
+
     const ficheData = {
-      description: this.travauxDescription,
-      type_intervention: this.selectedTypeIntervention,
-      type_evenement: this.selectedTypeEvenement,
-      autre_evenement: this.selectedTypeEvenement === 'autre' ? this.otherEvenement : '',
-      documents: [],
-      pieces: this.selectedPieces,
-      travaux: this.selectedTravaux,
-      etat_intervention: this.etatIntervention,
-      status: this.status
+        description: this.travauxDescription,
+        type_intervention: this.selectedTypeIntervention,
+        type_evenement: this.selectedTypeEvenement,
+        autre_evenement: this.selectedTypeEvenement === 'autre' ? this.otherEvenement : '',
+        documents: [],
+        pieces: this.selectedPieces,
+        travaux: travauxAvecEtat,  // Ajout des travaux modifiés avec l'état
+        etat_intervention: this.etatIntervention,
+        status: this.status
     };
 
     this.ficheInterventionService.updateFicheIntervention(this.interventionId!, ficheData).subscribe(
-      response => {
-        console.log('Fiche mise à jour et enregistrée avec succès:', response);
-      },
-      error => {
-        console.error('Erreur lors de la mise à jour de la fiche:', error);
-        if (error.error && error.error.message) {
-          alert(`Erreur: ${error.error.message}`);
-        } else {
-          alert('Erreur lors de la mise à jour de la fiche');
+        response => {
+            console.log('Fiche mise à jour et enregistrée avec succès:', response);
+        },
+        error => {
+            console.error('Erreur lors de la mise à jour de la fiche:', error);
+            if (error.error && error.error.message) {
+                alert(`Erreur: ${error.error.message}`);
+            } else {
+                alert('Erreur lors de la mise à jour de la fiche');
+            }
         }
-      }
     );
-  }
+}
+
 
   onTravailInputChange(index: number): void {
     const searchText = this.selectedTravaux[index]?.designation || '';
@@ -182,7 +228,6 @@ export class NewFicheInterventionComponent implements OnInit {
   }
 
   onTravailSelected(selectedTravail: any, index: number): void {
-    // Ajouter un travail sélectionné avec ses propriétés
     this.selectedTravaux[index] = {
       ...selectedTravail,
       quantite: selectedTravail.quantite || 1,
@@ -190,7 +235,6 @@ export class NewFicheInterventionComponent implements OnInit {
       prixHT: selectedTravail.prix_ht || 0 
     };
   
-    // Nettoyer la liste filtrée après la sélection
     this.filteredTravaux[index] = [];
   }
   
