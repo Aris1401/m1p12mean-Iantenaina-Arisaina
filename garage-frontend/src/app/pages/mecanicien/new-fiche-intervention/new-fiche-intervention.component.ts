@@ -178,10 +178,12 @@ export class NewFicheInterventionComponent implements OnInit {
         }
 
         // Vous devez vous assurer que l'état des travaux est bien envoyé avec le tableau de travaux
-        const travauxAvecEtat = this.travauxFicheInterventionByFiche.map((travauxItem) => ({
+        let travauxAvecEtat = this.travauxFicheInterventionByFiche.map((travauxItem) => ({
             ...travauxItem, // Copie de l'objet existant
             etat_intervention: travauxItem.etat_intervention || 0 // Ajout de l'état modifié
         }));
+
+        travauxAvecEtat = [...travauxAvecEtat, ...this.selectedTravaux]
 
         const ficheData = {
             description: this.travauxDescription,

@@ -71,8 +71,8 @@
         <div *ngFor="let travauxItem of pieceFicheInterventionByFiche" class="travaux-item mb-4 p-4 border-b flex w-full">
           <div class="w-1/5">{{ travauxItem.piece?.designation }}</div>
           <div class="w-1/5">{{ travauxItem.quantite }}</div>
-          <div class="w-1/5">{{ travauxItem.prix_unitaire }} Ar</div>
-          <div class="w-1/5">{{ travauxItem.prix_ht }} Ar</div>
+          <div class="w-1/5">{{ travauxItem.prix_unitaire | number: "1.2" }} Ar</div>
+          <div class="w-1/5">{{ travauxItem.prix_ht | number: '1.2' }} Ar</div>
           <!-- État de l'intervention -->
           <div class="w-1/5">{{ travauxItem.etat_intervention === 0 ? 'Non effectué' : 'Effectué' }}</div>
         </div>
@@ -80,7 +80,7 @@
       
       <!-- Si aucun élément dans le tableau -->
       <div *ngIf="!pieceFicheInterventionByFiche || pieceFicheInterventionByFiche.length === 0">
-        <p>Aucun travaux à afficher.</p>
+        <p>Aucun pieces à afficher.</p>
       </div>
       
 

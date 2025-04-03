@@ -319,7 +319,8 @@ router.get('/', async (req, res) => {
         .populate('vehicule')           
         .populate('fiche_intervention')   
         .populate('devis')                
-        .populate('facture');            
+        .populate('facture')
+        .sort({ createdAt: -1 });            
       
       res.json({ data: interventions });
     } catch (error) {
