@@ -405,10 +405,14 @@ router.get('/stock/:idPiece', async (req, res) => {
         const stockDispo = totalEntree - totalSortie;  
         console.log(stockDispo +piece.designation + totalEntree , totalSortie);
 
-        const devisPiece = await DevisPiece.findOne({ piece: piece._id });
+        let devisPiece = await DevisPiece.findOne({ piece: piece._id });
         // if (!devisPiece) {
         //     return res.status(404).json({ message: 'DevisPiece non trouvée' });
         // }
+
+        if (!devisPiece) {
+            devisPiece = new DevisPiece()
+        }
 
         devisPiece.prix_unitaire = (await PieceService.obtenirEtatStockPiece(idPiece)).prix_cump
 
