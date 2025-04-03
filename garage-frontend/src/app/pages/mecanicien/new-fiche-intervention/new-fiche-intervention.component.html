@@ -1,3 +1,5 @@
+<p-toast></p-toast>
+
 <div class="container mx-auto my-10 px-4">
   <div class="card">
     <h3>Création de la Fiche Intervention</h3>
@@ -27,9 +29,9 @@
       <div class="flex gap-4">
         <div class="w-1/3 pr-4">
           <h3 class="text-xl font-semibold">Informations</h3>
-          <p><strong>Date de début:</strong> {{ intervention.date_debut | date: 'dd/MM/yyyy' }}</p>
-          <p><strong>Utilisateur:</strong> {{ intervention.utilisateur?.nom }} {{ intervention.utilisateur?.prenom }}</p>
-          <p><strong>Véhicule:</strong> {{ intervention.vehicule?.marque }} - {{ intervention.vehicule?.modele }}</p>
+          <p><strong>Date de début:</strong> {{ (intervention?.date_debut | date: 'dd/MM/yyyy') ?? "N/A" }}</p>
+          <p><strong>Utilisateur:</strong> {{ intervention?.utilisateur?.nom }} {{ intervention?.utilisateur?.prenom }}</p>
+          <p><strong>Véhicule:</strong> {{ intervention?.vehicule?.marque }} - {{ intervention?.vehicule?.modele }}</p>
         </div>
 
         <div class="border-l-2 border-gray-300"></div>
@@ -69,8 +71,8 @@
         <div *ngFor="let travauxItem of pieceFicheInterventionByFiche" class="travaux-item mb-4 p-4 border-b flex w-full">
           <div class="w-1/5">{{ travauxItem.piece?.designation }}</div>
           <div class="w-1/5">{{ travauxItem.quantite }}</div>
-          <div class="w-1/5">€{{ travauxItem.prix_unitaire }}</div>
-          <div class="w-1/5">€{{ travauxItem.prix_ht }}</div>
+          <div class="w-1/5">{{ travauxItem.prix_unitaire | number: "1.2" }} Ar</div>
+          <div class="w-1/5">{{ travauxItem.prix_ht | number: '1.2' }} Ar</div>
           <!-- État de l'intervention -->
           <div class="w-1/5">{{ travauxItem.etat_intervention === 0 ? 'Non effectué' : 'Effectué' }}</div>
         </div>
@@ -78,7 +80,7 @@
       
       <!-- Si aucun élément dans le tableau -->
       <div *ngIf="!pieceFicheInterventionByFiche || pieceFicheInterventionByFiche.length === 0">
-        <p>Aucun travaux à afficher.</p>
+        <p>Aucun pieces à afficher.</p>
       </div>
       
 
@@ -104,11 +106,11 @@
         </div>
 
         <div class="w-1/3">
-          <p>{{ piece.prixUnitaire | currency }}</p> 
+          <p>{{ piece.prixUnitaire }} Ar</p> 
         </div>
 
         <div class="w-1/3">
-          <p>{{ (piece.prixUnitaire * piece.quantity) | currency }}</p> 
+          <p>{{ (piece.prixUnitaire * piece.quantity) }}Ar</p> 
         </div>
 
         <div class="w-1/3 flex items-center">
@@ -125,8 +127,8 @@
         <div *ngFor="let travauxItem of travauxFicheInterventionByFiche" class="travaux-item mb-4 p-4 border-b flex w-full">
           <div class="w-1/5">{{ travauxItem.designation }}</div>
           <div class="w-1/5">{{ travauxItem.quantite }}</div>
-          <div class="w-1/5">€{{ travauxItem.prix_unitaire }}</div>
-          <div class="w-1/5">€{{ travauxItem.prix_ht }}</div>
+          <div class="w-1/5">{{ travauxItem.prix_unitaire }} Ar</div>
+          <div class="w-1/5">{{ travauxItem.prix_ht }} Ar</div>
           <div class="w-1/5">
             <select id="etatIntervention" [(ngModel)]="travauxItem.etat_intervention" class="w-full p-2 border rounded">
               <option [value]="-10">EN_ATTENTE</option>

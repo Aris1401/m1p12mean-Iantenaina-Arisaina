@@ -7,8 +7,12 @@ const PieceFicheIntervention = require('../model/Intervention/FicheIntervention/
 const TravauxFicheIntervention = require('../model/Intervention/FicheIntervention/travauxFicheIntervention')
 const Intervention = require('../model/Intervention/intervention')
 
+const Devis = require('../model/Intervention/Devis/devis')
+
 const TypeEvenement = require('../model/Intervention/FicheIntervention/typeEvenement')
 const TypeIntervention = require('../model/Intervention/FicheIntervention/typeIntervention')
+
+const { EtatDevis } = require('../model/Etats')
 
 // Middelwares
 const { verifyToken } = require('../middlewares/jwt')
@@ -192,6 +196,9 @@ router.put('/update-save/:id', [verifyToken], async (req, res) => {
         ficheIntervention.intervention = intervention._id
         await ficheIntervention.save()
     }
+
+    // Checker si le devis est deja valider
+    // const intervention = await Intervention.findOne({ _id: req.params.id }).populate('devis')
 
     ficheIntervention.description = description || ficheIntervention.description;
     ficheIntervention.type_intervention = type_intervention || ficheIntervention.type_intervention;

@@ -3,14 +3,27 @@ import { Router } from '@angular/router';
 import { InterventionService } from '../../../_services/intervention/intervention.service';
 import { CommonModule, NgClass } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { TableModule } from 'primeng/table';
+import { SelectModule } from 'primeng/select';
+import { TagModule } from 'primeng/tag';
+import { IconField } from 'primeng/iconfield';
+import { InputIconModule } from 'primeng/inputicon';
+import { InputTextModule } from 'primeng/inputtext';
 
 @Component({
   selector: 'app-liste-intervention',
-    imports: [CommonModule, NgClass, FormsModule],
+    imports: [CommonModule, NgClass, FormsModule, TableModule, SelectModule, TagModule, IconField, InputIconModule, InputTextModule],
   templateUrl: './liste-intervention.component.html'
 })
 export class ListeInterventionComponent implements OnInit {
   ArrayIntervention: any[] = [];
+
+  etats = [
+    { label: "En attente", value: -10, severity: "info" },
+    { label: "En cours", value: 0, severity: "secondary" },
+    { label: "En attente de piece", value: 10, severity: "warn" },
+    { label: "Fini", value: 100, severity: "success" }
+  ]
 
   constructor(
     private interventionService: InterventionService,

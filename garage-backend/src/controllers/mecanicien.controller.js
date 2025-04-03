@@ -48,7 +48,7 @@ router.get('/:id/interventions', async (req, res) => {
   }, {
     path: "mecanicien",
     select: ["-mot_de_passe", "-documents"]
-  }])
+  }]).sort({ createdAt: -1 })
 
   return res.status(200).json({
     data: assignations

@@ -15,6 +15,7 @@ const { verifyToken, isManager, isUtilisateur } = require('../middlewares/jwt')
 // Services
 const InterventionService = require('../services/interventionService')
 const FactureService = require('../services/factureService')
+const PieceService = require('../services/pieceService')
 
 // Etats
 const { EtatIntervention, EtatDevis } = require('../model/Etats');
@@ -318,7 +319,8 @@ router.get('/', async (req, res) => {
         .populate('vehicule')           
         .populate('fiche_intervention')   
         .populate('devis')                
-        .populate('facture');            
+        .populate('facture')
+        .sort({ createdAt: -1 });            
       
       res.json({ data: interventions });
     } catch (error) {
@@ -344,7 +346,7 @@ router.get('/', async (req, res) => {
             return res.status(404).json({ message: 'Intervention non trouvée' });
         }
         const ficheIntervention = await FicheIntervention.findOne({ intervention: id })
-        .populate('type_intervention') 
+        .populate('type_intervention')
         .populate('type_evenement'); 
       
             console.log('ID de l\'intervention :', id);
@@ -405,6 +407,8 @@ router.get('/stock/:idPiece', async (req, res) => {
         // if (!devisPiece) {
         //     return res.status(404).json({ message: 'DevisPiece non trouvée' });
         // }
+
+        devisPiece.prix_unitaire = (await PieceService.obtenirEtatStockPiece(idPiece)).prix_cump
 
         res.status(200).json({
             piece: piece,
