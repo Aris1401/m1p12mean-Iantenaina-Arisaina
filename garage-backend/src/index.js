@@ -29,6 +29,10 @@ mongoose
 // ------------------- Routes
 const baseUrl = "/api/v1";
 
+app.use((req, res, next) => {
+  setTimeout(next, 3000); // TODO: A enlever
+});
+
 app.use(baseUrl + '/storage', express.static(path.join(__dirname, '../upload')))
 
 // Authentification

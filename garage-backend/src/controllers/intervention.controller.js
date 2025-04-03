@@ -12,7 +12,7 @@ const Utilisateur = require('../model/Utilisateur/utilisateur');
 const Vehicule=require('../model/Vehicule/vehicule');
 const AssignationIntervention = require('../model/Intervention/assignationIntervention')
 
-const { verifyToken, isManager, isUtilisateur } = require('../middlewares/jwt')
+const { verifyToken, isManager, isUtilisateur, isMecanicien } = require('../middlewares/jwt')
 
 // Services
 const InterventionService = require('../services/interventionService')
@@ -20,7 +20,7 @@ const FactureService = require('../services/factureService')
 const PieceService = require('../services/pieceService')
 
 // Etats
-const { EtatIntervention, EtatDevis } = require('../model/Etats');
+const { EtatIntervention, EtatDevis, EtatDemandeRendezVous } = require('../model/Etats');
 const TravauxFicheIntervention = require('../model/Intervention/FicheIntervention/travauxFicheIntervention');
 const Piece = require('../model/Piece/piece');
 const TypeIntervention = require('../model/Intervention/FicheIntervention/typeIntervention');
@@ -249,58 +249,13 @@ router.get('/:intervetionId/devis/refuser', [verifyToken], async (req, res) => {
     })
 })
 
-router.post('/new', async (req, res) => {
+router.post('/new', [verifyToken, isMecanicien], async (req, res) => {
     const { idRdv } = req.body;
 
     try {
-        const rdv = await RendezVous.findById(idRdv);
+        const intervention = await InterventionService.creerIntervention(idRdv)
 
-        if (!rdv) {
-            return res.status(404).json({ message: 'Rendez-vous non trouvé' });
-        }
-
-        const demandeRdv = await DemandeRendezVous.findOne({
-            _id: rdv.demande_rendez_vous,
-            etat_demande: 10 
-        });
-
-        if (!demandeRdv) {
-            return res.status(404).json({ message: 'Demande de rendez-vous non trouvée ou invalide' });
-        }
-
-        const utilisateur = await Utilisateur.findById(demandeRdv.utilisateur);
-        const vehicule = await Vehicule.findById(demandeRdv.vehicule);
-        
-        if (!utilisateur || !vehicule) {
-            return res.status(404).json({ message: 'Utilisateur ou véhicule non trouvé' });
-        }
-
-        const nouvelleIntervention = new Intervention({
-            date_debut: new Date(),
-            etat_intervention: 0, 
-            fiche_intervention: null,
-            devis: null,
-            facture: null,
-            vehicule: vehicule.id,
-            utilisateur: utilisateur.id,
-        });
-
-
-        const intervention = await nouvelleIntervention.save();
-
-        rdv.etat_rendez_vous = 20; 
-        await rdv.save();
-
-        const nouvelleFicheIntervention = new FicheIntervention({
-            intervention: intervention._id, 
-            description: null,               
-            type_intervention: null,         
-            type_evenement: null,           
-            autre_evenement: null,          
-            documents: []                
-        });
-
-        await nouvelleFicheIntervention.save();
+        await InterventionService.assignerMecanicien(intervention._id, req.utilisateurId)
 
         return res.status(201).json({
             message: 'Intervention créée avec succès et rendez-vous mis à jour',

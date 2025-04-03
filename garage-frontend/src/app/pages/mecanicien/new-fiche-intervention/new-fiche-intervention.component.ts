@@ -7,10 +7,11 @@ import { InterventionService } from '../../../_services/intervention/interventio
 import { FicheInterventionService } from '../../../_services/fiche-intervention/fiche-intervention.service';
 import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
+import { ButtonModule } from 'primeng/button';
 
 @Component({
     selector: 'app-new-fiche-intervention',
-    imports: [CommonModule, FormsModule, ToastModule],
+    imports: [CommonModule, FormsModule, ToastModule, ButtonModule],
     templateUrl: './new-fiche-intervention.component.html'
 })
 export class NewFicheInterventionComponent implements OnInit {
@@ -36,6 +37,10 @@ export class NewFicheInterventionComponent implements OnInit {
     etatIntervention: number = 0;
     status: string = '';
     idtypeIntervention = '';
+
+    // Loading 
+    isModifyLoading : boolean = false
+    isValiderLoading : boolean = false
 
     constructor(
         private route: ActivatedRoute,
@@ -177,6 +182,8 @@ export class NewFicheInterventionComponent implements OnInit {
             return;
         }
 
+        this.isModifyLoading = true
+
         // Vous devez vous assurer que l'état des travaux est bien envoyé avec le tableau de travaux
         let travauxAvecEtat = this.travauxFicheInterventionByFiche.map((travauxItem) => ({
             ...travauxItem, // Copie de l'objet existant
@@ -205,6 +212,8 @@ export class NewFicheInterventionComponent implements OnInit {
                     severity: 'success'
                 });
 
+                this.isModifyLoading = false
+
                 console.log('Fiche mise à jour et enregistrée avec succès:', response);
             },
             (error) => {
@@ -213,6 +222,8 @@ export class NewFicheInterventionComponent implements OnInit {
                     detail: 'Erreur lors de la mise à jour de la fiche',
                     severity: 'error'
                 });
+
+                this.isModifyLoading = false
 
                 // console.error('Erreur lors de la mise à jour de la fiche:', error);
                 if (error.error && error.error.message) {
@@ -260,9 +271,13 @@ export class NewFicheInterventionComponent implements OnInit {
   }
 
   validateIntervention(): void {
+    this.isValiderLoading = true
+
     this.interventionService.setEtatIntervention(this.interventionId!).subscribe({
         next: (response : any) => {
             console.log('Réponse de l\'API:', response);
+
+            this.isValiderLoading = false
 
             this.messageService.add({
                 summary: "Valider",
@@ -271,6 +286,8 @@ export class NewFicheInterventionComponent implements OnInit {
             })
         },
         error: (err) => {
+            this.isValiderLoading = false
+
             this.messageService.add({
                 summary: "Erreur",
                 detail: err.error.message,

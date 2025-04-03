@@ -5,11 +5,13 @@ import { InterventionService } from '../../../_services/intervention/interventio
 import { CommonModule, DatePipe, NgClass } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RendezVousService } from '../../../_services/rendez-vous/rendez-vous.service';
+import { ToastModule } from 'primeng/toast';
+import { MessageService } from 'primeng/api';
 
 @Component({
   selector: 'app-liste-rdv',
   standalone: true,
-  imports: [CommonModule, NgClass, FormsModule],
+  imports: [CommonModule, NgClass, FormsModule, ToastModule],
   templateUrl: './liste-rdv.component.html',
   providers: [DatePipe]
 })
@@ -23,11 +25,14 @@ export class ListeRdvComponent implements OnInit {
     FINI: 20
   };
 
+  isLoading : boolean = false
+
   constructor(
     private rdvService: RendezVousService,
     private interventionService: InterventionService,  // Injection du service
     private router: Router,
-    private datePipe: DatePipe
+    private datePipe: DatePipe,
+    private messageService : MessageService
   ) {}
 
   ngOnInit() {
@@ -35,12 +40,18 @@ export class ListeRdvComponent implements OnInit {
   }
 
   getAllRDV() {
+    this.isLoading = true
+
     this.rdvService.getAllRDV().subscribe(
       (resultData: any) => {
         this.ArrayRDV = resultData.data;
+
+        this.isLoading = false
       },
       (error) => {
         console.error('Erreur lors de la récupération des rendez-vous', error);
+
+        this.isLoading = false
       }
     );
   }
@@ -66,10 +77,16 @@ export class ListeRdvComponent implements OnInit {
 
   // Utilisation de la méthode du service pour créer l'intervention
   goToCreateIntervention(id: string): void {
+    this.messageService.add({
+      summary: "Creation d'intervention",
+      detail: "Creation d'intevention en cours"
+    })
+
     this.interventionService.createIntervention(id).subscribe(
       (response) => {
         console.log('Intervention créée avec succès');
         const interventionId = response.data._id;
+
         this.router.navigate(['/new-fiche-intervention', interventionId]);
       },
       (error) => {

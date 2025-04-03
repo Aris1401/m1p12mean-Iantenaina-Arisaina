@@ -3,7 +3,7 @@
     <h3>Liste des Interventions</h3>
 
     <div class="overflow-x-auto bg-white shadow-md rounded-lg">
-        <p-table class="min-w-full table-auto" #interventionTable [paginator]="true" [rows]="10" [value]="ArrayIntervention" [stripedRows]="true" [globalFilterFields]="['createdAt', 'date_debut', 'vehicule.immatriculation', 'utilisateur.nom', 'utilisateur.prenom']">
+        <p-table class="min-w-full table-auto" [loading]="isLoading" #interventionTable [paginator]="true" [rows]="10" [value]="ArrayIntervention" [stripedRows]="true" [globalFilterFields]="['createdAt', 'date_debut', 'vehicule.immatriculation', 'utilisateur.nom', 'utilisateur.prenom']">
             <ng-template pTemplate="caption">
                 <div class="flex justify-end">
                     <p-icon-field>
