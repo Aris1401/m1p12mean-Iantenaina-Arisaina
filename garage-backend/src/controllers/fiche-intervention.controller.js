@@ -198,7 +198,12 @@ router.put('/update-save/:id', [verifyToken], async (req, res) => {
     }
 
     // Checker si le devis est deja valider
-    // const intervention = await Intervention.findOne({ _id: req.params.id }).populate('devis')
+    const intervention = await Intervention.findOne({ _id: req.params.id })
+    if (!intervention.fiche_intervention) {
+        intervention.fiche_intervention = ficheIntervention._id
+
+        await intervention.save({ validateBeforeSave: false })
+    }
 
     ficheIntervention.description = description || ficheIntervention.description;
     ficheIntervention.type_intervention = type_intervention || ficheIntervention.type_intervention;
