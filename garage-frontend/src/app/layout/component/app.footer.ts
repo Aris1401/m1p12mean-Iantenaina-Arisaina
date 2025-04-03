@@ -7,7 +7,7 @@ import { DividerModule } from 'primeng/divider';
     imports: [ DividerModule ],
     template: `
     <div class="layout-footer flex align-middle">
-        <p class="m-0">RAKOTONDRAMANANA Tanjona Inatenaina</p>
+        <p class="m-0">RAKOTONDRAMANANA Tanjona Iantenaina</p>
         <p-divider layout="vertical" />
         <p>SOLOFOARISON Tolotry Ny Avo Arisaina</p>    
     </div>`

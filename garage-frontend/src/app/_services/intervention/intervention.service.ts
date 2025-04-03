@@ -98,9 +98,13 @@ export class InterventionService {
     
 
 
-  // Récupère les informations sur le stock d'une pièce spécifique
   getPieceStock(pieceId: string): Observable<any> {
     return this.http.get<any>(`${environment.apiUrl}intervention/stock/${pieceId}`);
   }
+
+  setEtatIntervention(interventionId: string): Observable<any> {
+    return this.http.put<any>(`${environment.apiUrl}intervention/setEtatFini/${interventionId}`, {});
+  }
+  
 
 }

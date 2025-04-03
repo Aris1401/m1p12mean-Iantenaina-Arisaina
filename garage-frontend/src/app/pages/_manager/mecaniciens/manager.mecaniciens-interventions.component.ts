@@ -32,8 +32,12 @@ import { InputTextModule } from 'primeng/inputtext';
                     <tr>
                         <th>Vehicule</th>
                         <th>Client</th>
-                        <th>Date Creation</th>
-                        <th>Date Debut</th>
+                        <th pSortableColumn="createdAt">
+                            Date Creation <p-sortIcon field="createdAt" />
+                        </th>
+                        <th pSortableColumn="date_debut">
+                            Date Debut <p-sortIcon field="date_debut" />
+                        </th>
                         <th>Devis</th>
                         <th>Facture</th>
                         <th>Etat</th>

@@ -7,8 +7,12 @@ const PieceFicheIntervention = require('../model/Intervention/FicheIntervention/
 const TravauxFicheIntervention = require('../model/Intervention/FicheIntervention/travauxFicheIntervention')
 const Intervention = require('../model/Intervention/intervention')
 
+const Devis = require('../model/Intervention/Devis/devis')
+
 const TypeEvenement = require('../model/Intervention/FicheIntervention/typeEvenement')
 const TypeIntervention = require('../model/Intervention/FicheIntervention/typeIntervention')
+
+const { EtatDevis } = require('../model/Etats')
 
 // Middelwares
 const { verifyToken } = require('../middlewares/jwt')
@@ -166,7 +170,6 @@ router.delete('/:id', [verifyToken], async (req, res) => {
 });
 
 //modification fiche-intervention
-
 router.put('/update-save/:id', [verifyToken], async (req, res) => {
     const { description, type_intervention, type_evenement, autre_evenement, documents, pieces, travaux, etat_intervention } = req.body;
 
@@ -178,16 +181,11 @@ router.put('/update-save/:id', [verifyToken], async (req, res) => {
         return res.status(400).json({ success: false, message: 'Le champ autre_evenement est obligatoire lorsque le type_evenement est "autre"' });
     }
 
-    if (!travaux || travaux.length === 0) {
-        return res.status(400).json({ success: false, message: 'Les travaux sont obligatoires' });
-    }
-
     let ficheIntervention = await FicheIntervention.findOne({ 'intervention': req.params.id });
 
     if (!ficheIntervention) {
-        // return res.status(404).json({ success: false, message: 'Fiche d\'intervention non trouvée' });
-        ficheIntervention = new FicheIntervention()
-        await ficheIntervention.save({ validateBeforeSave: false })
+        ficheIntervention = new FicheIntervention();
+        await ficheIntervention.save({ validateBeforeSave: false });
 
         const intervention = await Intervention.findOne({ _id: req.params.id })
         intervention.fiche_intervention = ficheIntervention._id
@@ -198,6 +196,9 @@ router.put('/update-save/:id', [verifyToken], async (req, res) => {
         ficheIntervention.intervention = intervention._id
         await ficheIntervention.save()
     }
+
+    // Checker si le devis est deja valider
+    // const intervention = await Intervention.findOne({ _id: req.params.id }).populate('devis')
 
     ficheIntervention.description = description || ficheIntervention.description;
     ficheIntervention.type_intervention = type_intervention || ficheIntervention.type_intervention;
@@ -211,6 +212,7 @@ router.put('/update-save/:id', [verifyToken], async (req, res) => {
     }
 
     ficheIntervention.documents = documents || ficheIntervention.documents;
+
     const updatedFiche = await ficheIntervention.save();
 
     const piecePromises = pieces && pieces.length > 0 ? pieces.map(piece => {
@@ -223,11 +225,11 @@ router.put('/update-save/:id', [verifyToken], async (req, res) => {
             case 'En stock':
                 etatPiece = 20;
                 const stockPieceData = {
-                    fiche_intervention: updatedFiche._id, 
+                    fiche_intervention: updatedFiche._id,
                     piece: piece.selectedPiece,
                     date_mouvement: new Date(),
-                    entree: 0,  
-                    sortie: piece.quantity, 
+                    entree: 0,
+                    sortie: piece.quantity,
                     prix_unitaire: 0
                 };
 
@@ -250,16 +252,27 @@ router.put('/update-save/:id', [verifyToken], async (req, res) => {
         }).save();
     }) : [];
 
-    const travauxPromises = travaux.map(travail => {
-        return new TravauxFicheIntervention({
-            fiche_intervention: updatedFiche._id,
-            designation: travail.designation,
-            quantite: travail.quantite,
-            prix_unitaire: travail.prixUnitaire,
-            prix_ht: travail.prixHT,
-            etat_intervention: travail.etat_intervention || etat_intervention || 0,
-        }).save();
-    });
+    const travauxPromises = travaux && travaux.length > 0 ? travaux.map(async (travail) => {
+        const existingTravail = await TravauxFicheIntervention.findOne({ fiche_intervention: updatedFiche._id, designation: travail.designation });
+
+        if (existingTravail) {
+            existingTravail.quantite = travail.quantite || existingTravail.quantite;
+            existingTravail.prix_unitaire = travail.prixUnitaire || existingTravail.prix_unitaire;
+            existingTravail.prix_ht = travail.prixHT || existingTravail.prix_ht;
+            existingTravail.etat_intervention = travail.etat_intervention || existingTravail.etat_intervention;
+
+            await existingTravail.save();
+        } else {
+            await new TravauxFicheIntervention({
+                fiche_intervention: updatedFiche._id,
+                designation: travail.designation,
+                quantite: travail.quantite,
+                prix_unitaire: travail.prixUnitaire,
+                prix_ht: travail.prixHT,
+                etat_intervention: travail.etat_intervention || etat_intervention || 0,
+            }).save();
+        }
+    }) : [];
 
     await Promise.all([...piecePromises, ...travauxPromises]);
 

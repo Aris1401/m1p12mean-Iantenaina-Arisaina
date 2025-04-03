@@ -11,10 +11,13 @@ const RendezVous = require('../model/RendezVous/rendezVous');
 const Utilisateur = require('../model/Utilisateur/utilisateur');
 const Vehicule=require('../model/Vehicule/vehicule');
 const AssignationIntervention = require('../model/Intervention/assignationIntervention')
+
 const { verifyToken, isManager, isUtilisateur } = require('../middlewares/jwt')
+
 // Services
 const InterventionService = require('../services/interventionService')
 const FactureService = require('../services/factureService')
+const PieceService = require('../services/pieceService')
 
 // Etats
 const { EtatIntervention, EtatDevis } = require('../model/Etats');
@@ -24,7 +27,8 @@ const TypeIntervention = require('../model/Intervention/FicheIntervention/typeIn
 const TypeEvenement = require('../model/Intervention/FicheIntervention/typeEvenement');
 const StockPiece = require('../model/Piece/stockPiece');
 const DevisPiece = require('../model/Intervention/Devis/devisPiece');
-const FicheIntervention = require('../model/Intervention/FicheIntervention/ficheIntervetion')
+const FicheIntervention = require('../model/Intervention/FicheIntervention/ficheIntervetion');
+const PieceFicheIntervention = require('../model/Intervention/FicheIntervention/pieceFicheIntervention');
 
 
 // Obtenir les interventions du jour
@@ -317,7 +321,8 @@ router.get('/', async (req, res) => {
         .populate('vehicule')           
         .populate('fiche_intervention')   
         .populate('devis')                
-        .populate('facture');            
+        .populate('facture')
+        .sort({ createdAt: -1 });            
       
       res.json({ data: interventions });
     } catch (error) {
@@ -333,6 +338,8 @@ router.get('/', async (req, res) => {
         const typeInterventions = await TypeIntervention.find(); 
         const typeEvenements = await TypeEvenement.find(); 
         const travauxFicheIntervention = await TravauxFicheIntervention.find();
+        
+
 
         const intervention = await Intervention.findById(id)
             .populate('utilisateur').populate('vehicule').populate('fiche_intervention').populate('devis').populate('facture');             
@@ -340,6 +347,22 @@ router.get('/', async (req, res) => {
         {
             return res.status(404).json({ message: 'Intervention non trouvée' });
         }
+        const ficheIntervention = await FicheIntervention.findOne({ intervention: id })
+        .populate('type_intervention')
+        .populate('type_evenement'); 
+      
+            console.log('ID de l\'intervention :', id);
+
+        
+            const travauxFicheInterventionByFiche = await TravauxFicheIntervention.find({ fiche_intervention: ficheIntervention._id }) || [];
+
+            const pieceFicheInterventionByFiche = await PieceFicheIntervention.find({ fiche_intervention: ficheIntervention._id })
+            .populate('piece')
+            || [];
+            console.log(pieceFicheInterventionByFiche);
+          
+          
+        console.log(travauxFicheInterventionByFiche);
 
         res.json({
             data: {
@@ -349,6 +372,9 @@ router.get('/', async (req, res) => {
                 typeInterventions,  
                 typeEvenements,     
                 travauxFicheIntervention,
+                ficheIntervention,
+                travauxFicheInterventionByFiche,
+                pieceFicheInterventionByFiche
             }
         });
 });
@@ -384,6 +410,8 @@ router.get('/stock/:idPiece', async (req, res) => {
         //     return res.status(404).json({ message: 'DevisPiece non trouvée' });
         // }
 
+        devisPiece.prix_unitaire = (await PieceService.obtenirEtatStockPiece(idPiece)).prix_cump
+
         res.status(200).json({
             piece: piece,
             stockDispo: stockDispo, 
@@ -395,6 +423,62 @@ router.get('/stock/:idPiece', async (req, res) => {
     }
 });
 
+router.put('/setEtatFini/:interventionId', async (req, res) => {
+    const { interventionId } = req.params; 
+  
+    try {
+        const intervention = await Intervention.findOne({ _id: interventionId }).populate("devis")
 
+        if (intervention.etat_intervention != EtatIntervention.EN_COURS) {
+            return res.status(400).json({
+                message: "Impossible de valider l'intervention pour le moment"
+            })
+        }
+
+        if (!intervention.devis) {
+            return res.status(400).json({
+                message: "Aucun devis assigner"
+            })
+        }
+
+        if (intervention.devis && intervention.devis.etat != EtatDevis.VALIDER) {
+            return res.status(400).json({
+                message: "En attente de validation de devis"
+            })
+        }
+
+        if (intervention.fiche_intervention) {
+            const travaux = await TravauxFicheIntervention.find({ fiche_intervention: intervention.fiche_intervention })
+
+            const allValid = travaux.every((travail) => {
+                return travail.etat_intervention == 100
+            })
+
+            if (!allValid) {
+                return res.status(400).json({
+                    message: "Certains travaux ne sont pas encore marquer comme fini"
+                })
+            }
+        }
+
+      const updatedIntervention = await Intervention.findByIdAndUpdate(
+        interventionId,
+        { etat_intervention: EtatIntervention.FINI },
+        { new: true }
+      );
+
+      if (!updatedIntervention) {
+        return res.status(404).json({ message: 'Intervention non trouvée.' });
+      }
+  
+      return res.status(200).json({
+        message: 'L\'intervention a été mise à jour avec l\'état "FINI".',
+        intervention: updatedIntervention
+      });
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ message: 'Erreur serveur lors de la mise à jour.' });
+    }
+  });
 
 module.exports = router;

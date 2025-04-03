@@ -217,6 +217,7 @@ router.get('/liste', async (req, res) => {
                     { path: 'type_rendez_vous', select: 'titre' } 
                 ]
             })
+            .sort({ date_rendez_vous: -1 })
             .exec();
 
         if (rdv.length === 0) {
