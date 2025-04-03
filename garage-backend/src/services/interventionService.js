@@ -32,6 +32,10 @@ class InterventionService {
 
         await intervention.save()
 
+        // Mettre a jour la fiche
+        ficheIntervention.intervention = intervention._id
+        await ficheIntervention.save()
+
         // Assigner intervetion a la demande
         const demandeRendezVous = await DemandeRendezVous.findOne({ _id: rendezVous.demande_rendez_vous._id })
         demandeRendezVous.intervention = intervention._id

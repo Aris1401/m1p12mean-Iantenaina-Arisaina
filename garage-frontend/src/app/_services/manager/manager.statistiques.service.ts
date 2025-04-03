@@ -15,8 +15,8 @@ export class ManagerStatistiquesService {
     return this.http.get(environment.apiUrl + "manager/stats/mois")
   }
 
-  getRendezVous() {
-    return this.http.get(environment.apiUrl + "manager/stats/rendez-vous")
+  getRendezVous(annee : any) {
+    return this.http.get(environment.apiUrl + "manager/stats/rendez-vous?annee=" + annee)
   }
 
   getNombreRendezVous() {

@@ -14,10 +14,10 @@ import { RouterModule } from '@angular/router';
     selector: 'app-manager.mecaniciens',
     imports: [CardModule, TableModule, ButtonModule, InputTextModule, FormsModule, DialogModule, ToastModule, RouterModule],
     template: `
-		<p-toast></p-toast>
+        <p-toast></p-toast>
 
         <p-card header="Mecaniciens">
-            <p-table [value]="mecaniciensData" #mcTable [paginator]="true" [rows]="10" [globalFilterFields]="['nom', 'prenom', 'email', 'adresse', 'telephone']">
+            <p-table [value]="mecaniciensData" [loading]="isLoading" #mcTable [paginator]="true" [rows]="10" [globalFilterFields]="['nom', 'prenom', 'email', 'adresse', 'telephone']">
                 <ng-template #caption>
                     <div class="flex justify-between">
                         <p-button label="Ajouter mecanicien" (onClick)="showAddMecanicien()" icon="pi pi-plus" />
@@ -57,7 +57,17 @@ import { RouterModule } from '@angular/router';
                 <div class="flex gap-2 w-full">
                     <div class="w-full">
                         <label for="nom" class="block mb-2 w-full text-xl font-medium">Nom</label>
-                        <input type="text" id="nom" name="nom" pInputText class="w-full" placeholder="Nom" [(ngModel)]="mecanicienData.nom" [class.ng-dirty]="mecanicienInvalid && mecanicienErrors.nom" [class.ng-invalid]="mecanicienInvalid && mecanicienErrors.nom" />
+                        <input
+                            type="text"
+                            id="nom"
+                            name="nom"
+                            pInputText
+                            class="w-full"
+                            placeholder="Nom"
+                            [(ngModel)]="mecanicienData.nom"
+                            [class.ng-dirty]="mecanicienInvalid && mecanicienErrors.nom"
+                            [class.ng-invalid]="mecanicienInvalid && mecanicienErrors.nom"
+                        />
                         @if (mecanicienInvalid && mecanicienErrors.nom) {
                             <small id="nom-error" class="text-red-500">{{ mecanicienErrors.nom.message }}</small>
                         }
@@ -157,7 +167,7 @@ import { RouterModule } from '@angular/router';
                     }
                 </div>
 
-                <p-button label="Ajouter mecenicien" styleClass="w-full mt-4" type="submit"></p-button>
+                <p-button label="Ajouter mecanicien" styleClass="w-full mt-4" type="submit" [loading]="isAddMecanicienLoading"></p-button>
             </form>
         </p-dialog>
     `,
@@ -176,18 +186,26 @@ export class ManagerMecaniciensComponent implements OnInit {
         date_naissance: ''
     };
 
-	mecanicienInvalid : boolean = false
-	mecanicienErrors : any = null
+    mecanicienInvalid: boolean = false;
+    mecanicienErrors: any = null;
+
+    // Loaders
+    isLoading: boolean = false;
+    isAddMecanicienLoading: boolean = false;
 
     constructor(
-		private mecanicienService: MecanicienService, 
-		private messageService : MessageService
-	) {}
+        private mecanicienService: MecanicienService,
+        private messageService: MessageService
+    ) {}
 
     ngOnInit(): void {
+        this.isLoading = true;
+
         this.mecanicienService.getMecaniciens().subscribe({
             next: (response: any) => {
                 this.mecaniciensData = response.data;
+
+                this.isLoading = false;
             }
         });
     }
@@ -196,9 +214,11 @@ export class ManagerMecaniciensComponent implements OnInit {
         this.isAddMecanicienVisible = true;
     }
 
-	onSubmitAddMecancien() {
-		this.mecanicienService.ajouterMecanicien(this.mecanicienData).subscribe({
-            next: (response : any) => {
+    onSubmitAddMecancien() {
+        this.isAddMecanicienLoading = true;
+
+        this.mecanicienService.ajouterMecanicien(this.mecanicienData).subscribe({
+            next: (response: any) => {
                 this.mecanicienInvalid = false;
 
                 this.mecanicienData = {
@@ -208,23 +228,29 @@ export class ManagerMecaniciensComponent implements OnInit {
                     telephone: '',
                     adresse: '',
                     date_naissance: ''
-                }
+                };
 
-				this.messageService.add({
-					summary: response.message,
-					severity: 'success'
-				})
+                this.messageService.add({
+                    summary: response.message,
+                    severity: 'success'
+                });
+
+                this.isAddMecanicienLoading = false;
+
+                this.ngOnInit()
             },
             error: (err) => {
                 this.mecanicienInvalid = true;
 
                 this.mecanicienErrors = err.error.error;
 
-				this.messageService.add({
-					summary: "Veuillez verifier les informations",
-					severity: 'error'
-				})
+                this.messageService.add({
+                    summary: 'Veuillez verifier les informations',
+                    severity: 'error'
+                });
+
+                this.isAddMecanicienLoading = false;
             }
         });
-	}
+    }
 }

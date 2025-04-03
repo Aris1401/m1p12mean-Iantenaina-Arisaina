@@ -118,7 +118,7 @@ import { forkJoin, Subject } from 'rxjs';
 
                 <div class="flex gap-2 justify-between">
                     <p-chip class="w-fit" [label]="this.rendezVousClicked && getEtatRendezVous(this.rendezVousClicked.etat_rendez_vous)" />
-                    <p-button label="Annuler" (onClick)="onAnnulerRendezVous(this.rendezVousClicked)" />
+                    <p-button label="Annuler" (onClick)="onAnnulerRendezVous(this.rendezVousClicked)" [loading]="isAnnulerLoading" />
                 </div>
             </div>
         </p-dialog>
@@ -178,7 +178,7 @@ import { forkJoin, Subject } from 'rxjs';
                     <textarea pTextarea name="description" id="description" rows="5" class="w-full" [(ngModel)]="rendezVousData.description"></textarea>
                 </div>
 
-                <p-button type="submit" label="Demander rendez-vous" class="w-full" />
+                <p-button type="submit" label="Demander rendez-vous" class="w-full" [loading]="isAddLoading" />
             </form>
         </p-dialog>
     `,
@@ -198,6 +198,9 @@ export class UtilisateurRendezVousComponent implements OnInit {
         type: '',
         vehicule: ''
     };
+
+    isAddLoading : boolean = false
+    isAnnulerLoading : boolean = false
 
     typesRendezVousData: any[] = [];
     vehiculesData: any[] = [];
@@ -231,6 +234,12 @@ export class UtilisateurRendezVousComponent implements OnInit {
     }
 
     obtenirRendezVousUtilisateur() {
+        // Ajouter message loading rendez vous
+        this.messageService.add({
+            summary: "Loading",
+            detail: "Chargement des donnees de rendez-vous",
+        })
+
         const getStart: any = {
             month: startOfMonth,
             week: startOfWeek,
@@ -305,6 +314,8 @@ export class UtilisateurRendezVousComponent implements OnInit {
     }
 
     onAnnulerRendezVous(rendezVous: any) {
+        this.isAnnulerLoading = true
+
         this.rendezVousService.annulerRendezVous(rendezVous._id).subscribe({
             next: (response: any) => {
                 this.isDetailsRendezVousVisible = false;
@@ -316,6 +327,8 @@ export class UtilisateurRendezVousComponent implements OnInit {
 
                 this.rendezVousEvents = this.rendezVousEvents.filter((event: any) => event._id != rendezVous._id);
 
+                this.isAnnulerLoading = false
+
                 this.refreshCalendar.next();
             },
             error: (err) => {
@@ -323,17 +336,22 @@ export class UtilisateurRendezVousComponent implements OnInit {
                     severity: 'error',
                     summary: err.error.error
                 });
+
+                this.isAnnulerLoading = false
             }
         });
     }
 
     onSubmitDemandeRendezVous() {
-        console.log(JSON.stringify(this.rendezVousData));
+        this.isAddLoading = true
+
         this.rendezVousService.addDemandeRendezVous(this.rendezVousData).subscribe({
             next: (response: any) => {
+                this.isAddLoading = false
+
                 this.messageService.add({
                     severity: 'success',
-                    summary: response.message
+                    summary: response.message + ". Apres avoir actualiser la page veuillez verifier dans l'onglet des demandes."
                 });
 
                 this.rendezVousData = {
@@ -353,6 +371,8 @@ export class UtilisateurRendezVousComponent implements OnInit {
                     severity: 'error',
                     summary: err.error.error
                 });
+
+                this.isAddLoading = false
             }
         });
     }

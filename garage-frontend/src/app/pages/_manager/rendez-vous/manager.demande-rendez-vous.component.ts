@@ -42,28 +42,27 @@ import { RouterModule } from '@angular/router';
         <!-- Details de rendez-vous -->
         <p-dialog header="Details rendez-vous" [(visible)]="isDetailsRendezVousVisible">
             <div class="flex gap-2">
-
                 <div class="flex flex-col gap-2">
                     <div class="flex flex-col gap-2">
                         <div class="flex gap-2 items-center">
                             <h5 class="m-0 p-0">{{ this.rendezVousClicked && this.rendezVousClicked.demande_rendez_vous.titre }}</h5>
                             <p-chip class="text-sm" [label]="this.rendezVousClicked && (this.rendezVousClicked.date_rendez_vous | date: 'yyyy-MM-dd HH:mm')" />
                         </div>
-    
+
                         <p>{{ this.rendezVousClicked && this.rendezVousClicked.demande_rendez_vous.description }}</p>
-    
+
                         <p-chip class="w-fit max-w-fit" [label]="this.rendezVousClicked && this.rendezVousClicked.demande_rendez_vous.type_rendez_vous.designation" />
                     </div>
-    
+
                     <p-divider />
-    
+
                     <div class="flex flex-col gap-2">
                         <div class="flex gap-4 align-middle items-center">
                             <i class="pi pi-car"></i>
-    
+
                             <div class="flex flex-col gap-2">
                                 <p class="m-0 font-extrabold">{{ this.rendezVousClicked && this.rendezVousClicked.demande_rendez_vous.vehicule.immatriculation }}</p>
-    
+
                                 <div class="flex gap-2">
                                     <p class="m-0">{{ this.rendezVousClicked && this.rendezVousClicked.demande_rendez_vous.vehicule.modele }}</p>
                                     <p class="m-0">{{ this.rendezVousClicked && this.rendezVousClicked.demande_rendez_vous.vehicule.marque }}</p>
@@ -72,26 +71,26 @@ import { RouterModule } from '@angular/router';
                             </div>
                         </div>
                     </div>
-    
+
                     <div class="flex flex-col gap-2">
                         <div class="flex gap-4 align-middle items-center">
                             <i class="pi pi-user"></i>
-    
+
                             <div class="flex flex-col gap-2">
                                 <div class="flex gap-2">
                                     <p class="m-0 font-extrabold">{{ this.rendezVousClicked && this.rendezVousClicked.demande_rendez_vous.utilisateur.nom }}</p>
                                     <p class="m-0 font-extrabold">{{ this.rendezVousClicked && this.rendezVousClicked.demande_rendez_vous.utilisateur.prenom }}</p>
                                 </div>
-    
+
                                 <div class="flex gap-2">
                                     <p class="m-0">{{ this.rendezVousClicked && this.rendezVousClicked.demande_rendez_vous.utilisateur.telephone }}</p>
                                 </div>
                             </div>
                         </div>
                     </div>
-    
+
                     <p-divider />
-    
+
                     <div class="flex gap-2 justify-between">
                         <p-chip class="w-fit" [label]="this.rendezVousClicked && getEtatRendezVous(this.rendezVousClicked.etat_rendez_vous)" />
 
@@ -100,17 +99,26 @@ import { RouterModule } from '@angular/router';
                         }
                     </div>
                 </div>
-    
+
                 <p-divider layout="vertical" />
-    
+
                 <div class="flex flex-col gap-2">
                     <div class="flex flex-col">
                         <h4>Mecaniciens</h4>
-    
+
                         <p-button label="Assigner mecanicien" icon="pi pi-plus" (onClick)="onAssignerMecanicien()" />
                     </div>
 
                     <p-data-view [value]="mecanicienAssignerData">
+                        <ng-template #header>
+                            @if (isMecanicienAssignerLoading) {
+                                <div class="flex p-3 items-center gap-2">
+                                    <i class="pi pi-spin pi-spinner" style="font-size: 2rem"></i>
+                                    <p>Chargement des mecaniciens assigner</p>
+                                </div>
+                            }
+                        </ng-template>
+
                         <ng-template #list let-mecaniciens>
                             <div class="flex flex-col gap-2">
                                 @for (mecanicien of mecaniciens; track mecanicien._id) {
@@ -186,7 +194,7 @@ import { RouterModule } from '@angular/router';
 
                 <div class="flex gap-2 justify-between">
                     <p-chip class="w-fit" [label]="this.demandeRendezVousClicked && getEtatDemandeRendezVous(this.demandeRendezVousClicked.etat_demande)" />
-                    <p-button label="Accepter" (onClick)="onAccepterDemande(this.demandeRendezVousClicked._id)" />
+                    <p-button label="Accepter" (onClick)="onAccepterDemande(this.demandeRendezVousClicked._id)" [loading]="isAccepterLoading" />
                 </div>
             </div>
         </p-dialog>
@@ -212,7 +220,12 @@ export class ManagerDemandeRendezVousComponent implements OnInit {
 
     // Assignation de mecanicien
     isAssignerMecanicienVisible: boolean = false;
-    mecanicienAssignerData : any[] = []
+    mecanicienAssignerData: any[] = [];
+
+    // Loaders
+    isAccepterLoading : boolean = false
+
+    isMecanicienAssignerLoading: boolean = false;
 
     constructor(
         private rendezVousService: RendezVousService,
@@ -254,12 +267,16 @@ export class ManagerDemandeRendezVousComponent implements OnInit {
         });
     }
 
-    fetchMecanicienAssigner(idRendezVous : any) {
+    fetchMecanicienAssigner(idRendezVous: any) {
+        this.isMecanicienAssignerLoading = true;
+
         this.rendezVousService.getMecanicienAssigner(idRendezVous).subscribe({
-            next: (response : any) => {
-                this.mecanicienAssignerData = response.data
+            next: (response: any) => {
+                this.mecanicienAssignerData = response.data;
+
+                this.isMecanicienAssignerLoading = false;
             }
-        })
+        });
     }
 
     changeDay(date: any) {
@@ -271,7 +288,7 @@ export class ManagerDemandeRendezVousComponent implements OnInit {
         if (event.meta && event.meta.rendezVous) {
             this.isDetailsRendezVousVisible = true;
             this.rendezVousClicked = event.meta.rendezVous;
-            this.fetchMecanicienAssigner(this.rendezVousClicked._id)
+            this.fetchMecanicienAssigner(this.rendezVousClicked._id);
         }
 
         if (event.meta && event.meta.demandeRendezVous) {
@@ -290,28 +307,33 @@ export class ManagerDemandeRendezVousComponent implements OnInit {
 
     // Lorsque l'utilisateur assigne un mecanicien
     onTryAssignerMecanicien(idMecanicien: any) {
-        if (!this.rendezVousClicked) return
+        if (!this.rendezVousClicked) return;
+
+        this.messageService.add({
+            summary: "En cours",
+            detail: "En cours d'assignation de mecanicien"
+        })
 
         this.rendezVousService.assignerMecanicien(this.rendezVousClicked._id, idMecanicien).subscribe({
-            next: (response : any) => {
-                this.isAssignerMecanicienVisible = false
+            next: (response: any) => {
+                this.isAssignerMecanicienVisible = false;
 
-                this.fetchMecanicienAssigner(this.rendezVousClicked._id)
+                this.fetchMecanicienAssigner(this.rendezVousClicked._id);
 
                 this.messageService.add({
-                    summary: "Assignation reussi",
+                    summary: 'Assignation reussi',
                     detail: response.message,
-                    severity: "success"
-                })
+                    severity: 'success'
+                });
             },
             error: (err) => {
                 this.messageService.add({
-                    summary: "Erreur",
+                    summary: 'Erreur',
                     detail: err.error.error,
-                    severity: "error"
-                })
+                    severity: 'error'
+                });
             }
-        })
+        });
     }
 
     getEtatRendezVous(etat_rendez_vous: any) {
@@ -337,6 +359,8 @@ export class ManagerDemandeRendezVousComponent implements OnInit {
     }
 
     onAccepterDemande(idDemande: any) {
+        this.isAccepterLoading = true
+
         this.rendezVousService.validerDemandeRendezVousManager(idDemande).subscribe({
             next: (response: any) => {
                 this.messageService.add({
@@ -347,6 +371,8 @@ export class ManagerDemandeRendezVousComponent implements OnInit {
 
                 this.isDetailsDemandeRendezVousVisible = false;
 
+                this.isAccepterLoading = false
+
                 this.ngOnInit();
             },
             error: (err) => {
@@ -355,6 +381,8 @@ export class ManagerDemandeRendezVousComponent implements OnInit {
                     summary: 'Demande rendez-vous',
                     detail: err.error.error
                 });
+
+                this.isAccepterLoading = false
             }
         });
     }

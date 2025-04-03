@@ -64,7 +64,7 @@ import { MessageModule } from 'primeng/message';
                                     </div>
                                     <span class="font-medium no-underline ml-2 text-right cursor-pointer text-primary">Forgot password?</span>
                                 </div> -->
-                                <p-button label="Sign In" styleClass="w-full" type="submit"></p-button>
+                                <p-button label="Sign In" styleClass="w-full" type="submit" [loading]="isLoading"></p-button>
                                 <p class="text-center mt-2">Vous n'avez pas de compte? <a routerLink="/signup" class="underline">Creer un compte</a></p>
                             </form>
                         </div>
@@ -80,6 +80,8 @@ export class Login {
 
     isInvalid = false
 
+    isLoading : boolean = false
+
     constructor(
         private authService: AuthentificationService,
         private authStorage: AuthStorageService,
@@ -87,9 +89,13 @@ export class Login {
     ) {}
 
     onLogin() {
+        this.isLoading = true
+
         this.authService.login(this.email, this.password).subscribe({
             next: (response) => {
                 this.authStorage.saveToken(response.token, response.roles, response.nom);
+
+                this.isLoading = false
 
                 // Redirection vers le dashboard
                 if (response.roles[0] == "ROLE_USER") {
@@ -103,6 +109,7 @@ export class Login {
             error: (error) => {
                 console.log(error);
                 this.isInvalid = true
+                this.isLoading = false
             }
         });
     }
