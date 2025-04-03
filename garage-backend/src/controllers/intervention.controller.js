@@ -417,6 +417,28 @@ router.get('/stock/:idPiece', async (req, res) => {
     }
 });
 
+router.put('/setEtatFini/:interventionId', async (req, res) => {
+    const { interventionId } = req.params; 
+  
+    try {
+      const updatedIntervention = await Intervention.findByIdAndUpdate(
+        interventionId,
+        { etat_intervention: EtatIntervention.FINI },
+        { new: true }
+      );
 
+      if (!updatedIntervention) {
+        return res.status(404).json({ message: 'Intervention non trouvée.' });
+      }
+  
+      return res.status(200).json({
+        message: 'L\'intervention a été mise à jour avec l\'état "FINI" (100).',
+        intervention: updatedIntervention
+      });
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ message: 'Erreur serveur lors de la mise à jour.' });
+    }
+  });
 
 module.exports = router;

@@ -191,6 +191,16 @@
       <button (click)="saveFicheIntervention()" class="bg-blue-600 text-white px-8 py-4 rounded-md w-auto">
         Sauvegarder la fiche
       </button>
+      
     </div>
+
+    <div *ngIf="canValidateTravaux()" class="text-right mt-4">
+      <button (click)="validateIntervention()" class="bg-green-600 text-white px-8 py-4 rounded-md w-auto">
+        Valider l'Intervention
+      </button>
+    </div>
+
+
+
   </div>
 </div>

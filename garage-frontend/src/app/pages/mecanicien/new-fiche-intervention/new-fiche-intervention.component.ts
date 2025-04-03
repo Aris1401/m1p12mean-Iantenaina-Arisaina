@@ -237,5 +237,21 @@ export class NewFicheInterventionComponent implements OnInit {
   
     this.filteredTravaux[index] = [];
   }
+
+  canValidateTravaux(): boolean {
+    return this.selectedTravaux.every(travail => travail.etat_intervention === 100);
+  }
+
+  validateIntervention(): void {
+    this.interventionService.setEtatIntervention(this.interventionId!).subscribe(
+      (response) => {
+        console.log('Réponse de l\'API:', response);
+        alert('Intervention validée et mise à jour avec succès.');
+      },
+      (error) => {
+        console.error('Erreur lors de la validation de l\'intervention:', error);
+      }
+    );
+  }
   
 }

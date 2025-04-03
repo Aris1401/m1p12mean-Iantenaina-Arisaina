@@ -10,4 +10,4 @@ const interventionSchema = new mongoose.Schema({
     utilisateur: { type: mongoose.Types.ObjectId, ref: "Utilisateur" },
 }, { timestamps: true })
 
-module.exports = mongoose.model('Intervention', interventionSchema);
+module.exports = mongoose.model('Intervention', interventionSchema,'intervention');
