@@ -8,7 +8,6 @@ const factureSchema = new mongoose.Schema(
     total: { type: Number, default: 0 },
     total_ttc: { type: Number, default: 0 },
     observation: { type: String },
-    // TODO: Ajouter les details
   },
   { timestamps: true }
 );

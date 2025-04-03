@@ -73,7 +73,7 @@ import { BadgeModule } from 'primeng/badge';
                     <ng-template let-intervention #body>
                         <tr>
                             <td>{{ intervention.createdAt | date: "yyyy-MM-dd HH:mm" }}</td>
-                            <td>{{ intervention.date_debut || 'N/A' }}</td>
+                            <td>{{ (intervention.date_debut | date: "yyyy-MM-dd HH:mm")  || 'N/A' }}</td>
                             <td>{{ intervention.devis?.reference ?? 'N/A' }}</td>
                             <td>{{ intervention.facture?.reference ?? 'N/A' }}</td>
                             <td>

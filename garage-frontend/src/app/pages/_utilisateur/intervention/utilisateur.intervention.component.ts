@@ -250,6 +250,9 @@ export class UtilisateurInterventionComponent implements OnInit {
                             this.isPiecesLoading = false
                         }
                     });
+                } else {
+                    this.isTravauxLoading = false
+                    this.isPiecesLoading = false
                 }
 
                 // Check si il faut selectionner une date de debut

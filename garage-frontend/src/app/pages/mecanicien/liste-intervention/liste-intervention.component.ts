@@ -25,6 +25,8 @@ export class ListeInterventionComponent implements OnInit {
     { label: "Fini", value: 100, severity: "success" }
   ]
 
+  isLoading : boolean = false
+
   constructor(
     private interventionService: InterventionService,
     private router: Router
@@ -36,12 +38,18 @@ export class ListeInterventionComponent implements OnInit {
 
   // Récupérer toutes les interventions via le service
   getAllIntervention(): void {
+    this.isLoading = true
+
     this.interventionService.getAllInterventions().subscribe(
       (resultData: any) => {
         this.ArrayIntervention = resultData.data;
+
+        this.isLoading = false
       },
       (error) => {
         console.error('Erreur lors de la récupération des interventions', error);
+
+        this.isLoading = false
       }
     );
   }

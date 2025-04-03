@@ -7,7 +7,6 @@ const devisSchema = new mongoose.Schema(
     etat: { type: Number, default: 0 },
     total: { type: Number, default: 0 },
     total_ttc: { type: Number, default: 0 },
-    // TODO: Ajouter les details
   },
   { timestamps: true }
 );
