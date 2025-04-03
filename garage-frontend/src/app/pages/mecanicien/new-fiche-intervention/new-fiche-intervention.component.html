@@ -74,7 +74,7 @@
           <div class="w-1/5">{{ travauxItem.prix_unitaire | number: "1.2" }} Ar</div>
           <div class="w-1/5">{{ travauxItem.prix_ht | number: '1.2' }} Ar</div>
           <!-- État de l'intervention -->
-          <div class="w-1/5">{{ travauxItem.etat_intervention === 0 ? 'Non effectué' : 'Effectué' }}</div>
+          <div class="w-1/5">{{ travauxItem.etat_intervention === 0 ? 'En rupture' : 'En stock' }}</div>
         </div>
       </div>
       
