@@ -140,14 +140,12 @@
         </div>
       </div>
 
-      <!-- Si aucun élément dans le tableau -->
       <div *ngIf="!travauxFicheInterventionByFiche || travauxFicheInterventionByFiche.length === 0">
         <p>Aucun travaux à afficher.</p>
       </div>
       
       
 
-      <!-- Add New Travaux -->
       <div *ngFor="let travail of selectedTravaux; let i = index" class="flex gap-4 mb-4">
         <div class="w-2/5">
           <input type="text" [(ngModel)]="travail.designation" (input)="onTravailInputChange(i)" placeholder="Rechercher un travail..." [attr.aria-haspopup]="'listbox'" [attr.aria-expanded]="filteredTravaux[i]?.length > 0 ? true : false" class="w-full p-2 border rounded" />
@@ -188,11 +186,20 @@
       <button (click)="addTravail()" class="mx-auto bg-blue-600 text-white px-6 py-3 rounded-md w-full max-w-full">Ajouter un Travail</button>
     </div>
 
-    <!-- Save Button -->
     <div class="text-right mt-4">
       <button (click)="saveFicheIntervention()" class="bg-blue-600 text-white px-8 py-4 rounded-md w-auto">
         Sauvegarder la fiche
       </button>
+      
     </div>
+
+    <div *ngIf="canValidateTravaux()" class="text-right mt-4">
+      <button (click)="validateIntervention()" class="bg-green-600 text-white px-8 py-4 rounded-md w-auto">
+        Valider l'Intervention
+      </button>
+    </div>
+
+
+
   </div>
 </div>
