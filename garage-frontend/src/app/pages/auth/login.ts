@@ -103,7 +103,7 @@ export class Login {
                 } else if (response.roles[0] == "ROLE_MANAGER") {
                     this.router.navigate(['/manager/tableau-de-bord']);
                 } else {
-                    this.router.navigate(['/dashboard']);
+                    this.router.navigate(['/liste']);
                 }
             },
             error: (error) => {

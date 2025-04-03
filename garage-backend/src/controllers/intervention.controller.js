@@ -15,6 +15,7 @@ const { verifyToken, isManager, isUtilisateur } = require('../middlewares/jwt')
 // Services
 const InterventionService = require('../services/interventionService')
 const FactureService = require('../services/factureService')
+const PieceService = require('../services/pieceService')
 
 // Etats
 const { EtatIntervention, EtatDevis } = require('../model/Etats');
@@ -405,6 +406,8 @@ router.get('/stock/:idPiece', async (req, res) => {
         // if (!devisPiece) {
         //     return res.status(404).json({ message: 'DevisPiece non trouvée' });
         // }
+
+        devisPiece.prix_unitaire = (await PieceService.obtenirEtatStockPiece(idPiece)).prix_cump
 
         res.status(200).json({
             piece: piece,
