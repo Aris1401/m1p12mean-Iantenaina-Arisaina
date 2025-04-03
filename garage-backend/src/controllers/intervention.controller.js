@@ -11,7 +11,9 @@ const RendezVous = require('../model/RendezVous/rendezVous');
 const Utilisateur = require('../model/Utilisateur/utilisateur');
 const Vehicule=require('../model/Vehicule/vehicule');
 const AssignationIntervention = require('../model/Intervention/assignationIntervention')
+
 const { verifyToken, isManager, isUtilisateur } = require('../middlewares/jwt')
+
 // Services
 const InterventionService = require('../services/interventionService')
 const FactureService = require('../services/factureService')
@@ -425,6 +427,40 @@ router.put('/setEtatFini/:interventionId', async (req, res) => {
     const { interventionId } = req.params; 
   
     try {
+        const intervention = await Intervention.findOne({ _id: interventionId }).populate("devis")
+
+        if (intervention.etat_intervention != EtatIntervention.EN_COURS) {
+            return res.status(400).json({
+                message: "Impossible de valider l'intervention pour le moment"
+            })
+        }
+
+        if (!intervention.devis) {
+            return res.status(400).json({
+                message: "Aucun devis assigner"
+            })
+        }
+
+        if (intervention.devis && intervention.devis.etat != EtatDevis.VALIDER) {
+            return res.status(400).json({
+                message: "En attente de validation de devis"
+            })
+        }
+
+        if (intervention.fiche_intervention) {
+            const travaux = await TravauxFicheIntervention.find({ fiche_intervention: intervention.fiche_intervention })
+
+            const allValid = travaux.every((travail) => {
+                return travail.etat_intervention == 100
+            })
+
+            if (!allValid) {
+                return res.status(400).json({
+                    message: "Certains travaux ne sont pas encore marquer comme fini"
+                })
+            }
+        }
+
       const updatedIntervention = await Intervention.findByIdAndUpdate(
         interventionId,
         { etat_intervention: EtatIntervention.FINI },
@@ -436,7 +472,7 @@ router.put('/setEtatFini/:interventionId', async (req, res) => {
       }
   
       return res.status(200).json({
-        message: 'L\'intervention a été mise à jour avec l\'état "FINI" (100).',
+        message: 'L\'intervention a été mise à jour avec l\'état "FINI".',
         intervention: updatedIntervention
       });
     } catch (error) {

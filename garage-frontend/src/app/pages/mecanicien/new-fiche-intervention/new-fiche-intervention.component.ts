@@ -260,14 +260,24 @@ export class NewFicheInterventionComponent implements OnInit {
   }
 
   validateIntervention(): void {
-    this.interventionService.setEtatIntervention(this.interventionId!).subscribe(
-      (response) => {
-        console.log('Réponse de l\'API:', response);
-        alert('Intervention validée et mise à jour avec succès.');
-      },
-      (error) => {
-        console.error('Erreur lors de la validation de l\'intervention:', error);
-      }
+    this.interventionService.setEtatIntervention(this.interventionId!).subscribe({
+        next: (response : any) => {
+            console.log('Réponse de l\'API:', response);
+
+            this.messageService.add({
+                summary: "Valider",
+                detail: response.message,
+                severity: 'success'
+            })
+        },
+        error: (err) => {
+            this.messageService.add({
+                summary: "Erreur",
+                detail: err.error.message,
+                severity: 'error'
+            })
+        }
+    }
     );
   }
 }
