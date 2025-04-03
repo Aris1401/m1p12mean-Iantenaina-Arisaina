@@ -209,20 +209,19 @@
       <button (click)="addTravail()" class="mx-auto bg-blue-600 text-white px-6 py-3 rounded-md w-full max-w-full">Ajouter un Travail</button>
     </div>
 
-    <div class="text-right mt-4">
-      <button (click)="saveFicheIntervention()" pButton icon="pi pi-pencil" [loading]="isModifyLoading">
-        Sauvegarder la fiche
-      </button>
-      
+    <div class="flex flex-col justify-end items-end gap-2">
+      <div>
+        <button (click)="saveFicheIntervention()" pButton icon="pi pi-pencil" [loading]="isModifyLoading">
+          Sauvegarder la fiche
+        </button>
+        
+      </div>
+  
+      <div *ngIf="canValidateTravaux()">
+        <button (click)="validateIntervention()" pButton icon="pi pi-check" [loading]="isValiderLoading" severity="success" [style.width]="isValiderLoading ? 'auto' : '100%'" class="w-fit">
+          Valider l'Intervention
+        </button>
+      </div>
     </div>
-
-    <div *ngIf="canValidateTravaux()" class="text-right mt-4">
-      <button (click)="validateIntervention()" pButton icon="pi pi-check" [loading]="isValiderLoading" severity="success" class="bg-green-600 text-white px-8 py-4 rounded-md w-auto">
-        Valider l'Intervention
-      </button>
-    </div>
-
-
-
   </div>
 </div>
