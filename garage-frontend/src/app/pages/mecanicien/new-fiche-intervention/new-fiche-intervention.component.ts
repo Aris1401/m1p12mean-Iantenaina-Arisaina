@@ -181,10 +181,9 @@ export class NewFicheInterventionComponent implements OnInit {
         return;
     }
 
-    // Vous devez vous assurer que l'état des travaux est bien envoyé avec le tableau de travaux
     const travauxAvecEtat = this.travauxFicheInterventionByFiche.map(travauxItem => ({
-        ...travauxItem, // Copie de l'objet existant
-        etat_intervention: travauxItem.etat_intervention || 0  // Ajout de l'état modifié
+        ...travauxItem, 
+        etat_intervention: travauxItem.etat_intervention || 0  
     }));
 
     const ficheData = {
@@ -194,7 +193,7 @@ export class NewFicheInterventionComponent implements OnInit {
         autre_evenement: this.selectedTypeEvenement === 'autre' ? this.otherEvenement : '',
         documents: [],
         pieces: this.selectedPieces,
-        travaux: travauxAvecEtat,  // Ajout des travaux modifiés avec l'état
+        travaux: travauxAvecEtat, 
         etat_intervention: this.etatIntervention,
         status: this.status
     };

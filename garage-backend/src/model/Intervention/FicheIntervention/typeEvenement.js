@@ -4,4 +4,4 @@ const typeEvenementSchema = new mongoose.Schema({
     designation: { type: String, required: true }
 }, { timestamps: true })
 
-module.exports = mongoose.model("TypeEvenement", typeEvenementSchema,'typeevenement')
+module.exports = mongoose.model("TypeEvenement", typeEvenementSchema)

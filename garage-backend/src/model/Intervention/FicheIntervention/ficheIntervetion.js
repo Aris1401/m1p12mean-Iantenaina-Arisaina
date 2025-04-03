@@ -15,4 +15,4 @@ const ficheInterventionSchema = new mongoose.Schema({
     // Ajouter references aux details
 }, {timestamps: true})
 
-module.exports = mongoose.model("FicheIntervention", ficheInterventionSchema,'ficheintervention')
+module.exports = mongoose.model("FicheIntervention", ficheInterventionSchema)
