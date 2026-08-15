@@ -17,10 +17,11 @@ import { MultiSelectModule } from 'primeng/multiselect';
 import { VehiculeService } from '../../../_services/vehicule/vehicule.service';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
+import { Badge } from "primeng/badge";
 
 @Component({
     selector: 'app-utilisateur-rendez-vous-liste-demande',
-    imports: [TableModule, ToastModule, MultiSelectModule, SelectModule, IconFieldModule, FormsModule, InputIconModule, SelectModule, InputGroupModule, InputGroupAddonModule, InputTextModule, CardModule, ButtonModule, ChipModule, CommonModule, FormsModule],
+    imports: [TableModule, ToastModule, MultiSelectModule, SelectModule, IconFieldModule, FormsModule, InputIconModule, SelectModule, InputGroupModule, InputGroupAddonModule, InputTextModule, CardModule, ButtonModule, ChipModule, CommonModule, FormsModule, Badge],
     standalone: true,
     template: `
         <p-toast></p-toast>
@@ -135,10 +136,10 @@ import { MessageService } from 'primeng/api';
                     <td>
                         @switch (demande.etat_demande) {
                             @case (0) {
-                                <p-chip label="En cours" />
+                                <p-badge severity="warn" value="En cours" />
                             }
                             @case (10) {
-                                <p-chip label="Valider" />
+                                <p-badge severity="success" value="Valider" />
                             }
                         }
                     </td>
