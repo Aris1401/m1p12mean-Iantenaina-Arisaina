@@ -91,6 +91,7 @@ import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
                                                     </div>
                                                 </span>
                                                 <div class="text-lg font-medium mt-1">{{ vehicule.modele }}</div>
+                                                <div class="text-lg font-medium mt-1">{{ vehicule.immatriculation }}</div>
                                             </div>
                                         </div>
 
