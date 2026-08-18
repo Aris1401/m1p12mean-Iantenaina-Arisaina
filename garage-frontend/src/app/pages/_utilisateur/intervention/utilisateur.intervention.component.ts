@@ -118,8 +118,8 @@ import { DetailsFicheInterventionComponent } from '../../utils/fiche-interventio
                                 <div class="flex gap-2 justify-end">
                                     <p-button icon="pi pi-download" label="Telecharger" (onClick)="factureService.downloadDevis(devis?._id)" />
                                     @if (devis?.etat == 0) {
-                                        <p-button icon="pi pi-check" label="Valider" (onClick)="onValiderDevis(devis.intervention)" />
-                                        <p-button severity="danger" icon="pi pi-check" label="Refuser" (onClick)="onRefuserDevis(devis.intervention)" />
+                                        <p-button severity="success" icon="pi pi-check" label="Valider" (onClick)="onValiderDevis(devis.intervention)" />
+                                        <p-button severity="danger" icon="pi pi-times" label="Refuser" (onClick)="onRefuserDevis(devis.intervention)" />
                                     }
                                 </div>
                             </td>
