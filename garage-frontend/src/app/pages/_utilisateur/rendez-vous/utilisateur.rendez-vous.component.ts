@@ -21,6 +21,7 @@ import { UtilisateurRendezVousListeDemandeComponent } from './utilisateur.rendez
 import { ChipModule } from 'primeng/chip';
 import { DividerModule } from 'primeng/divider';
 import { forkJoin, Subject } from 'rxjs';
+import { RouterModule } from '@angular/router';
 
 @Component({
     selector: 'app-utilisateur.rendez-vous',
@@ -41,7 +42,8 @@ import { forkJoin, Subject } from 'rxjs';
         SelectModule,
         ButtonModule,
         ChipModule,
-        DividerModule
+        DividerModule,
+        RouterModule
     ],
     template: `
         <p-toast></p-toast>
@@ -111,6 +113,8 @@ import { forkJoin, Subject } from 'rxjs';
                                 <p class="m-0">{{ this.rendezVousClicked && this.rendezVousClicked.demande_rendez_vous.vehicule.annee }}</p>
                             </div>
                         </div>
+
+                        <p-button label="Afficher details" icon="pi pi-eye" class="p-button-rounded p-button-text" [routerLink]="['/vehicule', this.rendezVousClicked?.demande_rendez_vous?.vehicule?._id]" />
                     </div>
                 </div>
 
