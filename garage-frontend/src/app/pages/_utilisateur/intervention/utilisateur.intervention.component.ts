@@ -26,7 +26,7 @@ import { DetailsFicheInterventionComponent } from '../../utils/fiche-interventio
 
         <div class="flex flex-col gap-2">
             @if (intervetionData?.facture) {
-                <p-card header="Devis">
+                <p-card header="Facture">
                     <p-table [value]="factureData" [stripedRows]="true">
                         <ng-template #header>
                             <tr>

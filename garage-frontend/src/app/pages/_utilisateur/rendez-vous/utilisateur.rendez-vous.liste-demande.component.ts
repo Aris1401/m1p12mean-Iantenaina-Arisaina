@@ -40,7 +40,7 @@ import { Badge } from "primeng/badge";
                         <p-inputicon>
                             <i class="pi pi-search"></i>
                         </p-inputicon>
-                        <input pInputText type="text" (input)="demandesrendezvous.filterGlobal($any($event.target).value, 'contains')" placeholder="Search keyword" />
+                        <input pInputText type="text" (input)="demandesrendezvous.filterGlobal($any($event.target).value, 'contains')" placeholder="Mot-clés de recherche" />
                     </p-iconfield>
                 </div>
             </ng-template>
@@ -55,17 +55,17 @@ import { Badge } from "primeng/badge";
 
                 <tr>
                     <th>
-                        <p-columnFilter type="date" field="date_souhaiter" placeholder="Date de demande"></p-columnFilter>
+                        <p-columnFilter type="date" field="date_souhaiter" placeholder="dd/MM/YYYY"></p-columnFilter>
                     </th>
 
                     <th>
-                        <p-columnFilter type="text" field="titre,description,type_rendez_vous.designation" />
+                        <p-columnFilter type="text" field="titre,description,type_rendez_vous.designation" placeholder="Rechercher..." />
                     </th>
 
                     <th>
                         <p-columnFilter matchMode="in" field="vehicule._id" [showMenu]="false" class="w-full">
                             <ng-template #filter let-value let-filter="filterCallback">
-                                <p-multi-select [ngModel]="value" [options]="vehiculesUtilisateurs" (onChange)="filter($event.value)" optionValue="_id" optionLabel="immatriculation">
+                                <p-multi-select [ngModel]="value" [options]="vehiculesUtilisateurs" (onChange)="filter($event.value)" optionValue="_id" optionLabel="immatriculation" placeholder="Selectionnez votre vehicule">
                                     <ng-template let-option #item>
                                         <div class="flex gap-3 items-center">
                                             <i class="pi pi-car"></i>
