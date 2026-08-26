@@ -92,11 +92,14 @@ export class InterventionService {
     }
   }
 
-    createIntervention(idRdv: string): Observable<any> {
-      return this.http.post<any>(`${environment.apiUrl}intervention/new`, { idRdv });
-    }
-    
+  createIntervention(idRdv: string): Observable<any> {
+    return this.http.post<any>(`${environment.apiUrl}intervention/new`, { idRdv });
+  }
 
+  // Obtenir les interventions EN_COURS de l'utilisateur
+  getUtilisateurInterventionsEnCours(): Observable<any> {
+    return this.http.get<any>(`${environment.apiUrl}intervention/utilisateur`);
+  }
 
   getPieceStock(pieceId: string): Observable<any> {
     return this.http.get<any>(`${environment.apiUrl}intervention/stock/${pieceId}`);

@@ -4,11 +4,13 @@ import { UtilisateurVehiculeComponent } from './vehicule/utilisateur.vehicule.co
 import { UtilisateurDetailsVehiculeComponent } from './vehicule/utilisateur.details-vehicule.component';
 import { UtilisateurRendezVousComponent } from './rendez-vous/utilisateur.rendez-vous.component';
 import { UtilisateurInterventionComponent } from './intervention/utilisateur.intervention.component';
+import { UtilisateurInterventionsListComponent } from './intervention/utilisateur.interventions-list.component';
 
 export default [
     { path: 'profil', component: UtilisateurProfilComponent },
     { path: 'vehicule', component: UtilisateurVehiculeComponent },
     { path: 'vehicule/:id', component: UtilisateurDetailsVehiculeComponent },
     { path: 'rendez-vous', component: UtilisateurRendezVousComponent },
+    { path: 'utilisateur/interventions', component: UtilisateurInterventionsListComponent },
     { path: 'intervention/:id', component: UtilisateurInterventionComponent }
 ] as Routes;

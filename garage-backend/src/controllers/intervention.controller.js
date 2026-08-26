@@ -54,6 +54,46 @@ router.get('/', [verifyToken], async (req, res) => {
     })
 })
 
+// Obtenir les interventions de l'utilisateur ayant besoin de validation (devis/facture)
+router.get('/utilisateur', [verifyToken, isUtilisateur], async (req, res) => {
+    try {
+        // Récupérer toutes les interventions de l'utilisateur avec devis/facture
+        const interventions = await Intervention.find({
+            utilisateur: req.utilisateurId
+        }).populate([
+            "vehicule",
+            {
+                path: "utilisateur",
+                select: ["-mot_de_passe", "-documents"]
+            },
+            "facture",
+            "devis"
+        ]).sort({ createdAt: -1 })
+
+        // Filtrer les interventions qui ont besoin de validation/attention
+        const interventionsNeedingAttention = interventions.filter(intervention => {
+            // Inclusion si:
+            // 1. Devis n'existe pas encore (pas généré)
+            // 2. OU Devis existe mais est en EN_ATTENTE (pas validé)
+            // 3. OU Facture n'existe pas encore (pas générée)
+            // 4. OU Facture existe mais est en EN_ATTENTE (pas validée)
+            
+            const devisNeedAttention = !intervention.devis || intervention.devis.etat === EtatDevis.EN_ATTENTE
+            const factureNeedAttention = !intervention.facture || intervention.facture.etat === EtatDevis.EN_ATTENTE
+            
+            return devisNeedAttention || factureNeedAttention || intervention.etat_intervention <= EtatIntervention.EN_ATTENTE_DE_PIECE
+        })
+
+        return res.status(200).json({
+            data: interventionsNeedingAttention
+        })
+    } catch (error) {
+        return res.status(500).json({
+            error: error.message
+        })
+    }
+})
+
 // Obtenir l'intervetion courante d'un vehicule
 router.get('/vehicule/:vehiculeId/actif', [verifyToken], async (req, res) => {
     const interventions = await Intervention.find({ vehicule: req.params.vehiculeId, etat_intervention: EtatIntervention.EN_COURS }).populate("facture").populate("devis").sort({ createdAt: -1 }).limit(1)
