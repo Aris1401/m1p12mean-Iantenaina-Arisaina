@@ -91,6 +91,7 @@ import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
                                                     </div>
                                                 </span>
                                                 <div class="text-lg font-medium mt-1">{{ vehicule.modele }}</div>
+                                                <div class="text-lg font-medium mt-1">{{ vehicule.immatriculation }}</div>
                                             </div>
                                         </div>
 
@@ -248,6 +249,7 @@ import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
                         [class.ng-dirty]="uploadVehiculeErrors.immatriculation"
                         [class.ng-invalid]="uploadVehiculeErrors.immatriculation"
                         [(ngModel)]="uploadVehiculeData.immatriculation"
+                        placeholder="ABCD 1234"
                     />
                     @if (uploadVehiculeErrors.immatriculation) {
                         <small class="text-red-500">Veuillez entrer votre immatriculation</small>
@@ -352,24 +354,40 @@ export class UtilisateurVehiculeComponent implements OnInit {
         this.vehiculeService.getMarques().subscribe({
             next: (response: any) => {
                 this.marqueVehicule.set(response.data.Results);
+
+                if (this.marqueVehicule().length > 0) {
+                    this.uploadVehiculeData.marque.set(this.marqueVehicule()[0]['Make_Name']);
+                }
             }
         });
 
         this.vehiculeService.getAnnees().subscribe({
             next: (response: any) => {
                 this.anneeVehicule.set(response.data);
+
+                if (this.anneeVehicule().length > 0) {
+                    this.uploadVehiculeData.annee.set(this.anneeVehicule()[0]['annee']);
+                }
             }
         });
 
         this.vehiculeService.getBoiteDeVitesse().subscribe({
             next: (response: any) => {
                 this.boiteVitesseVehicule = response.data.Results;
+
+                if (this.boiteVitesseVehicule.length > 0) {
+                    this.uploadVehiculeData.boite_de_vitesse = this.boiteVitesseVehicule[0]['Name'];
+                }
             }
         });
 
         this.vehiculeService.getCarburants().subscribe({
             next: (repsponse: any) => {
                 this.carburantVehicule = repsponse.data.Results;
+
+                if (this.carburantVehicule.length > 0) {
+                    this.uploadVehiculeData.carburant = this.carburantVehicule[0]['Name'];
+                }
             }
         });
     }

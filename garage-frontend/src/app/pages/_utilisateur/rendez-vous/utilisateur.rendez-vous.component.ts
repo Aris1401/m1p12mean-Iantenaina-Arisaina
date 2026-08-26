@@ -275,7 +275,7 @@ export class UtilisateurRendezVousComponent implements OnInit {
                         const indisponibiliteEvent = indisponibilite
                             .map((item: any) => {
                                 return {
-                                    titre: '',
+                                    title: '',
                                     start: new Date(item.start),
                                     end: new Date(item.end),
                                     color: { primary: '#ff0000', secondary: '#FF6F6F' }
@@ -283,11 +283,63 @@ export class UtilisateurRendezVousComponent implements OnInit {
                             })
                             .flat();
 
-                        this.rendezVousEvents = [...this.rendezVousEvents, ...indisponibiliteEvent];
+                        this.rendezVousEvents = this.mergeRendezVousAndIndisponibilites(this.rendezVousEvents, indisponibiliteEvent);
                     }
                 });
             }
         });
+    }
+
+    mergeRendezVousAndIndisponibilites(rendezVous: any[], indisponibilites: any[]) {
+        const mergedEvents: any[] = [];
+        const usedIndispoIndices = new Set<number>();
+
+        rendezVous.forEach((rdv) => {
+            const rdvStart = new Date(rdv.date_rendez_vous).getTime();
+
+            const indispoIndex = indisponibilites.findIndex((indispo, idx) => {
+                if (usedIndispoIndices.has(idx)) return false;
+                const indispoStart = new Date(indispo.start).getTime();
+                const indispoEnd = new Date(indispo.end).getTime();
+                return rdvStart >= indispoStart && rdvStart <= indispoEnd;
+            });
+
+            if (indispoIndex !== -1) {
+                const indisponibilite = indisponibilites[indispoIndex];
+                usedIndispoIndices.add(indispoIndex);
+
+                mergedEvents.push({
+                    title: rdv.demande_rendez_vous.titre,
+                    start: new Date(rdv.date_rendez_vous),
+                    end: new Date(indisponibilite.end),
+                    color: { primary: '#ff0000', secondary: '#FF6F6F' },
+                    meta: {
+                        rendezVous: rdv
+                    }
+                });
+            } else {
+                mergedEvents.push({
+                    title: rdv.demande_rendez_vous.titre,
+                    start: new Date(rdv.date_rendez_vous),
+                    meta: {
+                        rendezVous: rdv
+                    }
+                });
+            }
+        });
+
+        indisponibilites.forEach((indispo, idx) => {
+            if (!usedIndispoIndices.has(idx)) {
+                mergedEvents.push({
+                    title: '',
+                    start: new Date(indispo.start),
+                    end: new Date(indispo.end),
+                    color: { primary: '#ff0000', secondary: '#FF6F6F' }
+                });
+            }
+        });
+
+        return mergedEvents;
     }
 
     changeDay(date: any) {
