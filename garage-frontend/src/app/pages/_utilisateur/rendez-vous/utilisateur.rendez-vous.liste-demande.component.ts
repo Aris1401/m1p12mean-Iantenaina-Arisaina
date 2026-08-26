@@ -17,10 +17,11 @@ import { MultiSelectModule } from 'primeng/multiselect';
 import { VehiculeService } from '../../../_services/vehicule/vehicule.service';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
+import { Badge } from "primeng/badge";
 
 @Component({
     selector: 'app-utilisateur-rendez-vous-liste-demande',
-    imports: [TableModule, ToastModule, MultiSelectModule, SelectModule, IconFieldModule, FormsModule, InputIconModule, SelectModule, InputGroupModule, InputGroupAddonModule, InputTextModule, CardModule, ButtonModule, ChipModule, CommonModule, FormsModule],
+    imports: [TableModule, ToastModule, MultiSelectModule, SelectModule, IconFieldModule, FormsModule, InputIconModule, SelectModule, InputGroupModule, InputGroupAddonModule, InputTextModule, CardModule, ButtonModule, ChipModule, CommonModule, FormsModule, Badge],
     standalone: true,
     template: `
         <p-toast></p-toast>
@@ -39,7 +40,7 @@ import { MessageService } from 'primeng/api';
                         <p-inputicon>
                             <i class="pi pi-search"></i>
                         </p-inputicon>
-                        <input pInputText type="text" (input)="demandesrendezvous.filterGlobal($any($event.target).value, 'contains')" placeholder="Search keyword" />
+                        <input pInputText type="text" (input)="demandesrendezvous.filterGlobal($any($event.target).value, 'contains')" placeholder="Mot-clés de recherche" />
                     </p-iconfield>
                 </div>
             </ng-template>
@@ -54,17 +55,17 @@ import { MessageService } from 'primeng/api';
 
                 <tr>
                     <th>
-                        <p-columnFilter type="date" field="date_souhaiter" placeholder="Date de demande"></p-columnFilter>
+                        <p-columnFilter type="date" field="date_souhaiter" placeholder="dd/MM/YYYY"></p-columnFilter>
                     </th>
 
                     <th>
-                        <p-columnFilter type="text" field="titre,description,type_rendez_vous.designation" />
+                        <p-columnFilter type="text" field="titre,description,type_rendez_vous.designation" placeholder="Rechercher..." />
                     </th>
 
                     <th>
                         <p-columnFilter matchMode="in" field="vehicule._id" [showMenu]="false" class="w-full">
                             <ng-template #filter let-value let-filter="filterCallback">
-                                <p-multi-select [ngModel]="value" [options]="vehiculesUtilisateurs" (onChange)="filter($event.value)" optionValue="_id" optionLabel="immatriculation">
+                                <p-multi-select [ngModel]="value" [options]="vehiculesUtilisateurs" (onChange)="filter($event.value)" optionValue="_id" optionLabel="immatriculation" placeholder="Selectionnez votre vehicule">
                                     <ng-template let-option #item>
                                         <div class="flex gap-3 items-center">
                                             <i class="pi pi-car"></i>
@@ -135,10 +136,10 @@ import { MessageService } from 'primeng/api';
                     <td>
                         @switch (demande.etat_demande) {
                             @case (0) {
-                                <p-chip label="En cours" />
+                                <p-badge severity="warn" value="En cours" />
                             }
                             @case (10) {
-                                <p-chip label="Valider" />
+                                <p-badge severity="success" value="Valider" />
                             }
                         }
                     </td>
