@@ -13,6 +13,7 @@ import { MessageService } from 'primeng/api';
 import { ManagerAssignationRendezVousComponent } from './manager.assignation-rendez-vous.component';
 import { DataViewModule } from 'primeng/dataview';
 import { RouterModule } from '@angular/router';
+import { environment } from '../../../../environments/environment';
 
 @Component({
     selector: 'app-manager.demande-rendez-vous',
@@ -298,6 +299,7 @@ export class ManagerDemandeRendezVousComponent implements OnInit {
     }
 
     onAddDemandeRendezVous(date: any) {
+        if (environment.production) return;
         console.log(date);
     }
 

@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { MenuItem } from 'primeng/api';
 import { AppMenuitem } from './app.menuitem';
+import { environment } from '../../../environments/environment';
 
 @Component({
     selector: 'app-menu',
@@ -24,7 +25,9 @@ export class AppMenu {
         const storedRoles = localStorage.getItem('roles');
         this.roleUtilisateur = storedRoles ? JSON.parse(storedRoles)[0] : null;
 
-        console.log(this.roleUtilisateur)
+        if (!environment.production) {
+            console.log(this.roleUtilisateur)
+        }
 
         this.model = [
             {

@@ -8,6 +8,7 @@ import { FicheInterventionService } from '../../../_services/fiche-intervention/
 import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
 import { ButtonModule } from 'primeng/button';
+import { environment } from '../../../../environments/environment';
 
 @Component({
     selector: 'app-new-fiche-intervention',
@@ -214,7 +215,9 @@ export class NewFicheInterventionComponent implements OnInit {
 
                 this.isModifyLoading = false
 
-                console.log('Fiche mise à jour et enregistrée avec succès:', response);
+                if (!environment.production) {
+                    console.log('Fiche mise à jour et enregistrée avec succès:', response);
+                }
             },
             (error) => {
                 this.messageService.add({
@@ -275,7 +278,9 @@ export class NewFicheInterventionComponent implements OnInit {
 
     this.interventionService.setEtatIntervention(this.interventionId!).subscribe({
         next: (response : any) => {
-            console.log('Réponse de l\'API:', response);
+            if (!environment.production) {
+                console.log('Réponse de l\'API:', response);
+            }
 
             this.isValiderLoading = false
 

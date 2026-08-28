@@ -315,7 +315,9 @@ export class UtilisateurProfilComponent implements OnInit {
     onUpdateProfile() {
         this.authService.updateUser(this.userData).subscribe({
             next: (response: any) => {
-                console.log('Successs');
+                if (!environment.production) {
+                    console.log('Successs');
+                }
 
                 this.messageService.add({
                     severity: 'success',
@@ -365,7 +367,9 @@ export class UtilisateurProfilComponent implements OnInit {
     }
 
     onSubmitUploadFile() {
-        console.log(this.userDocumentUploadData);
+        if (!environment.production) {
+            console.log(this.userDocumentUploadData);
+        }
 
         // Creation a form data
         let formData = new FormData();
@@ -374,7 +378,9 @@ export class UtilisateurProfilComponent implements OnInit {
 
         this.userService.addUtilisateurDocument(formData).subscribe({
             next: (response: any) => {
-                console.log('Fichier uploader avec success');
+                if (!environment.production) {
+                    console.log('Fichier uploader avec success');
+                }
 
                 this.userDocumentUploadData = {
                     fichier: '',

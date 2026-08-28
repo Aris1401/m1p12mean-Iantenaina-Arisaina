@@ -23,7 +23,9 @@ export class FactureService {
                 const contentDisposition = response.headers.get('Content-Disposition');
                 let fileName = 'downloaded-file'; // Default name
 
-                console.log(response.headers)
+                if (!environment.production) {
+                    console.log(response.headers)
+                }
 
                 if (contentDisposition) {
                     const match = contentDisposition.match(/filename="(.+)"/);
@@ -50,7 +52,9 @@ export class FactureService {
           const contentDisposition = response.headers.get('Content-Disposition');
           let fileName = 'downloaded-file'; // Default name
 
-          console.log(response.headers)
+          if (!environment.production) {
+            console.log(response.headers)
+          }
 
           if (contentDisposition) {
               const match = contentDisposition.match(/filename="(.+)"/);

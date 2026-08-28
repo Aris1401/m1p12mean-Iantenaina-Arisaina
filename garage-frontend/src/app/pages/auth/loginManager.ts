@@ -12,6 +12,7 @@ import { AppFloatingConfigurator } from '../../layout/component/app.floatingconf
 import { AuthentificationService } from '../../_services/auth/authentification.service';
 import { AuthStorageService } from '../../_services/storage/auth-storage.service';
 import { MessageModule } from 'primeng/message';
+import { environment } from '../../../environments/environment';
 
 @Component({
     selector: 'app-login',
@@ -106,7 +107,10 @@ export class LoginManager {
                 }
             },
             error: (error) => {
-                console.log(error);
+                if (!environment.production) {
+                    console.log(error);
+                }
+                
                 this.isInvalid = true
                 this.isLoading = false
             }

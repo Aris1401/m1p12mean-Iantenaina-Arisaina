@@ -7,6 +7,7 @@ import { FormsModule } from '@angular/forms';
 import { RendezVousService } from '../../../_services/rendez-vous/rendez-vous.service';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-liste-rdv',
@@ -84,7 +85,10 @@ export class ListeRdvComponent implements OnInit {
 
     this.interventionService.createIntervention(id).subscribe(
       (response) => {
-        console.log('Intervention créée avec succès');
+        if (!environment.production) {
+          console.log('Intervention créée avec succès');
+        }
+        
         const interventionId = response.data._id;
 
         this.router.navigate(['/new-fiche-intervention', interventionId]);

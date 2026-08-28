@@ -18,6 +18,7 @@ import { CarouselModule } from 'primeng/carousel';
 import { ChipModule } from 'primeng/chip';
 import { InputGroupModule } from 'primeng/inputgroup';
 import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
+import { environment } from '../../../../environments/environment';
 
 @Component({
     selector: 'app-utilisateur.vehicule',
@@ -340,12 +341,17 @@ export class UtilisateurVehiculeComponent implements OnInit {
     }
 
     onImageSelected(event: any) {
-        console.log(event);
+        if (!environment.production) {
+            console.log(event);
+        }
+
         for (let i = 0; i < event.files.length; i++) {
             this.uploadVehiculeData.images.push(event.files[i]);
         }
 
-        console.log(this.uploadVehiculeData.images);
+        if (!environment.production) {
+            console.log(this.uploadVehiculeData.images);
+        }
     }
 
     showAddVehiculeModal() {
