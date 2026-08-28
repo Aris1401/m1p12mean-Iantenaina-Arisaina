@@ -1,6 +1,9 @@
 {
+    "framework": "angular",
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist/sakai-ng/browser",
     "rewrites": [
-        { "source": "/(.*)", "destination": "/" }
+        { "source": "/(.*)", "destination": "/index.html" }
     ],
     "trailingSlash": false
 }
